@@ -19,7 +19,8 @@ let SYSTEM_SETTINGS = {
   waNumber: "94765450055",
   bankName: "Bank of Ceylon — Urubokka Branch",
   bankAccount: "91653327",
-  bankNameHolder: "P K Abesinghe"
+  bankNameHolder: "P K Abesinghe",
+  popularCourse: "advance"
 };
 
 /* ---------- Safe JSON parse — never throws ---------- */
