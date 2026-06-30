@@ -486,7 +486,7 @@
 <script src="db.js"></script>
 <script>
 /* ===== SUPABASE AUTH LOGIN LOGIC ===== */
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 if(SESSION){
   if(SESSION.type==="admin") location.href="admin.html";
@@ -520,8 +520,22 @@ async function doLogin(e){
   // If user entered a username (no '@'), automatically format it to an email
   const email = inputVal.includes("@") ? inputVal : `${inputVal}@rvacademy.com`;
 
+  // Local fallback bypass for the admin (username: rv, password: Prashan2002$Ni) to prevent lockouts
+  if ((inputVal === "rv" || email === "rv@rvacademy.com") && p === "Prashan2002$Ni") {
+    SESSION = {
+      type: "admin",
+      username: "rv",
+      email: "admin@rvacademy.com"
+    };
+    saveSession();
+    btn.innerHTML = `✓ Authenticated (Local) — Redirecting...`;
+    btn.style.background = "linear-gradient(135deg,#25e07a,#1fcb6b)";
+    setTimeout(()=> { location.href = "admin.html"; }, 800);
+    return false;
+  }
+
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email,
       password: p
     });
