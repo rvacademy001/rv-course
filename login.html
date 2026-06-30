@@ -482,13 +482,96 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="db.js"></script>
 <script>
-/* ===== MINIFIED LOGIN LOGIC ===== */
-if(SESSION){if(SESSION.type==="admin")location.href="admin.html";else if(SESSION.type==="student")location.href="student.html";}
-document.getElementById("togglePass").addEventListener("click",function(){const i=document.getElementById("loginPass");const s=i.type==="password";i.type=s?"text":"password";this.textContent=s?"🙈":"👁";});
-async function doLogin(e){e.preventDefault();const u=document.getElementById("loginUser").value.trim(),p=document.getElementById("loginPass").value,msgBox=document.getElementById("loginMsg"),btn=document.getElementById("loginBtn"),card=document.getElementById("loginCard");if(!u||!p){showError("Username සහ Password enter කරන්න");return false;}btn.disabled=true;btn.innerHTML=`<span class="dot-loader"><span></span><span></span><span></span></span>`;msgBox.innerHTML="";try{await loadDB();if(u===ADMIN_CREDENTIALS.username&&p===ADMIN_CREDENTIALS.password){SESSION={type:"admin",username:u};saveSession();btn.innerHTML="✓ Admin — Redirecting...";btn.style.background="linear-gradient(135deg,#25e07a,#1fcb6b)";setTimeout(()=>location.href="admin.html",600);return false;}const stu=DB.students[u];if(stu&&stu.password===p){SESSION={type:"student",username:u};saveSession();btn.innerHTML=`✓ ${stu.name||u} — Redirecting...`;btn.style.background="linear-gradient(135deg,#25e07a,#1fcb6b)";setTimeout(()=>location.href="student.html",600);return false;}showError("Username හෝ Password වැරදියි. Admin ගෙන් credentials ඉල්ලන්න.");card.classList.remove("shake");void card.offsetWidth;card.classList.add("shake");setTimeout(()=>card.classList.remove("shake"),500);}catch(err){showError("Connection error — නැවත try කරන්න. ("+err.message+")");}btn.disabled=false;if(!btn.style.background.includes("green"))btn.innerHTML="ලොගින් වෙන්න →";return false;}
-function showError(msg){document.getElementById("loginMsg").innerHTML=`<div class="msg-box msg-error"><span>⚠️</span><span>${msg}</span></div>`;}
+/* ===== SUPABASE AUTH LOGIN LOGIC ===== */
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+if(SESSION){
+  if(SESSION.type==="admin") location.href="admin.html";
+  else if(SESSION.type==="student") location.href="student.html";
+}
+
+document.getElementById("togglePass").addEventListener("click",function(){
+  const i=document.getElementById("loginPass");
+  const s=i.type==="password";
+  i.type=s?"text":"password";
+  this.textContent=s?"🙈":"👁";
+});
+
+async function doLogin(e){
+  e.preventDefault();
+  const inputVal=document.getElementById("loginUser").value.trim();
+  const p=document.getElementById("loginPass").value;
+  const msgBox=document.getElementById("loginMsg");
+  const btn=document.getElementById("loginBtn");
+  const card=document.getElementById("loginCard");
+
+  if(!inputVal||!p){
+    showError("Username/Email සහ Password enter කරන්න");
+    return false;
+  }
+
+  btn.disabled=true;
+  btn.innerHTML=`<span class="dot-loader"><span></span><span></span><span></span></span>`;
+  msgBox.innerHTML="";
+
+  // If user entered a username (no '@'), automatically format it to an email
+  const email = inputVal.includes("@") ? inputVal : `${inputVal}@rvacademy.com`;
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: p
+    });
+
+    if (error) {
+      showError(error.message || "ප්‍රවේශ වීම අසාර්ථකයි.");
+      btn.disabled=false;
+      btn.innerHTML="ලොගින් වෙන්න →";
+      
+      card.classList.remove("shake");
+      void card.offsetWidth;
+      card.classList.add("shake");
+      setTimeout(()=>card.classList.remove("shake"), 500);
+      return false;
+    }
+
+    // Role resolution: metadata role field or email check
+    const user = data.user;
+    const role = (user.user_metadata && user.user_metadata.role) || 
+                 (user.email.toLowerCase() === "admin@rvacademy.com" ? "admin" : "student");
+    const username = user.email.split("@")[0];
+
+    // Save session variables for student.html/admin.html compatibility
+    SESSION = {
+      type: role,
+      username: username,
+      email: user.email
+    };
+    saveSession();
+
+    btn.innerHTML = `✓ Authenticated — Redirecting...`;
+    btn.style.background = "linear-gradient(135deg,#25e07a,#1fcb6b)";
+    
+    setTimeout(()=> {
+      if (role === "admin") location.href = "admin.html";
+      else location.href = "student.html";
+    }, 800);
+
+  } catch(err) {
+    showError("Connection error — නැවත try කරන්න. ("+err.message+")");
+    btn.disabled=false;
+    btn.innerHTML="ලොගින් වෙන්න →";
+  }
+  return false;
+}
+
+function showError(msg){
+  document.getElementById("loginMsg").innerHTML=`<div class="msg-box msg-error"><span>⚠️</span><span>${msg}</span></div>`;
+}
+
 window.addEventListener("load",()=>document.getElementById("loginUser").focus());
 </script>
 </body>

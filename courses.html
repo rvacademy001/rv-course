@@ -79,12 +79,9 @@
         </div>
         <div class="compare-table-wrap" id="compareTable"></div>
 
-        <div class="signal-banner" style="margin-top:48px">
-          <div>
-            <h3>💳 Payment ක්‍රමය</h3>
-            <p>Bank of Ceylon — Urubokka Branch | Account: <span class="mono" style="color:var(--gold)">91653327</span> | Name: P K Abesinghe<br>Payment කරලා receipt WhatsApp හරහා <a href="https://wa.me/94765450055" style="color:var(--gold)" target="_blank">0765 450 055</a> ට send කරන්න.</p>
-          </div>
-          <a href="https://wa.me/94765450055" target="_blank" class="btn btn-gold" style="flex-shrink:0">WhatsApp කරන්න</a>
+        <!-- Payment info -->
+        <div class="signal-banner" style="margin-top:48px" id="paymentBanner">
+          <!-- Rendered by JS -->
         </div>
       </div>
     </section>
@@ -112,7 +109,7 @@
         </ul></div>
         <div class="footer-col"><h4>Contact</h4><ul>
           <li><a href="mailto:rvacademyxm@gmail.com">📧 rvacademyxm@gmail.com</a></li>
-          <li><a href="https://wa.me/94765450055" target="_blank">💬 WhatsApp</a></li>
+          <li><a href="https://wa.me/94765450055" id="footerWaLink" target="_blank">💬 WhatsApp</a></li>
         </ul></div>
       </div>
       <div class="footer-bottom">
@@ -134,11 +131,13 @@
 <script>
 /* ===== MINIFIED COURSES LOGIC ===== */
 let buyModalCourse=null;
-async function renderCourses(){await loadDB();const courses=Object.values(DB.courses);const grid=document.getElementById("coursesGrid");grid.innerHTML=courses.map((c,i)=>`<div class="card course-card-full ${i===1?"popular":""}" style="animation:fadeInUp .4s ${i*0.1}s cubic-bezier(.2,.8,.2,1) both">${i===1?`<div class="popular-badge">Most Popular</div>`:""}<div class="course-header"><div class="course-name">${esc(c.title)}</div><div class="course-price mono">Rs. ${esc(c.price)} <span>/ එකවර</span></div><div class="course-desc" style="margin-top:10px">${esc(c.desc)}</div></div><div class="course-body"><ul class="course-feats">${c.feats.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div><div class="course-footer"><button class="btn btn-gold btn-block btn-lg" onclick="openBuyModal('${c.key}')">මේක ගමු →</button></div></div>`).join("");renderCompareTable(courses);window.rebindReveal?.();}
+async function renderCourses(){await loadDB();const courses=Object.values(DB.courses);const grid=document.getElementById("coursesGrid");grid.innerHTML=courses.map((c,i)=>`<div class="card course-card-full ${i===1?"popular":""}" style="animation:fadeInUp .4s ${i*0.1}s cubic-bezier(.2,.8,.2,1) both">${i===1?`<div class="popular-badge">Most Popular</div>`:""}<div class="course-header"><div class="course-name">${esc(c.title)}</div><div class="course-price mono">Rs. ${esc(c.price)} <span>/ එකවර</span></div><div class="course-desc" style="margin-top:10px">${esc(c.desc)}</div></div><div class="course-body"><ul class="course-feats">${c.feats.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div><div class="course-footer"><button class="btn btn-gold btn-block btn-lg" onclick="openBuyModal('${c.key}')">මේක ගමු →</button></div></div>`).join("");renderCompareTable(courses);renderPaymentBanner();updateFooterWa();window.rebindReveal?.();}
 function renderCompareTable(courses){const allFeats=[...new Set(courses.flatMap(c=>c.feats))];document.getElementById("compareTable").innerHTML=`<table class="compare-table"><thead><tr><th>Feature</th>${courses.map(c=>`<th style="text-align:center">${esc(c.title)}<br><span style="color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700">Rs. ${esc(c.price)}</span></th>`).join("")}</tr></thead><tbody>${allFeats.map(f=>`<tr><td>${esc(f)}</td>${courses.map(c=>`<td class="tick">${c.feats.includes(f)?`<span style="color:var(--green);font-size:18px">✓</span>`:`<span style="color:var(--border2)">—</span>`}</td>`).join("")}</tr>`).join("")}</tbody></table>`;}
+function renderPaymentBanner(){const w=document.getElementById("paymentBanner");if(!w)return;const wa=SYSTEM_SETTINGS.waNumber;const formattedWa=wa.replace(/^94/,"0");const displayWa=formattedWa.length===10?formattedWa.substring(0,4)+" "+formattedWa.substring(4,7)+" "+formattedWa.substring(7):formattedWa;w.innerHTML=`<div><h3>💳 Payment ක්‍රමය</h3><p>${esc(SYSTEM_SETTINGS.bankName)} | Account: <span class="mono" style="color:var(--gold)">${esc(SYSTEM_SETTINGS.bankAccount)}</span> | Name: ${esc(SYSTEM_SETTINGS.bankNameHolder)}<br>Payment කරලා receipt WhatsApp හරහා <a href="https://wa.me/${wa}" style="color:var(--gold)" target="_blank">${esc(displayWa)}</a> ට send කරන්න.</p></div><a href="https://wa.me/${wa}" target="_blank" class="btn btn-gold" style="flex-shrink:0">WhatsApp කරන්න</a>`;}
+function updateFooterWa(){const el=document.getElementById("footerWaLink");if(el)el.href="https://wa.me/"+SYSTEM_SETTINGS.waNumber;}
 function openBuyModal(key){buyModalCourse=DB.courses[key];renderModal();}
 function closeModal(){buyModalCourse=null;document.getElementById("modalRoot").innerHTML="";}
-function renderModal(){const root=document.getElementById("modalRoot");if(!root||!buyModalCourse){if(root)root.innerHTML="";return;}const c=buyModalCourse;const msg=`ආයුබෝවන්! මම "${c.title}" Course (Rs. ${c.price}) සඳහා Bank of Ceylon ගිණුමට payment කළා. කරුණාකර confirm කරන්න.`;root.innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><button class="modal-close" onclick="closeModal()">✕</button><h3>${esc(c.title)}</h3><p class="sub">Rs. ${esc(c.price)} — Payment Bank Transfer හරහා</p><p style="color:var(--text2);font-size:13.5px;line-height:1.65">පහත bank account එකට amount transfer කරලා, "WhatsApp කරන්න" button ඔබා receipt send කරන්න. ඔබේ account 24h ඇතුළත activate වෙනවා.</p><div class="bank-box"><div class="lbl">Bank</div>Bank of Ceylon — Urubokka Branch<br><div class="lbl" style="margin-top:8px">Account Number</div><span class="mono" style="color:var(--gold);font-size:15px">91653327</span><br><div class="lbl" style="margin-top:8px">Account Name</div>P K Abesinghe<br><div class="lbl" style="margin-top:8px">Amount</div><span class="mono" style="color:var(--green)">Rs. ${esc(c.price)}</span></div><a href="https://wa.me/94765450055?text=${encodeURIComponent(msg)}" target="_blank" class="btn btn-green btn-block btn-lg" onclick="closeModal()">✅ Payment කළා — WhatsApp Receipt Send කරන්න</a></div></div>`;}
+function renderModal(){const root=document.getElementById("modalRoot");if(!root||!buyModalCourse){if(root)root.innerHTML="";return;}const c=buyModalCourse;const msg=`ආයුබෝවන්! මම "${c.title}" Course (Rs. ${c.price}) සඳහා Bank of Ceylon ගිණුමට payment කළා. කරුණාකර confirm කරන්න.`;root.innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><button class="modal-close" onclick="closeModal()">✕</button><h3>${esc(c.title)}</h3><p class="sub">Rs. ${esc(c.price)} — Payment Bank Transfer හරහා</p><p style="color:var(--text2);font-size:13.5px;line-height:1.65">පහත bank account එකට amount transfer කරලා, "WhatsApp කරන්න" button ඔබා receipt send කරන්න. ඔබේ account 24h ඇතුළත activate වෙනවා.</p><div class="bank-box"><div class="lbl">Bank</div>${esc(SYSTEM_SETTINGS.bankName)}<br><div class="lbl" style="margin-top:8px">Account Number</div><span class="mono" style="color:var(--gold);font-size:15px">${esc(SYSTEM_SETTINGS.bankAccount)}</span><br><div class="lbl" style="margin-top:8px">Account Name</div>${esc(SYSTEM_SETTINGS.bankNameHolder)}<br><div class="lbl" style="margin-top:8px">Amount</div><span class="mono" style="color:var(--green)">Rs. ${esc(c.price)}</span></div><a href="https://wa.me/${SYSTEM_SETTINGS.waNumber}?text=${encodeURIComponent(msg)}" target="_blank" class="btn btn-green btn-block btn-lg" onclick="closeModal()">✅ Payment කළා — WhatsApp Receipt Send කරන්න</a></div></div>`;}
 document.addEventListener("DOMContentLoaded",()=>{initNavbar();renderCourses();});
 </script>
 <script src="animations.js"></script>

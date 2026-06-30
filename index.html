@@ -100,7 +100,7 @@
           <p class="lead">RV ACADEMY සමඟ Forex සහ Crypto Trading හරියටම ඉගෙන ගන්න. Basic සිට Pro Trader කෙනෙක් වෙනකම් අපි ඔබ සමඟ ඉන්නවා.</p>
           <div class="hero-actions">
             <a href="courses.html" class="btn btn-gold btn-lg">කෝස් බලන්න →</a>
-            <a href="https://wa.me/94765450055" target="_blank" class="btn btn-ghost btn-lg">💬 WhatsApp කරන්න</a>
+            <a href="https://wa.me/94765450055" id="heroWaLink" target="_blank" class="btn btn-ghost btn-lg">💬 WhatsApp කරන්න</a>
           </div>
           <div class="ticker" id="tickerSvg"></div>
           <div class="stat-row stagger" style="margin-top:20px">
@@ -228,7 +228,7 @@
         <p style="color:var(--text2);max-width:480px;margin:0 auto 28px;font-size:15px;line-height:1.7">අද ලොගින් කරන්න, නැතිනම් course ගන්න — ඕනෑ දෙයකටත් WhatsApp හරහා connect වෙන්න.</p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
           <a href="courses.html" class="btn btn-gold btn-lg">Course ගන්න</a>
-          <a href="https://wa.me/94765450055" target="_blank" class="btn btn-ghost btn-lg">WhatsApp</a>
+          <a href="https://wa.me/94765450055" id="ctaWaLink" target="_blank" class="btn btn-ghost btn-lg">WhatsApp</a>
         </div>
       </div>
     </section>
@@ -256,7 +256,7 @@
       </ul></div>
       <div class="footer-col"><h4>Contact</h4><ul>
         <li><a href="mailto:rvacademyxm@gmail.com">📧 rvacademyxm@gmail.com</a></li>
-        <li><a href="https://wa.me/94765450055" target="_blank">💬 WhatsApp</a></li>
+        <li><a href="https://wa.me/94765450055" id="footerWaLink" target="_blank">💬 WhatsApp</a></li>
       </ul></div>
     </div>
     <div class="footer-bottom">
@@ -299,25 +299,9 @@ function renderTicker(){
   </svg>`;
 }
 
-async function renderHomeCourses(){
-  await loadDB();
-  const grid = document.getElementById('homeCoursesGrid');
-  if(!grid) return;
-  const courses = Object.values(DB.courses);
-  grid.innerHTML = courses.map(c => `
-    <div class="card course-card">
-      <div class="course-name">${esc(c.title)}</div>
-      <div class="course-price mono">Rs. ${esc(c.price)} <span>/ එකවර</span></div>
-      <div class="course-desc">${esc(c.desc)}</div>
-      <a href="courses.html" class="btn btn-ghost btn-block">විස්තර බලන්න →</a>
-    </div>`).join('');
-}
-
-document.addEventListener('DOMContentLoaded', ()=>{
-  initNavbar();
-  renderTicker();
-  renderHomeCourses();
-});
+async function renderHomeCourses(){await loadDB();updateWaLinks();const grid=document.getElementById("homeCoursesGrid");if(!grid)return;const courses=Object.values(DB.courses).filter(c=>c.key!=="settings");grid.innerHTML=courses.map(c=>`<div class="card course-card"><div class="course-name">${esc(c.title)}</div><div class="course-price mono">Rs. ${esc(c.price)} <span>/ එකවර</span></div><div class="course-desc">${esc(c.desc)}</div><a href="courses.html" class="btn btn-ghost btn-block">විස්තර බලන්න →</a></div>`).join("");}
+function updateWaLinks(){const wa=SYSTEM_SETTINGS.waNumber;const h=document.getElementById("heroWaLink");if(h)h.href="https://wa.me/"+wa;const c=document.getElementById("ctaWaLink");if(c)c.href="https://wa.me/"+wa;const f=document.getElementById("footerWaLink");if(f)f.href="https://wa.me/"+wa;}
+document.addEventListener('DOMContentLoaded', ()=>{initNavbar();renderTicker();renderHomeCourses();});
 </script>
 <script src="animations.js"></script>
 </body>

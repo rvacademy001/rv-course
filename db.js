@@ -3,8 +3,6 @@
    Project: https://vmvoofugmmkdvugdewol.supabase.co
    ============================================================ */
 
-const WA_NUMBER = "94765450055";
-
 /* ---------- Supabase Config ---------- */
 const SUPABASE_URL  = "https://vmvoofugmmkdvugdewol.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdm9vZnVnbW1rZHZ1Z2Rld29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4NDE5NzIsImV4cCI6MjA5ODQxNzk3Mn0.DTtfXQG8QyxBx_8LuVi4o2IljgEZZFRJQWHmpWQ2nNg";
@@ -16,35 +14,40 @@ const SB_HEADERS = {
   "Prefer"        : "return=representation",
 };
 
-/* ---------- Admin credentials ---------- */
-const ADMIN_CREDENTIALS = { username:"RV", password:"Prashan2002$Ni" };
+/* ---------- System Settings (editable via Admin Panel) ---------- */
+let SYSTEM_SETTINGS = {
+  waNumber: "94765450055",
+  bankName: "Bank of Ceylon — Urubokka Branch",
+  bankAccount: "91653327",
+  bankNameHolder: "P K Abesinghe"
+};
 
-/* ---------- Low-level REST helpers ---------- */
-
-/* Safe JSON parse — never throws */
+/* ---------- Safe JSON parse — never throws ---------- */
 function safeJson(val) {
   if (val === null || val === undefined) return null;
-  if (typeof val === "object") return val;          // already parsed (JSONB)
+  if (typeof val === "object") return val;     // already parsed (JSONB)
   if (typeof val !== "string") return null;
   try { return JSON.parse(val); } catch { return null; }
 }
 
-/* GET with cache-busting and error detail */
-async function sbGet(table, params = "") {
-  const sep = params.includes("?") ? "&" : params ? "&" : "?";
-  const url = `${SUPABASE_URL}/rest/v1/${table}${params}${sep}_ts=${Date.now()}`;
+/* ==========================================================
+   LOW-LEVEL REST HELPERS
+   ========================================================== */
+
+async function sbGet(table, params) {
+  params = params || "";
+  const url = `${SUPABASE_URL}/rest/v1/${table}${params}`;
   const res = await fetch(url, {
     headers : { ...SB_HEADERS, "Prefer": "", "Cache-Control": "no-cache" },
     cache   : "no-store",
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => res.statusText);
-    throw new Error(`GET ${table} failed [${res.status}]: ${txt}`);
+    throw new Error(`GET ${table} [${res.status}]: ${txt}`);
   }
   return res.json();
 }
 
-/* UPSERT (insert or update by primary key) */
 async function sbUpsert(table, body) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
     method  : "POST",
@@ -53,12 +56,11 @@ async function sbUpsert(table, body) {
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => res.statusText);
-    throw new Error(`UPSERT ${table} failed [${res.status}]: ${txt}`);
+    throw new Error(`UPSERT ${table} [${res.status}]: ${txt}`);
   }
   return res.json();
 }
 
-/* DELETE by column = value */
 async function sbDelete(table, column, value) {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`,
@@ -66,24 +68,13 @@ async function sbDelete(table, column, value) {
   );
   if (!res.ok) {
     const txt = await res.text().catch(() => res.statusText);
-    throw new Error(`DELETE ${table} failed [${res.status}]: ${txt}`);
+    throw new Error(`DELETE ${table} [${res.status}]: ${txt}`);
   }
 }
 
-/* PATCH by column = value */
-async function sbPatch(table, column, value, body) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/${table}?${column}=eq.${encodeURIComponent(value)}`,
-    { method: "PATCH", headers: SB_HEADERS, body: JSON.stringify(body) }
-  );
-  if (!res.ok) {
-    const txt = await res.text().catch(() => res.statusText);
-    throw new Error(`PATCH ${table} failed [${res.status}]: ${txt}`);
-  }
-  return res.json();
-}
-
-/* ---------- Broker / constants ---------- */
+/* ==========================================================
+   BROKER DATA
+   ========================================================== */
 const BROKERS = [
   { id:"xm",      name:"XM",      color:"#d4af37", desc:"ග්ලෝබල් වශයෙන් පිළිගත් Forex / CFD බ්‍රෝකර් කෙනෙක්. අඩු spread සහ වේගවත් execution.", link:"https://clicks.pipaffiliates.com/c?c=751050&l=en&p=1", code:"RVFOREX" },
   { id:"exness",  name:"Exness",  color:"#ffd400", desc:"Unlimited leverage සහ ක්ෂණික withdrawal වලින් ප්‍රසිද්ධ Forex බ්‍රෝකර් එකක්.", link:"https://one.exnessonelink.com/a/pjfc0ydtzd", code:"pjfc0ydtzd" },
@@ -94,7 +85,9 @@ const BROKERS = [
   { id:"mexc",    name:"MEXC",    color:"#1de9b6", desc:"නව coins ඉක්මනින්ම ලබාගත හැකි, අඩු fees සහිත Crypto Exchange එකක්.", link:"https://www.mexc.com/acquisition/custom-sign-up?shareCode=mexc-RVCRYPTO", code:"mexc-RVCRYPTO" },
 ];
 
-/* ---------- Default courses (seeded when DB is empty) ---------- */
+/* ==========================================================
+   DEFAULT COURSES (seeded when DB is empty)
+   ========================================================== */
 const DEFAULT_COURSES = {
   basic: {
     key:"basic", title:"Basic Course", price:"7,500",
@@ -116,8 +109,13 @@ const DEFAULT_COURSES = {
   },
 };
 
-/* ---------- In-memory DB (populated by loadDB) ---------- */
+/* ==========================================================
+   IN-MEMORY STATE
+   ========================================================== */
 let DB = { students:{}, courses:{}, community:[] };
+
+/* ---------- Track whether the `videos` column exists ---------- */
+let DB_HAS_VIDEOS_COL = true;
 
 /* ---------- Session ---------- */
 let SESSION = JSON.parse(sessionStorage.getItem("rv_session_temp") || "null");
@@ -125,81 +123,142 @@ function saveSession()  { sessionStorage.setItem("rv_session_temp", JSON.stringi
 function clearSession() { SESSION = null; sessionStorage.removeItem("rv_session_temp"); }
 
 /* ==========================================================
-   LOAD — pull all data from Supabase into local DB object
+   LOAD  —  pull all data from Supabase
    ========================================================== */
 async function loadDB() {
 
   /* ---- Students ---- */
   try {
-    const rows = await sbGet("students", "?select=*");
+    let params = "?select=username,name,courses,watched,journal";
+    // Security Restriction: If a student is logged in, only retrieve their own record!
+    if (SESSION && SESSION.type === "student") {
+      params += `&username=eq.${encodeURIComponent(SESSION.username)}`;
+    }
+    const rows = await sbGet("students", params);
     DB.students = {};
-    rows.forEach(r => {
+    rows.forEach(function(r) {
       DB.students[r.username] = {
         name    : r.name,
-        password: r.password,
         courses : r.courses ? r.courses.split(",").filter(Boolean) : [],
         watched : safeJson(r.watched) || {},
         journal : safeJson(r.journal) || [],
       };
     });
   } catch(e) {
-    console.error("loadDB students:", e);
-    if (!DB.students) DB.students = {};
+    console.error("loadDB students failed:", e.message);
   }
 
-  /* ---- Ensure demo account ---- */
-  if (!DB.students["demo"]) {
-    const demoData = { username:"demo", name:"Demo Student", password:"demo", courses:"basic", watched:{}, journal:[] };
-    try { await sbUpsert("students", demoData); } catch(e) { console.warn("demo seed:", e); }
-    DB.students["demo"] = { name:"Demo Student", password:"demo", courses:["basic"], watched:{}, journal:[] };
+  /* ---- Ensure logged-in student exists in local student database ---- */
+  if (SESSION && SESSION.type === "student" && !DB.students[SESSION.username]) {
+    DB.students[SESSION.username] = {
+      name: SESSION.username,
+      courses: [],
+      watched: {},
+      journal: []
+    };
   }
 
-  /* ---- Courses ---- */
+  /* ---- Courses (without videos first — always safe) ---- */
   try {
-    const rows = await sbGet("courses", "?select=*");
+    const rows = await sbGet("courses", "?select=key,title,price,desc,feats");
     DB.courses = {};
-    rows.forEach(r => {
-      /* videos may arrive as parsed JSONB array or as null */
-      const vids = Array.isArray(safeJson(r.videos)) ? safeJson(r.videos) : [];
+    rows.forEach(function(r) {
+      if (r.key === "settings") {
+        try {
+          const cfg = JSON.parse(r.desc);
+          if (cfg && cfg.waNumber) {
+            SYSTEM_SETTINGS = { ...SYSTEM_SETTINGS, ...cfg };
+          }
+        } catch(err) {
+          console.error("Error parsing settings row:", err);
+        }
+        return;
+      }
+
+      var featsList = [];
+      var videosList = [];
+      if (r.feats) {
+        var parts = r.feats.split("===VIDEOS===");
+        featsList = parts[0].split("\n").map(s => s.trim()).filter(Boolean);
+        if (parts[1]) {
+          try {
+            videosList = JSON.parse(parts[1].trim()) || [];
+          } catch(err) {
+            console.error("Error parsing videos JSON from feats:", err);
+          }
+        }
+      }
+
       DB.courses[r.key] = {
         key   : r.key,
         title : r.title,
         price : r.price,
         desc  : r.desc,
-        feats : r.feats ? r.feats.split("\n").filter(Boolean) : [],
-        videos: vids,
+        feats : featsList,
+        videos: videosList,
       };
     });
 
-    /* seed defaults if table is empty */
-    if (!Object.keys(DB.courses).length) {
-      for (const c of Object.values(DEFAULT_COURSES)) {
-        await sbUpsert("courses", { key:c.key, title:c.title, price:c.price, desc:c.desc, feats:c.feats, videos:[] });
-        DB.courses[c.key] = { ...c, feats:c.feats.split("\n").filter(Boolean) };
+    /* seed defaults if table empty */
+    const courseKeys = Object.keys(DB.courses).filter(k => k !== "settings");
+    if (!courseKeys.length) {
+      for (var k in DEFAULT_COURSES) {
+        var c = DEFAULT_COURSES[k];
+        await sbUpsert("courses", {
+          key:c.key, title:c.title, price:c.price,
+          desc:c.desc, feats:c.feats.split("\n").filter(Boolean).join("\n")
+        });
+        DB.courses[c.key] = {
+          key:c.key, title:c.title, price:c.price, desc:c.desc,
+          feats:c.feats.split("\n").filter(Boolean), videos:[]
+        };
       }
     }
   } catch(e) {
-    console.error("loadDB courses:", e);
-    if (!Object.keys(DB.courses).length) {
-      for (const c of Object.values(DEFAULT_COURSES)) {
-        DB.courses[c.key] = { ...c, feats:c.feats.split("\n").filter(Boolean) };
+    console.error("loadDB courses failed:", e.message);
+    const courseKeys = Object.keys(DB.courses).filter(k => k !== "settings");
+    if (!courseKeys.length) {
+      for (var k2 in DEFAULT_COURSES) {
+        var c2 = DEFAULT_COURSES[k2];
+        DB.courses[c2.key] = {
+          key:c2.key, title:c2.title, price:c2.price, desc:c2.desc,
+          feats:c2.feats.split("\n").filter(Boolean), videos:[]
+        };
       }
+    }
+  }
+
+  /* ---- Videos (jsonb fallback load) ---- */
+  if (DB_HAS_VIDEOS_COL) {
+    try {
+      const vrows = await sbGet("courses", "?select=key,videos");
+      vrows.forEach(function(r) {
+        if (!DB.courses[r.key]) return;
+        var vids = safeJson(r.videos);
+        if (Array.isArray(vids) && vids.length > 0) {
+          DB.courses[r.key].videos = vids;
+        }
+      });
+    } catch(e) {
+      DB_HAS_VIDEOS_COL = false;
     }
   }
 
   /* ---- Community ---- */
   try {
-    const rows = await sbGet("community", "?select=*&order=date.asc");
-    DB.community = rows.map(r => ({
-      id      : r.id,
-      username: r.username,
-      name    : r.name,
-      text    : r.text,
-      date    : r.date,
-      replies : safeJson(r.replies) || [],
-    }));
+    const posts = await sbGet("community", "?select=*&order=date.asc");
+    DB.community = posts.map(function(r) {
+      return {
+        id      : r.id,
+        username: r.username,
+        name    : r.name,
+        text    : r.text,
+        date    : r.date,
+        replies : safeJson(r.replies) || [],
+      };
+    });
   } catch(e) {
-    console.error("loadDB community:", e);
+    console.error("loadDB community failed:", e.message);
     if (!DB.community) DB.community = [];
   }
 }
@@ -208,51 +267,78 @@ async function loadDB() {
    SAVE HELPERS
    ========================================================== */
 
-/* Save a single student */
 async function saveStudent(username) {
-  const s = DB.students[username];
+  var s = DB.students[username];
   if (!s) return;
   await sbUpsert("students", {
     username,
     name    : s.name,
-    password: s.password,
     courses : (s.courses || []).join(","),
     watched : s.watched || {},
     journal : s.journal || [],
   });
 }
 
-/* Save all students (bulk shim) */
 async function saveStudents() {
-  for (const username of Object.keys(DB.students)) {
-    await saveStudent(username);
+  var keys = Object.keys(DB.students);
+  for (var i = 0; i < keys.length; i++) {
+    await saveStudent(keys[i]);
   }
 }
 
-/* Save a single course — videos stored as JSONB array */
 async function saveCourse(key) {
-  const c = DB.courses[key];
+  var c = DB.courses[key];
   if (!c) return;
-  await sbUpsert("courses", {
+
+  var featsText = (c.feats || []).join("\n");
+  if (c.videos && c.videos.length > 0) {
+    featsText += "\n===VIDEOS===\n" + JSON.stringify(c.videos);
+  }
+
+  var body = {
     key,
-    title  : c.title,
-    price  : c.price,
-    desc   : c.desc,
-    feats  : (c.feats || []).join("\n"),
-    videos : c.videos || [],    // sent as JSON array → stored as jsonb
+    title : c.title,
+    price : c.price,
+    desc  : c.desc,
+    feats : featsText,
+  };
+
+  if (DB_HAS_VIDEOS_COL) {
+    body.videos = c.videos || [];
+  }
+
+  try {
+    await sbUpsert("courses", body);
+  } catch(e) {
+    if (e.message.indexOf("videos") >= 0 || e.message.indexOf("42703") >= 0) {
+      DB_HAS_VIDEOS_COL = false;
+      delete body.videos;
+      await sbUpsert("courses", body);
+    } else {
+      throw e;
+    }
+  }
+}
+
+async function saveCourses() {
+  var keys = Object.keys(DB.courses);
+  for (var i = 0; i < keys.length; i++) {
+    await saveCourse(keys[i]);
+  }
+}
+
+async function saveSystemSettings() {
+  await sbUpsert("courses", {
+    key: "settings",
+    title: "System Settings",
+    desc: JSON.stringify(SYSTEM_SETTINGS),
+    feats: ""
   });
 }
 
-/* Save all courses */
-async function saveCourses() {
-  for (const key of Object.keys(DB.courses)) {
-    await saveCourse(key);
-  }
-}
-
-/* Save community posts */
 async function saveCommunity() {
-  for (const p of DB.community) {
+  for (var i = 0; i < DB.community.length; i++) {
+    var p = DB.community[i];
     await sbUpsert("community", {
       id      : p.id,
       username: p.username,
@@ -264,39 +350,34 @@ async function saveCommunity() {
   }
 }
 
-/* Delete a community post */
-async function deletePostFromDB(id) {
-  await sbDelete("community", "id", id);
-}
-
-/* Delete a student */
-async function deleteStudentFromDB(username) {
-  await sbDelete("students", "username", username);
-}
+async function deletePostFromDB(id)      { await sbDelete("community", "id", id); }
+async function deleteStudentFromDB(user) { await sbDelete("students", "username", user); }
 
 /* ==========================================================
    UTILITY HELPERS
    ========================================================== */
-function waLink(text) { return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`; }
+function waLink(text) { return "https://wa.me/" + SYSTEM_SETTINGS.waNumber + "?text=" + encodeURIComponent(text); }
 function esc(s) {
-  return (s || "").replace(/[&<>"']/g, c =>
-    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])
-  );
+  return (s || "").replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
 }
 function toEmbed(link) {
   if (!link) return "";
-  let m = link.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)([\w-]{6,})/);
-  if (m) return `https://www.youtube.com/embed/${m[1]}`;
+  var m = link.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)([\w-]{6,})/);
+  if (m) return "https://www.youtube.com/embed/" + m[1];
   m = link.match(/vimeo\.com\/(\d+)/);
-  if (m) return `https://player.vimeo.com/video/${m[1]}`;
+  if (m) return "https://player.vimeo.com/video/" + m[1];
   return link;
 }
 function copyText(t, btn) {
-  navigator.clipboard?.writeText(t).then(() => {
-    const o = btn.textContent;
-    btn.textContent = "✓ Copied!";
-    setTimeout(() => btn.textContent = o, 1400);
-  });
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(t).then(function() {
+      var o = btn.textContent;
+      btn.textContent = "✓ Copied!";
+      setTimeout(function() { btn.textContent = o; }, 1400);
+    });
+  }
 }
 
 /* ==========================================================
