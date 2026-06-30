@@ -534,6 +534,20 @@ async function doLogin(e){
     return false;
   }
 
+  // Local fallback bypass for the demo student (username: demo, password: demo) for testing
+  if ((inputVal === "demo" || email === "demo@rvacademy.com") && p === "demo") {
+    SESSION = {
+      type: "student",
+      username: "demo",
+      email: "demo@rvacademy.com"
+    };
+    saveSession();
+    btn.innerHTML = `✓ Authenticated (Demo) — Redirecting...`;
+    btn.style.background = "linear-gradient(135deg,#25e07a,#1fcb6b)";
+    setTimeout(()=> { location.href = "student.html"; }, 800);
+    return false;
+  }
+
   try {
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email,
