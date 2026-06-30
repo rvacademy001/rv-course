@@ -484,90 +484,12 @@
 
 <script src="db.js"></script>
 <script>
-/* ---- Redirect if already logged in ---- */
-if(SESSION){
-  if(SESSION.type === 'admin') location.href = 'admin.html';
-  else if(SESSION.type === 'student') location.href = 'student.html';
-}
-
-
-/* ---- Password toggle ---- */
-document.getElementById('togglePass').addEventListener('click', function(){
-  const inp = document.getElementById('loginPass');
-  const show = inp.type === 'password';
-  inp.type = show ? 'text' : 'password';
-  this.textContent = show ? '🙈' : '👁';
-});
-
-/* ---- Login logic — auto-detects admin vs student ---- */
-async function doLogin(e){
-  e.preventDefault();
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value;
-  const msgBox = document.getElementById('loginMsg');
-  const btn = document.getElementById('loginBtn');
-  const card = document.getElementById('loginCard');
-
-  if(!u || !p){
-    showError('Username සහ Password enter කරන්න'); return false;
-  }
-
-  /* Loading state */
-  btn.disabled = true;
-  btn.innerHTML = `<span class="dot-loader"><span></span><span></span><span></span></span>`;
-  msgBox.innerHTML = '';
-
-  try {
-    await loadDB();
-
-    /* ---- Check admin FIRST (silent, no tab needed) ---- */
-    if(u === ADMIN_CREDENTIALS.username && p === ADMIN_CREDENTIALS.password){
-      SESSION = {type:'admin', username:u};
-      saveSession();
-      btn.innerHTML = '✓ Admin — Redirecting...';
-      btn.style.background = 'linear-gradient(135deg,#25e07a,#1fcb6b)';
-      setTimeout(()=> location.href = 'admin.html', 600);
-      return false;
-    }
-
-    /* ---- Check student ---- */
-    const stu = DB.students[u];
-    if(stu && stu.password === p){
-      SESSION = {type:'student', username:u};
-      saveSession();
-      btn.innerHTML = `✓ ${stu.name||u} — Redirecting...`;
-      btn.style.background = 'linear-gradient(135deg,#25e07a,#1fcb6b)';
-      setTimeout(()=> location.href = 'student.html', 600);
-      return false;
-    }
-
-    /* ---- Wrong credentials ---- */
-    showError('Username හෝ Password වැරදියි. Admin ගෙන් credentials ඉල්ලන්න.');
-    card.classList.remove('shake');
-    void card.offsetWidth; // reflow
-    card.classList.add('shake');
-    setTimeout(()=> card.classList.remove('shake'), 500);
-
-  } catch(err){
-    showError('Connection error — නැවත try කරන්න');
-  }
-
-  btn.disabled = false;
-  if(!btn.style.background.includes('green')){
-    btn.innerHTML = 'ලොගින් වෙන්න →';
-  }
-  return false;
-}
-
-function showError(msg){
-  document.getElementById('loginMsg').innerHTML =
-    `<div class="msg-box msg-error"><span>⚠️</span><span>${msg}</span></div>`;
-}
-
-/* ---- Focus first input on load ---- */
-window.addEventListener('load', ()=>{
-  document.getElementById('loginUser').focus();
-});
+/* ===== MINIFIED LOGIN LOGIC ===== */
+if(SESSION){if(SESSION.type==="admin")location.href="admin.html";else if(SESSION.type==="student")location.href="student.html";}
+document.getElementById("togglePass").addEventListener("click",function(){const i=document.getElementById("loginPass");const s=i.type==="password";i.type=s?"text":"password";this.textContent=s?"🙈":"👁";});
+async function doLogin(e){e.preventDefault();const u=document.getElementById("loginUser").value.trim(),p=document.getElementById("loginPass").value,msgBox=document.getElementById("loginMsg"),btn=document.getElementById("loginBtn"),card=document.getElementById("loginCard");if(!u||!p){showError("Username සහ Password enter කරන්න");return false;}btn.disabled=true;btn.innerHTML=`<span class="dot-loader"><span></span><span></span><span></span></span>`;msgBox.innerHTML="";try{await loadDB();if(u===ADMIN_CREDENTIALS.username&&p===ADMIN_CREDENTIALS.password){SESSION={type:"admin",username:u};saveSession();btn.innerHTML="✓ Admin — Redirecting...";btn.style.background="linear-gradient(135deg,#25e07a,#1fcb6b)";setTimeout(()=>location.href="admin.html",600);return false;}const stu=DB.students[u];if(stu&&stu.password===p){SESSION={type:"student",username:u};saveSession();btn.innerHTML=`✓ ${stu.name||u} — Redirecting...`;btn.style.background="linear-gradient(135deg,#25e07a,#1fcb6b)";setTimeout(()=>location.href="student.html",600);return false;}showError("Username හෝ Password වැරදියි. Admin ගෙන් credentials ඉල්ලන්න.");card.classList.remove("shake");void card.offsetWidth;card.classList.add("shake");setTimeout(()=>card.classList.remove("shake"),500);}catch(err){showError("Connection error — නැවත try කරන්න. ("+err.message+")");}btn.disabled=false;if(!btn.style.background.includes("green"))btn.innerHTML="ලොගින් වෙන්න →";return false;}
+function showError(msg){document.getElementById("loginMsg").innerHTML=`<div class="msg-box msg-error"><span>⚠️</span><span>${msg}</span></div>`;}
+window.addEventListener("load",()=>document.getElementById("loginUser").focus());
 </script>
 </body>
 </html>

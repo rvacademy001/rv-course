@@ -9,45 +9,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
-    .course-hero {
-      padding: 60px 0 32px; border-bottom: 1px solid var(--border);
-      background: var(--bg2);
-    }
-    .courses-grid {
-      display: grid; grid-template-columns: repeat(3,1fr); gap: 24px;
-      align-items: start;
-    }
-    @media(max-width:900px){ .courses-grid { grid-template-columns: 1fr; max-width:520px; margin:0 auto; } }
-
-    .course-card-full {
-      display: flex; flex-direction: column; gap: 0;
-      position: relative; overflow: visible;
-    }
-    .course-card-full.popular {
-      border-color: rgba(212,175,55,0.45);
-      box-shadow: 0 0 0 1px rgba(212,175,55,0.1), 0 12px 40px rgba(212,175,55,0.1);
-      transform: scale(1.02);
-    }
-    @media(max-width:900px){ .course-card-full.popular { transform: none; } }
-
-    .course-header { padding: 28px 28px 20px; border-bottom: 1px solid var(--border); }
-    .course-body { padding: 20px 28px 28px; flex: 1; display: flex; flex-direction: column; gap: 20px; }
-    .course-footer { padding: 0 28px 28px; }
-
-    .compare-table-wrap { overflow-x: auto; margin-top: 60px; border-radius: var(--radius-lg); border: 1px solid var(--border); }
-    .compare-table { min-width: 560px; }
-    .compare-table th:first-child,
-    .compare-table td:first-child { background: var(--surface2); font-weight: 600; width: 40%; }
-    .compare-table td.tick { text-align: center; font-size: 16px; }
-
-    /* Modal */
-    #modalRoot {}
+    .course-hero{padding:60px 0 32px;border-bottom:1px solid var(--border);background:var(--bg2)}
+    .courses-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start}
+    @media(max-width:900px){.courses-grid{grid-template-columns:1fr;max-width:520px;margin:0 auto}}
+    .course-card-full{display:flex;flex-direction:column;gap:0;position:relative;overflow:visible;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+    .course-card-full:hover{transform:translateY(-6px);box-shadow:0 16px 48px rgba(0,0,0,.4)}
+    .course-card-full.popular{border-color:rgba(212,175,55,.45);box-shadow:0 0 0 1px rgba(212,175,55,.1),0 12px 40px rgba(212,175,55,.1);transform:scale(1.02)}
+    .course-card-full.popular:hover{transform:scale(1.02) translateY(-6px)}
+    @media(max-width:900px){.course-card-full.popular{transform:none}.course-card-full.popular:hover{transform:translateY(-4px)}}
+    .course-header{padding:28px 28px 20px;border-bottom:1px solid var(--border)}
+    .course-body{padding:20px 28px 28px;flex:1;display:flex;flex-direction:column;gap:20px}
+    .course-footer{padding:0 28px 28px}
+    .compare-table-wrap{overflow-x:auto;margin-top:60px;border-radius:var(--radius-lg);border:1px solid var(--border)}
+    .compare-table{min-width:560px}
+    .compare-table th:first-child,.compare-table td:first-child{background:var(--surface2);font-weight:600;width:40%}
+    .compare-table td.tick{text-align:center;font-size:16px}
+    /* Skeleton loader */
+    .skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--radius-sm)}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
   </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- ===== NAVBAR ===== -->
+  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="nav-inner">
       <a href="index.html" class="brand">
@@ -81,19 +66,19 @@
 
     <section class="section">
       <div class="container">
-        <div class="courses-grid stagger" id="coursesGrid">
-          <!-- Rendered by JS -->
-          <div class="card" style="min-height:400px;display:flex;align-items:center;justify-content:center"><div class="spinner"></div></div>
+        <!-- Skeleton loader shown while JS loads courses -->
+        <div class="courses-grid" id="coursesGrid">
+          <div class="card skeleton" style="min-height:400px"></div>
+          <div class="card skeleton" style="min-height:400px;animation-delay:.1s"></div>
+          <div class="card skeleton" style="min-height:400px;animation-delay:.2s"></div>
         </div>
 
-        <!-- Comparison Table -->
         <div style="text-align:center;margin-top:60px;margin-bottom:20px">
           <div class="eyebrow" style="justify-content:center">Comparison</div>
           <h2 style="font-size:clamp(22px,3vw,30px);margin-top:12px">Course Comparison</h2>
         </div>
         <div class="compare-table-wrap" id="compareTable"></div>
 
-        <!-- Payment info -->
         <div class="signal-banner" style="margin-top:48px">
           <div>
             <h3>💳 Payment ක්‍රමය</h3>
@@ -106,129 +91,55 @@
   </main>
 
   <footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="mark">RV</div>
-        <div class="name">RV <span class="rv">ACADEMY</span></div>
-        <p>ශ්රී ලංකාවේ #1 Trading Education Platform. Forex සහ Crypto Trading ඉගෙන ගන්න.</p>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="mark">RV</div>
+          <div class="name">RV <span class="rv">ACADEMY</span></div>
+          <p>ශ්‍රී ලංකාවේ #1 Trading Education Platform. Forex සහ Crypto Trading ඉගෙන ගන්න.</p>
+        </div>
+        <div class="footer-col"><h4>Pages</h4><ul>
+          <li><a href="index.html">මුල් පිටුව</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="affiliates.html">Affiliates</a></li>
+          <li><a href="about.html">About Us</a></li>
+        </ul></div>
+        <div class="footer-col"><h4>Support</h4><ul>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="legal.html">Legal Info</a></li>
+          <li><a href="login.html">Login</a></li>
+        </ul></div>
+        <div class="footer-col"><h4>Contact</h4><ul>
+          <li><a href="mailto:rvacademyxm@gmail.com">📧 rvacademyxm@gmail.com</a></li>
+          <li><a href="https://wa.me/94765450055" target="_blank">💬 WhatsApp</a></li>
+        </ul></div>
       </div>
-      <div class="footer-col"><h4>Pages</h4><ul>
-        <li><a href="index.html">මුල් පිටුව</a></li>
-        <li><a href="courses.html">Courses</a></li>
-        <li><a href="affiliates.html">Affiliates</a></li>
-        <li><a href="about.html">About Us</a></li>
-      </ul></div>
-      <div class="footer-col"><h4>Support</h4><ul>
-        <li><a href="faq.html">FAQ</a></li>
-        <li><a href="contact.html">Contact Us</a></li>
-        <li><a href="legal.html">Legal Info</a></li>
-        <li><a href="login.html">Login</a></li>
-      </ul></div>
-      <div class="footer-col"><h4>Contact</h4><ul>
-        <li><a href="mailto:rvacademyxm@gmail.com">📧 rvacademyxm@gmail.com</a></li>
-        <li><a href="https://wa.me/94765450055" target="_blank">💬 WhatsApp</a></li>
-      </ul></div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 RV ACADEMY — Trading Education Sri Lanka</span>
-      <div class="footer-bottom-links">
-        <a href="about.html">About</a>
-        <a href="legal.html">Legal</a>
-        <a href="contact.html">Contact</a>
+      <div class="footer-bottom">
+        <span>© 2026 RV ACADEMY — Trading Education Sri Lanka</span>
+        <div class="footer-bottom-links">
+          <a href="about.html">About</a>
+          <a href="legal.html">Legal</a>
+          <a href="contact.html">Contact</a>
+        </div>
       </div>
     </div>
-  </div>
-</footer>
+  </footer>
 </div>
 
-<!-- Buy Modal -->
 <div id="modalRoot"></div>
 
 <script src="db.js"></script>
 <script src="navbar.js"></script>
 <script>
-let buyModalCourse = null;
-
-async function renderCourses(){
-  await loadDB();
-  const courses = Object.values(DB.courses);
-  const grid = document.getElementById('coursesGrid');
-  grid.innerHTML = courses.map((c,i) => `
-    <div class="card course-card-full ${i===1?'popular':''}">
-      ${i===1 ? '<div class="popular-badge">Most Popular</div>' : ''}
-      <div class="course-header">
-        <div class="course-name">${esc(c.title)}</div>
-        <div class="course-price mono">Rs. ${esc(c.price)} <span>/ එකවර</span></div>
-        <div class="course-desc" style="margin-top:10px">${esc(c.desc)}</div>
-      </div>
-      <div class="course-body">
-        <ul class="course-feats">
-          ${c.feats.map(f=>`<li>${esc(f)}</li>`).join('')}
-        </ul>
-      </div>
-      <div class="course-footer">
-        <button class="btn btn-gold btn-block btn-lg" onclick="openBuyModal('${c.key}')">මේක ගමු →</button>
-      </div>
-    </div>`).join('');
-
-  renderCompareTable(courses);
-}
-
-function renderCompareTable(courses){
-  const allFeats = [...new Set(courses.flatMap(c=>c.feats))];
-  const wrap = document.getElementById('compareTable');
-  wrap.innerHTML = `<table class="compare-table">
-    <thead><tr>
-      <th>Feature</th>
-      ${courses.map(c=>`<th style="text-align:center">${esc(c.title)}<br><span style="color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700">Rs. ${esc(c.price)}</span></th>`).join('')}
-    </tr></thead>
-    <tbody>
-      ${allFeats.map(f=>`<tr>
-        <td>${esc(f)}</td>
-        ${courses.map(c=>`<td class="tick">${c.feats.includes(f) ? '<span style="color:var(--green);font-size:18px">✓</span>' : '<span style="color:var(--border2)">—</span>'}</td>`).join('')}
-      </tr>`).join('')}
-    </tbody>
-  </table>`;
-}
-
-function openBuyModal(key){
-  buyModalCourse = DB.courses[key];
-  renderModal();
-}
-function closeModal(){
-  buyModalCourse = null;
-  document.getElementById('modalRoot').innerHTML = '';
-}
-function renderModal(){
-  const root = document.getElementById('modalRoot');
-  if(!root || !buyModalCourse) { root.innerHTML=''; return; }
-  const c = buyModalCourse;
-  const msg = `ආයුබෝවන්! මම "${c.title}" Course (Rs. ${c.price}) සඳහා Bank of Ceylon ගිණුමට payment කළා. කරුණාකර confirm කරන්න.`;
-  root.innerHTML = `
-  <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
-    <div class="modal">
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <h3>${esc(c.title)}</h3>
-      <p class="sub">Rs. ${esc(c.price)} — Payment Bank Transfer හරහා</p>
-      <p style="color:var(--text2);font-size:13.5px;line-height:1.65">පහත bank account එකට amount transfer කරලා, "WhatsApp කරන්න" button ඔබා receipt send කරන්න. ඔබේ account 24h ඇතුළත activate වෙනවා.</p>
-      <div class="bank-box">
-        <div class="lbl">Bank</div>Bank of Ceylon — Urubokka Branch<br>
-        <div class="lbl" style="margin-top:8px">Account Number</div><span class="mono" style="color:var(--gold);font-size:15px">91653327</span><br>
-        <div class="lbl" style="margin-top:8px">Account Name</div>P K Abesinghe<br>
-        <div class="lbl" style="margin-top:8px">Amount</div><span class="mono" style="color:var(--green)">Rs. ${esc(c.price)}</span>
-      </div>
-      <a href="https://wa.me/94765450055?text=${encodeURIComponent(msg)}" target="_blank" class="btn btn-green btn-block btn-lg" onclick="closeModal()">
-        ✅ Payment කළා — WhatsApp Receipt Send කරන්න
-      </a>
-    </div>
-  </div>`;
-}
-
-document.addEventListener('DOMContentLoaded', ()=>{
-  initNavbar();
-  renderCourses();
-});
+/* ===== MINIFIED COURSES LOGIC ===== */
+let buyModalCourse=null;
+async function renderCourses(){await loadDB();const courses=Object.values(DB.courses);const grid=document.getElementById("coursesGrid");grid.innerHTML=courses.map((c,i)=>`<div class="card course-card-full ${i===1?"popular":""}" style="animation:fadeInUp .4s ${i*0.1}s cubic-bezier(.2,.8,.2,1) both">${i===1?`<div class="popular-badge">Most Popular</div>`:""}<div class="course-header"><div class="course-name">${esc(c.title)}</div><div class="course-price mono">Rs. ${esc(c.price)} <span>/ එකවර</span></div><div class="course-desc" style="margin-top:10px">${esc(c.desc)}</div></div><div class="course-body"><ul class="course-feats">${c.feats.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div><div class="course-footer"><button class="btn btn-gold btn-block btn-lg" onclick="openBuyModal('${c.key}')">මේක ගමු →</button></div></div>`).join("");renderCompareTable(courses);window.rebindReveal?.();}
+function renderCompareTable(courses){const allFeats=[...new Set(courses.flatMap(c=>c.feats))];document.getElementById("compareTable").innerHTML=`<table class="compare-table"><thead><tr><th>Feature</th>${courses.map(c=>`<th style="text-align:center">${esc(c.title)}<br><span style="color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700">Rs. ${esc(c.price)}</span></th>`).join("")}</tr></thead><tbody>${allFeats.map(f=>`<tr><td>${esc(f)}</td>${courses.map(c=>`<td class="tick">${c.feats.includes(f)?`<span style="color:var(--green);font-size:18px">✓</span>`:`<span style="color:var(--border2)">—</span>`}</td>`).join("")}</tr>`).join("")}</tbody></table>`;}
+function openBuyModal(key){buyModalCourse=DB.courses[key];renderModal();}
+function closeModal(){buyModalCourse=null;document.getElementById("modalRoot").innerHTML="";}
+function renderModal(){const root=document.getElementById("modalRoot");if(!root||!buyModalCourse){if(root)root.innerHTML="";return;}const c=buyModalCourse;const msg=`ආයුබෝවන්! මම "${c.title}" Course (Rs. ${c.price}) සඳහා Bank of Ceylon ගිණුමට payment කළා. කරුණාකර confirm කරන්න.`;root.innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><button class="modal-close" onclick="closeModal()">✕</button><h3>${esc(c.title)}</h3><p class="sub">Rs. ${esc(c.price)} — Payment Bank Transfer හරහා</p><p style="color:var(--text2);font-size:13.5px;line-height:1.65">පහත bank account එකට amount transfer කරලා, "WhatsApp කරන්න" button ඔබා receipt send කරන්න. ඔබේ account 24h ඇතුළත activate වෙනවා.</p><div class="bank-box"><div class="lbl">Bank</div>Bank of Ceylon — Urubokka Branch<br><div class="lbl" style="margin-top:8px">Account Number</div><span class="mono" style="color:var(--gold);font-size:15px">91653327</span><br><div class="lbl" style="margin-top:8px">Account Name</div>P K Abesinghe<br><div class="lbl" style="margin-top:8px">Amount</div><span class="mono" style="color:var(--green)">Rs. ${esc(c.price)}</span></div><a href="https://wa.me/94765450055?text=${encodeURIComponent(msg)}" target="_blank" class="btn btn-green btn-block btn-lg" onclick="closeModal()">✅ Payment කළා — WhatsApp Receipt Send කරන්න</a></div></div>`;}
+document.addEventListener("DOMContentLoaded",()=>{initNavbar();renderCourses();});
 </script>
 <script src="animations.js"></script>
 </body>

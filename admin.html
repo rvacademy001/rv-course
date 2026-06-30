@@ -8,79 +8,50 @@
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Admin-specific styles */
-    .admin-stat-grid {
-      display: grid; grid-template-columns: repeat(4,1fr); gap: 16px;
-      margin-bottom: 32px;
-    }
-    @media(max-width:900px){ .admin-stat-grid { grid-template-columns: repeat(2,1fr); } }
-    @media(max-width:480px){ .admin-stat-grid { grid-template-columns: 1fr; } }
-
-    .admin-stat-card {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px;
-      display: flex; flex-direction: column; gap: 6px;
-    }
-    .admin-stat-icon { font-size: 24px; }
-    .admin-stat-num {
-      font-size: 28px; font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--gold);
-    }
-    .admin-stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-
-    /* Student list */
-    .student-row {
-      display: flex; align-items: center; gap: 14px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 14px 18px;
-      margin-bottom: 10px; flex-wrap: wrap;
-    }
-    .student-row:hover { border-color: var(--border2); }
-    .student-avatar {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--gold-dim), var(--gold));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px; font-weight: 800; color: #080b12; flex-shrink: 0;
-    }
-    .student-info { flex: 1; min-width: 120px; }
-    .student-name { font-weight: 700; font-size: 14px; }
-    .student-user { color: var(--muted); font-size: 12px; font-family: 'JetBrains Mono', monospace; }
-    .student-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-    /* Videos */
-    .video-admin-row {
-      display: flex; align-items: center; gap: 12px;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 12px 16px;
-      margin-bottom: 8px; transition: border-color var(--transition);
-    }
-    .video-admin-row:hover { border-color: var(--border2); }
-
-    /* Course edit cards */
-    .course-edit-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; }
-    @media(max-width:700px){ .course-edit-grid { grid-template-columns: 1fr; } }
-
-    /* Confirm dialog custom */
-    .confirm-overlay {
-      position: fixed; inset: 0; z-index: 300;
-      background: rgba(4,6,10,0.85); backdrop-filter: blur(6px);
-      display: flex; align-items: center; justify-content: center; padding: 20px;
-    }
-    .confirm-box {
-      background: var(--surface); border: 1px solid var(--border2);
-      border-radius: var(--radius-lg); padding: 28px; max-width: 380px; width: 100%;
-      text-align: center; box-shadow: var(--shadow-lg);
-    }
-    .confirm-box h3 { margin-bottom: 10px; }
-    .confirm-box p { color: var(--text2); font-size: 14px; margin-bottom: 20px; }
-    .confirm-btns { display: flex; gap: 10px; }
+    .admin-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+    @media(max-width:900px){.admin-stat-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:480px){.admin-stat-grid{grid-template-columns:1fr}}
+    .admin-stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:6px;transition:border-color .18s,transform .18s}
+    .admin-stat-card:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
+    .admin-stat-icon{font-size:24px}
+    .admin-stat-num{font-size:28px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--gold)}
+    .admin-stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .student-row{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:10px;flex-wrap:wrap;transition:border-color .18s}
+    .student-row:hover{border-color:var(--border2)}
+    .student-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dim),var(--gold));display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#080b12;flex-shrink:0}
+    .student-info{flex:1;min-width:120px}
+    .student-name{font-weight:700;font-size:14px}
+    .student-user{color:var(--muted);font-size:12px;font-family:'JetBrains Mono',monospace}
+    .student-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .video-admin-row{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:8px;transition:border-color .18s}
+    .video-admin-row:hover{border-color:var(--border2)}
+    .course-edit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+    @media(max-width:700px){.course-edit-grid{grid-template-columns:1fr}}
+    .confirm-overlay{position:fixed;inset:0;z-index:300;background:rgba(4,6,10,.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease}
+    .confirm-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px;max-width:380px;width:100%;text-align:center;box-shadow:var(--shadow-lg);animation:slideUp .25s cubic-bezier(.2,.8,.2,1)}
+    .confirm-box h3{margin-bottom:10px}
+    .confirm-box p{color:var(--text2);font-size:14px;margin-bottom:20px}
+    .confirm-btns{display:flex;gap:10px}
+    /* Toast */
+    #toastRoot{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+    .toast{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;min-width:240px;animation:toastIn .3s cubic-bezier(.2,.8,.2,1);pointer-events:auto}
+    .toast.ok{border-left:3px solid var(--green);color:var(--green)}
+    .toast.err{border-left:3px solid var(--red);color:var(--red)}
+    .toast.fade-out{animation:toastOut .3s ease forwards}
+    @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes toastOut{to{opacity:0;transform:translateX(40px)}}
+    /* Tab slide animation */
+    .tab-content{animation:tabSlide .3s cubic-bezier(.2,.8,.2,1)}
+    @keyframes tabSlide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    /* Loading overlay on buttons */
+    .btn-loading{opacity:.7;pointer-events:none;position:relative}
+    .btn-loading::after{content:'';position:absolute;right:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;border:2px solid #080b12;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
   </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- ===== NAVBAR ===== -->
+  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="nav-inner">
       <a href="index.html" class="brand">
@@ -96,7 +67,7 @@
     </div>
   </nav>
 
-  <!-- ===== DASHBOARD ===== -->
+  <!-- DASHBOARD -->
   <div class="dash" id="dashApp">
     <aside class="sidebar" id="dashSidebar">
       <div class="who">
@@ -116,346 +87,47 @@
     </aside>
 
     <div class="dash-main" id="dashMain">
-      <div class="loading-screen"><div class="spinner"></div></div>
+      <div class="loading-screen"><div class="spinner"></div><span>Loading...</span></div>
     </div>
   </div>
 </div>
 
 <div id="confirmRoot"></div>
+<div id="toastRoot"></div>
 
 <script src="db.js"></script>
 <script src="navbar.js"></script>
 <script>
-/* ===== Auth Guard ===== */
-if(!SESSION || SESSION.type !== 'admin'){
-  window.location.href = 'login.html';
-}
-
-let adminTab = 'overview';
-let adminVideoCourse = 'basic';
-
-function switchTab(tab){
-  adminTab = tab;
-  document.querySelectorAll('.sidebar-btn').forEach(b=>{
-    b.classList.toggle('active', b.id === 'btn-'+tab);
-  });
-  renderMain();
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-
-async function init(){
-  await loadDB();
-  renderMain();
-  initNavbar();
-}
-
-function renderMain(){
-  const main = document.getElementById('dashMain');
-  const fn = {
-    overview: renderOverview,
-    register: renderRegister,
-    students: renderStudents,
-    courses: renderCourses,
-    videos: renderVideos,
-    community: renderCommunityMod,
-  };
-  main.innerHTML = (fn[adminTab] || renderOverview)();
-}
-
-/* ===== OVERVIEW ===== */
-function renderOverview(){
-  const totalStudents = Object.keys(DB.students).length;
-  const totalVideos = Object.values(DB.courses).reduce((acc,c)=>acc+(c.videos||[]).length,0);
-  const totalPosts = DB.community.length;
-  const totalReplies = DB.community.reduce((acc,p)=>acc+(p.replies||[]).length,0);
-
-  return `<div class="fade-in">
-    <div class="dash-header"><h2>📊 Admin Overview</h2><div class="sub">RV ACADEMY Management Panel</div></div>
-    <div class="admin-stat-grid stagger">
-      <div class="admin-stat-card"><div class="admin-stat-icon">👥</div><div class="admin-stat-num">${totalStudents}</div><div class="admin-stat-label">Total Students</div></div>
-      <div class="admin-stat-card"><div class="admin-stat-icon">📘</div><div class="admin-stat-num">${Object.keys(DB.courses).length}</div><div class="admin-stat-label">Courses</div></div>
-      <div class="admin-stat-card"><div class="admin-stat-icon">🎬</div><div class="admin-stat-num">${totalVideos}</div><div class="admin-stat-label">Total Videos</div></div>
-      <div class="admin-stat-card"><div class="admin-stat-icon">💬</div><div class="admin-stat-num">${totalPosts}</div><div class="admin-stat-label">Community Posts</div></div>
-    </div>
-
-    <h3 style="font-size:16px;margin-bottom:16px;color:var(--text2)">Quick Actions</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
-      <button class="card" style="text-align:left;cursor:pointer;gap:8px;display:flex;flex-direction:column" onclick="switchTab('register')">
-        <span style="font-size:24px">➕</span><strong>Student Register</strong><span style="color:var(--muted);font-size:13px">නව student account හදන්න</span>
-      </button>
-      <button class="card" style="text-align:left;cursor:pointer;gap:8px;display:flex;flex-direction:column" onclick="switchTab('videos')">
-        <span style="font-size:24px">🎬</span><strong>Videos Manage</strong><span style="color:var(--muted);font-size:13px">Course videos add/delete</span>
-      </button>
-      <button class="card" style="text-align:left;cursor:pointer;gap:8px;display:flex;flex-direction:column" onclick="switchTab('courses')">
-        <span style="font-size:24px">📘</span><strong>Course Edit</strong><span style="color:var(--muted);font-size:13px">Title, price, description</span>
-      </button>
-      <button class="card" style="text-align:left;cursor:pointer;gap:8px;display:flex;flex-direction:column" onclick="switchTab('students')">
-        <span style="font-size:24px">👥</span><strong>View Students</strong><span style="color:var(--muted);font-size:13px">Student list & management</span>
-      </button>
-    </div>
-
-    <h3 style="font-size:16px;margin:28px 0 16px;color:var(--text2)">Recent Students</h3>
-    ${Object.entries(DB.students).slice(-5).reverse().map(([u,s])=>`
-      <div class="student-row">
-        <div class="student-avatar">${(s.name||u).charAt(0).toUpperCase()}</div>
-        <div class="student-info">
-          <div class="student-name">${esc(s.name||'-')}</div>
-          <div class="student-user">${esc(u)}</div>
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">${(s.courses||[]).map(k=>`<span class="tag tag-gold">${esc(DB.courses[k]?.title||k)}</span>`).join('')||`<span class="tag">No Course</span>`}</div>
-      </div>`).join('') || `<div class="empty" style="padding:30px"><p>Students නෑ</p></div>`}
-  </div>`;
-}
-
-/* ===== REGISTER ===== */
-function renderRegister(){
-  return `<div class="fade-in">
-    <div class="dash-header"><h2>➕ Student Register</h2><div class="sub">නව student account හදන්න</div></div>
-    <div class="card" style="max-width:520px">
-      <div class="field"><label>Full Name</label><input id="regName" type="text" placeholder="J. Perera"></div>
-      <div class="field"><label>Username</label><input id="regUser" type="text" placeholder="jperera"></div>
-      <div class="field">
-        <label>Password</label>
-        <div style="position:relative">
-          <input id="regPass" type="text" placeholder="strong_password123" style="padding-right:80px">
-          <button onclick="document.getElementById('regPass').value=genPass()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--surface3);color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-size:11px;cursor:pointer">Generate</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Course(s) Assign</label>
-        <div style="display:flex;flex-direction:column;gap:10px;padding-top:4px">
-          ${Object.values(DB.courses).map(c=>`
-            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:400">
-              <input type="checkbox" class="regCourseChk" value="${c.key}" style="accent-color:var(--gold);width:16px;height:16px">
-              <span>${esc(c.title)}</span>
-              <span class="tag" style="margin:0">Rs. ${esc(c.price)}</span>
-            </label>`).join('')}
-        </div>
-      </div>
-      <button class="btn btn-gold btn-block btn-lg" onclick="registerStudent()">✅ Register කරන්න</button>
-      <div id="regMsg"></div>
-    </div>
-  </div>`;
-}
-
-function genPass(){
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  return Array.from({length:10},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
-}
-
-async function registerStudent(){
-  const name = document.getElementById('regName').value.trim();
-  const user = document.getElementById('regUser').value.trim().toLowerCase();
-  const pass = document.getElementById('regPass').value.trim();
-  const courses = Array.from(document.querySelectorAll('.regCourseChk:checked')).map(c=>c.value);
-  const msgBox = document.getElementById('regMsg');
-
-  if(!name || !user || !pass){
-    msgBox.innerHTML = `<div class="error-msg">සියලු fields fill කරන්න</div>`; return;
-  }
-  if(DB.students[user]){
-    msgBox.innerHTML = `<div class="error-msg">Username "${user}" දැනටමත් ඇත</div>`; return;
-  }
-
-  DB.students[user] = {name, password:pass, courses, watched:{}, journal:[]};
-  await saveStudent(user);
-  msgBox.innerHTML = `<div class="success-msg">✓ Student "${name}" (${user}) Register! Password: <strong>${esc(pass)}</strong></div>`;
-  document.getElementById('regName').value='';
-  document.getElementById('regUser').value='';
-  document.getElementById('regPass').value='';
-  document.querySelectorAll('.regCourseChk').forEach(c=>c.checked=false);
-}
-
-/* ===== STUDENTS ===== */
-function renderStudents(){
-  const list = Object.entries(DB.students);
-  return `<div class="fade-in">
-    <div class="dash-header"><h2>👥 Students (${list.length})</h2><div class="sub">Student accounts සහ course assignments</div></div>
-    ${!list.length ? `<div class="empty"><div class="big">👥</div><h3>Students නෑ</h3><p>Register tab හරහා ඉදිරිපත් කරන්න</p></div>` : `
-    <div style="display:flex;flex-direction:column;gap:10px">
-      ${list.map(([u,s])=>`
-        <div class="student-row">
-          <div class="student-avatar">${(s.name||u).charAt(0).toUpperCase()}</div>
-          <div class="student-info">
-            <div class="student-name">${esc(s.name||'-')}</div>
-            <div class="student-user">@${esc(u)}</div>
-          </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
-            ${(s.courses||[]).map(k=>`<span class="tag tag-gold">${esc(DB.courses[k]?.title||k)}</span>`).join('')||`<span style="color:var(--muted);font-size:13px">No Course</span>`}
-          </div>
-          <div class="student-actions">
-            <select id="addc-${u}" style="background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:12.5px;font-family:inherit">
-              <option value="">Course Add...</option>
-              ${Object.values(DB.courses).filter(c=>!(s.courses||[]).includes(c.key)).map(c=>`<option value="${c.key}">${esc(c.title)}</option>`).join('')}
-            </select>
-            <button class="btn-icon" onclick="addCourseToStudent('${u}')">Add</button>
-            <button class="btn-icon del" onclick="confirmDelete('${u}')">Delete</button>
-          </div>
-        </div>`).join('')}
-    </div>`}
-  </div>`;
-}
-
-async function addCourseToStudent(u){
-  const sel = document.getElementById('addc-'+u);
-  if(!sel || !sel.value) return;
-  const stu = DB.students[u];
-  stu.courses = stu.courses || [];
-  if(!stu.courses.includes(sel.value)) stu.courses.push(sel.value);
-  await saveStudent(u);
-  switchTab('students');
-}
-
-function confirmDelete(u){
-  const root = document.getElementById('confirmRoot');
-  root.innerHTML = `<div class="confirm-overlay">
-    <div class="confirm-box">
-      <h3>⚠️ Delete Student</h3>
-      <p>"${esc(u)}" account delete කරන්නද? undo කළ නොහැකියි.</p>
-      <div class="confirm-btns">
-        <button class="btn btn-surface" style="flex:1" onclick="document.getElementById('confirmRoot').innerHTML=''">Cancel</button>
-        <button class="btn btn-danger" style="flex:1" onclick="deleteStudent('${u}')">Delete</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-async function deleteStudent(u){
-  document.getElementById('confirmRoot').innerHTML = '';
-  delete DB.students[u];
-  await deleteStudentFromDB(u);
-  switchTab('students');
-}
-
-/* ===== COURSES EDIT ===== */
-function renderCourses(){
-  const courses = Object.values(DB.courses);
-  return `<div class="fade-in">
-    <div class="dash-header"><h2>📘 Courses Edit</h2><div class="sub">Course content වෙනස් කළ පසු public courses page එකේ reflect වෙනවා</div></div>
-    <div class="course-edit-grid">
-      ${courses.map(c=>`
-        <div class="card">
-          <div style="font-size:12px;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-bottom:14px;text-transform:uppercase">${esc(c.key)}</div>
-          <div class="field"><label>Title</label><input id="ct-${c.key}" value="${esc(c.title)}"></div>
-          <div class="field"><label>Price (Rs.)</label><input id="cp-${c.key}" value="${esc(c.price)}"></div>
-          <div class="field"><label>Description</label><textarea id="cd-${c.key}" rows="3">${esc(c.desc)}</textarea></div>
-          <div class="field"><label>Features (line per item)</label><textarea id="cf-${c.key}" rows="5">${c.feats.map(esc).join('\n')}</textarea></div>
-          <button class="btn btn-gold btn-block" onclick="saveCourse('${c.key}')">💾 Save</button>
-          <div id="cmsg-${c.key}"></div>
-        </div>`).join('')}
-    </div>
-  </div>`;
-}
-
-async function saveCourse(key){
-  const c = DB.courses[key];
-  c.title = document.getElementById('ct-'+key).value.trim();
-  c.price = document.getElementById('cp-'+key).value.trim();
-  c.desc = document.getElementById('cd-'+key).value.trim();
-  c.feats = document.getElementById('cf-'+key).value.split('\n').map(s=>s.trim()).filter(Boolean);
-  await saveCourse(key);
-  document.getElementById('cmsg-'+key).innerHTML = `<div class="success-msg">✓ Saved!</div>`;
-}
-
-/* ===== VIDEOS ===== */
-function renderVideos(){
-  const course = DB.courses[adminVideoCourse];
-  const videos = (course.videos||[]).slice().sort((a,b)=>a.order-b.order);
-
-  return `<div class="fade-in">
-    <div class="dash-header"><h2>🎬 Videos Manage</h2><div class="sub">YouTube/Vimeo link add කරන්න. File upload නෙවෙයි.</div></div>
-    <div class="tabs">
-      ${Object.values(DB.courses).map(c=>`
-        <button class="tab ${adminVideoCourse===c.key?'active':''}" onclick="adminVideoCourse='${c.key}';switchTab('videos')">${esc(c.title)}</button>`).join('')}
-    </div>
-    <div class="card" style="max-width:600px;margin-bottom:24px">
-      <div class="field"><label>Video නම</label><input id="vName" placeholder="Lesson 1 — Introduction to Forex"></div>
-      <div class="field"><label>Video Link (YouTube / Vimeo / Direct URL)</label><input id="vLink" placeholder="https://youtube.com/watch?v=..."></div>
-      <button class="btn btn-gold btn-block" onclick="addVideo()">➕ Video Add කරන්න</button>
-      <div id="vMsg"></div>
-    </div>
-
-    ${!videos.length ? `<div class="empty"><div class="big">🎬</div><h3>Videos නෑ</h3><p>ඉහළින් videos add කරන්න</p></div>` : `
-    <div>
-      ${videos.map((v,i)=>`
-        <div class="video-admin-row">
-          <div class="video-idx">${i+1}</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:600">${esc(v.name)}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px">${esc(v.link)}</div>
-          </div>
-          <div style="display:flex;gap:6px">
-            ${i>0?`<button class="btn-icon" onclick="moveVideo('${v.id}',-1)">↑</button>`:''}
-            ${i<videos.length-1?`<button class="btn-icon" onclick="moveVideo('${v.id}',1)">↓</button>`:''}
-            <button class="btn-icon del" onclick="deleteVideo('${v.id}')">Delete</button>
-          </div>
-        </div>`).join('')}
-    </div>`}
-  </div>`;
-}
-
-async function addVideo(){
-  const name = document.getElementById('vName').value.trim();
-  const link = document.getElementById('vLink').value.trim();
-  const msg = document.getElementById('vMsg');
-  if(!name || !link){ msg.innerHTML=`<div class="error-msg">Name සහ Link fill කරන්න</div>`; return; }
-  const course = DB.courses[adminVideoCourse];
-  course.videos = course.videos || [];
-  const maxOrder = course.videos.reduce((m,v)=>Math.max(m,v.order||0),0);
-  course.videos.push({id:'v'+Date.now(), name, link, order:maxOrder+1});
-  await saveCourse(adminVideoCourse);
-  switchTab('videos');
-}
-
-async function deleteVideo(id){
-  const course = DB.courses[adminVideoCourse];
-  course.videos = (course.videos||[]).filter(v=>v.id!==id);
-  await saveCourse(adminVideoCourse);
-  switchTab('videos');
-}
-
-async function moveVideo(id, dir){
-  const course = DB.courses[adminVideoCourse];
-  const videos = course.videos.slice().sort((a,b)=>a.order-b.order);
-  const idx = videos.findIndex(v=>v.id===id);
-  const swapIdx = idx+dir;
-  if(swapIdx<0 || swapIdx>=videos.length) return;
-  const tmp = videos[idx].order;
-  videos[idx].order = videos[swapIdx].order;
-  videos[swapIdx].order = tmp;
-  await saveCourse(adminVideoCourse);
-  switchTab('videos');
-}
-
-/* ===== COMMUNITY MODERATION ===== */
-function renderCommunityMod(){
-  const posts = DB.community.slice().reverse();
-  return `<div class="fade-in">
-    <div class="dash-header"><h2>💬 Community Moderation</h2><div class="sub">Student posts delete/manage</div></div>
-    ${!posts.length ? `<div class="empty"><div class="big">💬</div><h3>Posts නෑ</h3></div>` : posts.map(p=>`
-      <div class="post">
-        <div class="post-head">
-          <div class="post-avatar">${(p.name||'S').charAt(0).toUpperCase()}</div>
-          <span class="post-name">${esc(p.name)}</span>
-          <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">@${esc(p.username)}</span>
-          <span class="post-date">${esc(p.date)}</span>
-          <button class="btn-icon del" style="margin-left:auto" onclick="deletePost('${p.id}')">Delete</button>
-        </div>
-        <div class="post-text">${esc(p.text)}</div>
-        ${(p.replies||[]).map(r=>`<div class="reply">
-          <span class="post-name">${esc(r.name)}</span>: ${esc(r.text)}
-        </div>`).join('')}
-      </div>`).join('')}
-  </div>`;
-}
-
-async function deletePost(id){
-  DB.community = DB.community.filter(p=>p.id!==id);
-  await deletePostFromDB(id);
-  switchTab('community');
-}
-
-document.addEventListener('DOMContentLoaded', init);
+/* ===== MINIFIED ADMIN LOGIC ===== */
+if(!SESSION||SESSION.type!=="admin"){location.href="login.html";}
+let adminTab="overview",adminVideoCourse="basic";
+function toast(msg,type){const r=document.getElementById("toastRoot");const t=document.createElement("div");t.className="toast "+(type||"ok");t.textContent=(type==="err"?"⚠ ":"✓ ")+msg;r.appendChild(t);setTimeout(()=>{t.classList.add("fade-out");setTimeout(()=>t.remove(),350)},3000);}
+function switchTab(tab){adminTab=tab;document.querySelectorAll(".sidebar-btn").forEach(b=>{b.classList.toggle("active",b.id==="btn-"+tab)});renderMain();window.scrollTo({top:0,behavior:"smooth"});}
+async function init(){await loadDB();renderMain();initNavbar();}
+function renderMain(){const m=document.getElementById("dashMain");const fn={overview:renderOverview,register:renderRegister,students:renderStudents,courses:renderCourses,videos:renderVideos,community:renderCommunityMod};m.innerHTML='<div class="tab-content">'+(fn[adminTab]||renderOverview)()+"</div>";window.rebindReveal?.();}
+/* OVERVIEW */
+function renderOverview(){const ts=Object.keys(DB.students).length,tv=Object.values(DB.courses).reduce((a,c)=>a+(c.videos||[]).length,0),tp=DB.community.length,tr2=DB.community.reduce((a,p)=>a+(p.replies||[]).length,0);return`<div class="dash-header"><h2>📊 Admin Overview</h2><div class="sub">RV ACADEMY Management Panel</div></div><div class="admin-stat-grid stagger"><div class="admin-stat-card"><div class="admin-stat-icon">👥</div><div class="admin-stat-num">${ts}</div><div class="admin-stat-label">Total Students</div></div><div class="admin-stat-card"><div class="admin-stat-icon">📘</div><div class="admin-stat-num">${Object.keys(DB.courses).length}</div><div class="admin-stat-label">Courses</div></div><div class="admin-stat-card"><div class="admin-stat-icon">🎬</div><div class="admin-stat-num">${tv}</div><div class="admin-stat-label">Total Videos</div></div><div class="admin-stat-card"><div class="admin-stat-icon">💬</div><div class="admin-stat-num">${tp}</div><div class="admin-stat-label">Community Posts</div></div></div><h3 style="font-size:16px;margin-bottom:16px;color:var(--text2)">Quick Actions</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px"><button class="card" style="text-align:left;cursor:pointer;gap:8px;display:flex;flex-direction:column" onclick="switchTab('register')"><span style="font-size:24px">➕</span><strong>Student Register</strong><span style="color:var(--muted);font-size:13px">නව student account හදන්න</span></button><button class="card" style="text-align:left;cursor:pointer;gap:8px;display:flex;flex-direction:column" onclick="switchTab('videos')"><span style="font-size:24px">🎬</span><strong>Videos Manage</strong><span style="color:var(--muted);font-size:13px">Course videos add/delete</span></button><button class="card" style="text-align:left;cursor:pointer;gap:8px;display:flex;flex-direction:column" onclick="switchTab('courses')"><span style="font-size:24px">📘</span><strong>Course Edit</strong><span style="color:var(--muted);font-size:13px">Title, price, description</span></button><button class="card" style="text-align:left;cursor:pointer;gap:8px;display:flex;flex-direction:column" onclick="switchTab('students')"><span style="font-size:24px">👥</span><strong>View Students</strong><span style="color:var(--muted);font-size:13px">Student list & management</span></button></div><h3 style="font-size:16px;margin:28px 0 16px;color:var(--text2)">Recent Students</h3>${Object.entries(DB.students).slice(-5).reverse().map(([u,s])=>`<div class="student-row"><div class="student-avatar">${(s.name||u).charAt(0).toUpperCase()}</div><div class="student-info"><div class="student-name">${esc(s.name||"-")}</div><div class="student-user">${esc(u)}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap">${(s.courses||[]).map(k=>`<span class="tag tag-gold">${esc(DB.courses[k]?.title||k)}</span>`).join("")||`<span class="tag">No Course</span>`}</div></div>`).join("")||`<div class="empty" style="padding:30px"><p>Students නෑ</p></div>`}`;}
+/* REGISTER */
+function renderRegister(){return`<div class="dash-header"><h2>➕ Student Register</h2><div class="sub">නව student account හදන්න</div></div><div class="card" style="max-width:520px"><div class="field"><label>Full Name</label><input id="regName" type="text" placeholder="J. Perera"></div><div class="field"><label>Username</label><input id="regUser" type="text" placeholder="jperera"></div><div class="field"><label>Password</label><div style="position:relative"><input id="regPass" type="text" placeholder="strong_password123" style="padding-right:80px"><button onclick="document.getElementById('regPass').value=genPass()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--surface3);color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-size:11px;cursor:pointer">Generate</button></div></div><div class="field"><label>Course(s) Assign</label><div style="display:flex;flex-direction:column;gap:10px;padding-top:4px">${Object.values(DB.courses).map(c=>`<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:400"><input type="checkbox" class="regCourseChk" value="${c.key}" style="accent-color:var(--gold);width:16px;height:16px"><span>${esc(c.title)}</span><span class="tag" style="margin:0">Rs. ${esc(c.price)}</span></label>`).join("")}</div></div><button class="btn btn-gold btn-block btn-lg" onclick="registerStudent()">✅ Register කරන්න</button><div id="regMsg"></div></div>`;}
+function genPass(){const c="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";return Array.from({length:10},()=>c[Math.floor(Math.random()*c.length)]).join("");}
+async function registerStudent(){const name=document.getElementById("regName").value.trim(),user=document.getElementById("regUser").value.trim().toLowerCase(),pass=document.getElementById("regPass").value.trim(),courses=Array.from(document.querySelectorAll(".regCourseChk:checked")).map(c=>c.value),msg=document.getElementById("regMsg");if(!name||!user||!pass){msg.innerHTML=`<div class="error-msg">සියලු fields fill කරන්න</div>`;return;}if(DB.students[user]){msg.innerHTML=`<div class="error-msg">Username "${user}" දැනටමත් ඇත</div>`;return;}try{DB.students[user]={name,password:pass,courses,watched:{},journal:[]};await saveStudent(user);msg.innerHTML=`<div class="success-msg">✓ "${name}" (${user}) Register! Password: <strong>${esc(pass)}</strong></div>`;document.getElementById("regName").value="";document.getElementById("regUser").value="";document.getElementById("regPass").value="";document.querySelectorAll(".regCourseChk").forEach(c=>c.checked=false);toast("Student registered!");}catch(e){msg.innerHTML=`<div class="error-msg">Error: ${esc(e.message)}</div>`;toast("Register failed: "+e.message,"err");}}
+/* STUDENTS */
+function renderStudents(){const list=Object.entries(DB.students);return`<div class="dash-header"><h2>👥 Students (${list.length})</h2><div class="sub">Student accounts සහ course assignments</div></div>${!list.length?`<div class="empty"><div class="big">👥</div><h3>Students නෑ</h3><p>Register tab හරහා ඉදිරිපත් කරන්න</p></div>`:`<div style="display:flex;flex-direction:column;gap:10px">${list.map(([u,s])=>`<div class="student-row"><div class="student-avatar">${(s.name||u).charAt(0).toUpperCase()}</div><div class="student-info"><div class="student-name">${esc(s.name||"-")}</div><div class="student-user">@${esc(u)}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">${(s.courses||[]).map(k=>`<span class="tag tag-gold">${esc(DB.courses[k]?.title||k)}</span>`).join("")||`<span style="color:var(--muted);font-size:13px">No Course</span>`}</div><div class="student-actions"><select id="addc-${u}" style="background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:12.5px;font-family:inherit"><option value="">Course Add...</option>${Object.values(DB.courses).filter(c=>!(s.courses||[]).includes(c.key)).map(c=>`<option value="${c.key}">${esc(c.title)}</option>`).join("")}</select><button class="btn-icon" onclick="addCourseToStudent('${u}')">Add</button><button class="btn-icon del" onclick="confirmDelete('${u}')">Delete</button></div></div>`).join("")}</div>`}`;}
+async function addCourseToStudent(u){const sel=document.getElementById("addc-"+u);if(!sel||!sel.value)return;const stu=DB.students[u];stu.courses=stu.courses||[];if(!stu.courses.includes(sel.value))stu.courses.push(sel.value);try{await saveStudent(u);toast("Course assigned!");switchTab("students");}catch(e){toast("Save failed: "+e.message,"err");}}
+function confirmDelete(u){document.getElementById("confirmRoot").innerHTML=`<div class="confirm-overlay"><div class="confirm-box"><h3>⚠️ Delete Student</h3><p>"${esc(u)}" account delete කරන්නද? undo කළ නොහැකියි.</p><div class="confirm-btns"><button class="btn btn-surface" style="flex:1" onclick="document.getElementById('confirmRoot').innerHTML=''">Cancel</button><button class="btn btn-danger" style="flex:1" onclick="deleteStudent('${u}')">Delete</button></div></div></div>`;}
+async function deleteStudent(u){document.getElementById("confirmRoot").innerHTML="";delete DB.students[u];try{await deleteStudentFromDB(u);toast("Student deleted.");switchTab("students");}catch(e){toast("Delete failed: "+e.message,"err");}}
+/* COURSES EDIT — BUG FIX: renamed to saveAdminCourse to avoid recursion with db.js saveCourse() */
+function renderCourses(){return`<div class="dash-header"><h2>📘 Courses Edit</h2><div class="sub">Save කළ පසු public courses page එකේ දත්ත update වෙනවා</div></div><div class="course-edit-grid">${Object.values(DB.courses).map(c=>`<div class="card"><div style="font-size:12px;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-bottom:14px;text-transform:uppercase">${esc(c.key)}</div><div class="field"><label>Title</label><input id="ct-${c.key}" value="${esc(c.title)}"></div><div class="field"><label>Price (Rs.)</label><input id="cp-${c.key}" value="${esc(c.price)}"></div><div class="field"><label>Description</label><textarea id="cd-${c.key}" rows="3">${esc(c.desc)}</textarea></div><div class="field"><label>Features (line per item)</label><textarea id="cf-${c.key}" rows="5">${c.feats.map(esc).join("\n")}</textarea></div><button class="btn btn-gold btn-block" id="savebtn-${c.key}" onclick="saveAdminCourse('${c.key}')">💾 Save</button><div id="cmsg-${c.key}"></div></div>`).join("")}</div>`;}
+async function saveAdminCourse(key){const c=DB.courses[key];const btn=document.getElementById("savebtn-"+key);const msg=document.getElementById("cmsg-"+key);c.title=document.getElementById("ct-"+key).value.trim();c.price=document.getElementById("cp-"+key).value.trim();c.desc=document.getElementById("cd-"+key).value.trim();c.feats=document.getElementById("cf-"+key).value.split("\n").map(s=>s.trim()).filter(Boolean);btn.classList.add("btn-loading");btn.disabled=true;try{await saveCourse(key);msg.innerHTML=`<div class="success-msg">✓ Saved to database!</div>`;toast("Course saved!");setTimeout(()=>msg.innerHTML="",3000);}catch(e){msg.innerHTML=`<div class="error-msg">❌ ${esc(e.message)}</div>`;toast("Save failed: "+e.message,"err");}finally{btn.classList.remove("btn-loading");btn.disabled=false;}}
+/* VIDEOS */
+function renderVideos(){const course=DB.courses[adminVideoCourse]||Object.values(DB.courses)[0];if(!course){return`<div class="empty"><div class="big">📘</div><h3>Courses නෑ</h3></div>`;}const videos=(course.videos||[]).slice().sort((a,b)=>(a.order||0)-(b.order||0));return`<div class="dash-header"><h2>🎬 Videos Manage</h2><div class="sub">YouTube/Vimeo link add කරන්න. File upload නෙවෙයි.</div></div><div class="tabs">${Object.values(DB.courses).map(c=>`<button class="tab ${adminVideoCourse===c.key?"active":""}" onclick="adminVideoCourse='${c.key}';switchTab('videos')">${esc(c.title)}</button>`).join("")}</div><div class="card" style="max-width:600px;margin-bottom:24px"><div class="field"><label>Video නම</label><input id="vName" placeholder="Lesson 1 — Introduction to Forex"></div><div class="field"><label>Video Link (YouTube / Vimeo)</label><input id="vLink" placeholder="https://youtube.com/watch?v=..."></div><button class="btn btn-gold btn-block" id="addVidBtn" onclick="addVideo()">➕ Video Add කරන්න</button><div id="vMsg"></div></div>${!videos.length?`<div class="empty"><div class="big">🎬</div><h3>Videos නෑ</h3><p>ඉහළින් videos add කරන්න</p></div>`:`<div>${videos.map((v,i)=>`<div class="video-admin-row"><div class="video-idx">${i+1}</div><div style="flex:1"><div style="font-size:14px;font-weight:600">${esc(v.name)}</div><div style="font-size:12px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px">${esc(v.link)}</div></div><div style="display:flex;gap:6px">${i>0?`<button class="btn-icon" onclick="moveVideo('${v.id}',-1)">↑</button>`:""} ${i<videos.length-1?`<button class="btn-icon" onclick="moveVideo('${v.id}',1)">↓</button>`:""}<button class="btn-icon del" onclick="deleteVideo('${v.id}')">Delete</button></div></div>`).join("")}</div>`}`;}
+async function addVideo(){const name=document.getElementById("vName").value.trim(),link=document.getElementById("vLink").value.trim(),msg=document.getElementById("vMsg"),btn=document.getElementById("addVidBtn");if(!name||!link){msg.innerHTML=`<div class="error-msg">Name සහ Link fill කරන්න</div>`;return;}const course=DB.courses[adminVideoCourse];course.videos=course.videos||[];const maxOrder=course.videos.reduce((m,v)=>Math.max(m,v.order||0),0);course.videos.push({id:"v"+Date.now(),name,link,order:maxOrder+1});btn.classList.add("btn-loading");btn.disabled=true;try{await saveCourse(adminVideoCourse);toast("Video added!");switchTab("videos");}catch(e){msg.innerHTML=`<div class="error-msg">❌ ${esc(e.message)}</div>`;toast("Add failed: "+e.message,"err");course.videos.pop();}finally{btn.classList.remove("btn-loading");btn.disabled=false;}}
+async function deleteVideo(id){const course=DB.courses[adminVideoCourse];course.videos=(course.videos||[]).filter(v=>v.id!==id);try{await saveCourse(adminVideoCourse);toast("Video deleted.");switchTab("videos");}catch(e){toast("Delete failed: "+e.message,"err");}}
+async function moveVideo(id,dir){const course=DB.courses[adminVideoCourse];const videos=course.videos.slice().sort((a,b)=>(a.order||0)-(b.order||0));const idx=videos.findIndex(v=>v.id===id);const si=idx+dir;if(si<0||si>=videos.length)return;const tmp=videos[idx].order;videos[idx].order=videos[si].order;videos[si].order=tmp;course.videos=videos;try{await saveCourse(adminVideoCourse);switchTab("videos");}catch(e){toast("Reorder failed: "+e.message,"err");}}
+/* COMMUNITY MOD */
+function renderCommunityMod(){const posts=DB.community.slice().reverse();return`<div class="dash-header"><h2>💬 Community Moderation</h2><div class="sub">Student posts delete/manage</div></div>${!posts.length?`<div class="empty"><div class="big">💬</div><h3>Posts නෑ</h3></div>`:posts.map(p=>`<div class="post"><div class="post-head"><div class="post-avatar">${(p.name||"S").charAt(0).toUpperCase()}</div><span class="post-name">${esc(p.name)}</span><span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">@${esc(p.username)}</span><span class="post-date">${esc(p.date)}</span><button class="btn-icon del" style="margin-left:auto" onclick="deletePost('${p.id}')">Delete</button></div><div class="post-text">${esc(p.text)}</div>${(p.replies||[]).map(r=>`<div class="reply"><span class="post-name">${esc(r.name)}</span>: ${esc(r.text)}</div>`).join("")}</div>`).join("")}`;}
+async function deletePost(id){DB.community=DB.community.filter(p=>p.id!==id);try{await deletePostFromDB(id);toast("Post deleted.");switchTab("community");}catch(e){toast("Delete failed: "+e.message,"err");}}
+document.addEventListener("DOMContentLoaded",init);
 </script>
 </body>
 </html>
