@@ -96,6 +96,7 @@
 <div id="confirmRoot"></div>
 <div id="toastRoot"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="db.js"></script>
 <script src="navbar.js"></script>
 <script>
@@ -111,7 +112,64 @@ function renderOverview(){const ts=Object.keys(DB.students).length,tv=Object.val
 /* REGISTER */
 function renderRegister(){return`<div class="dash-header"><h2>➕ Student Register</h2><div class="sub">නව student account හදන්න</div></div><div class="card" style="max-width:520px"><div class="field"><label>Full Name</label><input id="regName" type="text" placeholder="J. Perera"></div><div class="field"><label>Username</label><input id="regUser" type="text" placeholder="jperera"></div><div class="field"><label>Password</label><div style="position:relative"><input id="regPass" type="text" placeholder="strong_password123" style="padding-right:80px"><button onclick="document.getElementById('regPass').value=genPass()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--surface3);color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-size:11px;cursor:pointer">Generate</button></div></div><div class="field"><label>Course(s) Assign</label><div style="display:flex;flex-direction:column;gap:10px;padding-top:4px">${Object.values(DB.courses).map(c=>`<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:400"><input type="checkbox" class="regCourseChk" value="${c.key}" style="accent-color:var(--gold);width:16px;height:16px"><span>${esc(c.title)}</span><span class="tag" style="margin:0">Rs. ${esc(c.price)}</span></label>`).join("")}</div></div><button class="btn btn-gold btn-block btn-lg" onclick="registerStudent()">✅ Register කරන්න</button><div id="regMsg"></div></div>`;}
 function genPass(){const c="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";return Array.from({length:10},()=>c[Math.floor(Math.random()*c.length)]).join("");}
-async function registerStudent(){const name=document.getElementById("regName").value.trim(),user=document.getElementById("regUser").value.trim().toLowerCase(),pass=document.getElementById("regPass").value.trim(),courses=Array.from(document.querySelectorAll(".regCourseChk:checked")).map(c=>c.value),msg=document.getElementById("regMsg");if(!name||!user||!pass){msg.innerHTML=`<div class="error-msg">සියලු fields fill කරන්න</div>`;return;}if(DB.students[user]){msg.innerHTML=`<div class="error-msg">Username "${user}" දැනටමත් ඇත</div>`;return;}try{DB.students[user]={name,password:pass,courses,watched:{},journal:[]};await saveStudent(user);msg.innerHTML=`<div class="success-msg">✓ "${name}" (${user}) Register! Password: <strong>${esc(pass)}</strong></div>`;document.getElementById("regName").value="";document.getElementById("regUser").value="";document.getElementById("regPass").value="";document.querySelectorAll(".regCourseChk").forEach(c=>c.checked=false);toast("Student registered!");}catch(e){msg.innerHTML=`<div class="error-msg">Error: ${esc(e.message)}</div>`;toast("Register failed: "+e.message,"err");}}
+async function registerStudent(){
+  const name=document.getElementById("regName").value.trim();
+  const user=document.getElementById("regUser").value.trim().toLowerCase();
+  const pass=document.getElementById("regPass").value.trim();
+  const courses=Array.from(document.querySelectorAll(".regCourseChk:checked")).map(c=>c.value);
+  const msg=document.getElementById("regMsg");
+
+  if(!name||!user||!pass){
+    msg.innerHTML=`<div class="error-msg">සියලු fields fill කරන්න</div>`;
+    return;
+  }
+  if(DB.students[user]){
+    msg.innerHTML=`<div class="error-msg">Username "${user}" දැනටමත් ඇත</div>`;
+    return;
+  }
+
+  // Create isolated Supabase Client for registering student without losing Admin session
+  const tempSb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+
+  try {
+    // 1. Register user in Supabase Auth
+    const { data, error } = await tempSb.auth.signUp({
+      email: `${user}@rvacademy.com`,
+      password: pass,
+      options: {
+        data: {
+          role: "student",
+          name: name
+        }
+      }
+    });
+
+    if (error) {
+      throw new Error(`Auth Signup failed: ${error.message}`);
+    }
+
+    // 2. Save student profile to database table
+    DB.students[user] = {
+      name: name,
+      courses: courses,
+      watched: {},
+      journal: []
+    };
+    await saveStudent(user);
+
+    msg.innerHTML=`<div class="success-msg">✓ "${name}" (${user}) Registered in Supabase Auth and Database! Password: <strong>${esc(pass)}</strong></div>`;
+    document.getElementById("regName").value="";
+    document.getElementById("regUser").value="";
+    document.getElementById("regPass").value="";
+    document.querySelectorAll(".regCourseChk").forEach(c=>c.checked=false);
+    toast("Student registered!");
+  } catch(e) {
+    msg.innerHTML=`<div class="error-msg">Error: ${esc(e.message)}</div>`;
+    toast("Register failed: "+e.message,"err");
+  }
+}
 /* STUDENTS */
 function renderStudents(){const list=Object.entries(DB.students);return`<div class="dash-header"><h2>👥 Students (${list.length})</h2><div class="sub">Student accounts සහ course assignments</div></div>${!list.length?`<div class="empty"><div class="big">👥</div><h3>Students නෑ</h3><p>Register tab හරහා ඉදිරිපත් කරන්න</p></div>`:`<div style="display:flex;flex-direction:column;gap:10px">${list.map(([u,s])=>`<div class="student-row"><div class="student-avatar">${(s.name||u).charAt(0).toUpperCase()}</div><div class="student-info"><div class="student-name">${esc(s.name||"-")}</div><div class="student-user">@${esc(u)}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">${(s.courses||[]).map(k=>`<span class="tag tag-gold">${esc(DB.courses[k]?.title||k)}</span>`).join("")||`<span style="color:var(--muted);font-size:13px">No Course</span>`}</div><div class="student-actions"><select id="addc-${u}" style="background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:12.5px;font-family:inherit"><option value="">Course Add...</option>${Object.values(DB.courses).filter(c=>!(s.courses||[]).includes(c.key)).map(c=>`<option value="${c.key}">${esc(c.title)}</option>`).join("")}</select><button class="btn-icon" onclick="addCourseToStudent('${u}')">Add</button><button class="btn-icon del" onclick="confirmDelete('${u}')">Delete</button></div></div>`).join("")}</div>`}`;}
 async function addCourseToStudent(u){const sel=document.getElementById("addc-"+u);if(!sel||!sel.value)return;const stu=DB.students[u];stu.courses=stu.courses||[];if(!stu.courses.includes(sel.value))stu.courses.push(sel.value);try{await saveStudent(u);toast("Course assigned!");switchTab("students");}catch(e){toast("Save failed: "+e.message,"err");}}
@@ -129,8 +187,9 @@ async function moveVideo(id,dir){const course=DB.courses[adminVideoCourse];const
 function renderCommunityMod(){const posts=DB.community.slice().reverse();return`<div class="dash-header"><h2>💬 Community Moderation</h2><div class="sub">Student posts delete/manage</div></div>${!posts.length?`<div class="empty"><div class="big">💬</div><h3>Posts නෑ</h3></div>`:posts.map(p=>`<div class="post"><div class="post-head"><div class="post-avatar">${(p.name||"S").charAt(0).toUpperCase()}</div><span class="post-name">${esc(p.name)}</span><span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">@${esc(p.username)}</span><span class="post-date">${esc(p.date)}</span><button class="btn-icon del" style="margin-left:auto" onclick="deletePost('${p.id}')">Delete</button></div><div class="post-text">${esc(p.text)}</div>${(p.replies||[]).map(r=>`<div class="reply"><span class="post-name">${esc(r.name)}</span>: ${esc(r.text)}</div>`).join("")}</div>`).join("")}`;}
 async function deletePost(id){DB.community=DB.community.filter(p=>p.id!==id);try{await deletePostFromDB(id);toast("Post deleted.");switchTab("community");}catch(e){toast("Delete failed: "+e.message,"err");}}
 /* SETTINGS */
-function renderSettings(){return`<div class="dash-header"><h2>⚙️ System Settings</h2><div class="sub">WhatsApp සහ Bank details වෙනස් කරන්න (මුල් පිටුව, කෝස් පිටුව සහ student portal වල වෙනස් වේ)</div></div><div class="card" style="max-width:560px"><div class="field"><label>WhatsApp Number (Country Code සමඟ e.g. 94765450055)</label><input id="setWa" value="${esc(SYSTEM_SETTINGS.waNumber)}"></div><div class="field"><label>Bank Name (Branch සමඟ)</label><input id="setBankName" value="${esc(SYSTEM_SETTINGS.bankName)}"></div><div class="field"><label>Bank Account Number</label><input id="setBankAccount" value="${esc(SYSTEM_SETTINGS.bankAccount)}"></div><div class="field"><label>Account Holder Name</label><input id="setBankHolder" value="${esc(SYSTEM_SETTINGS.bankNameHolder)}"></div><button class="btn btn-gold btn-block" id="saveSetBtn" onclick="saveAdminSettings()">💾 Settings Save කරන්න</button></div>`;}
+function renderSettings(){return`<div class="dash-header"><h2>⚙️ System Settings</h2><div class="sub">WhatsApp සහ Bank details වෙනස් කරන්න (මුල් පිටුව, කෝස් පිටුව සහ student portal වල වෙනස් වේ)</div></div><div class="card" style="max-width:560px"><div class="field"><label>WhatsApp Number (Country Code සමඟ e.g. 94765450055)</label><input id="setWa" value="${esc(SYSTEM_SETTINGS.waNumber)}"></div><div class="field"><label>Bank Name (Branch සමඟ)</label><input id="setBankName" value="${esc(SYSTEM_SETTINGS.bankName)}"></div><div class="field"><label>Bank Account Number</label><input id="setBankAccount" value="${esc(SYSTEM_SETTINGS.bankAccount)}"></div><div class="field"><label>Account Holder Name</label><input id="setBankHolder" value="${esc(SYSTEM_SETTINGS.bankNameHolder)}"></div><button class="btn btn-gold btn-block" id="saveSetBtn" onclick="saveAdminSettings()">💾 Settings Save කරන්න</button></div><h3 style="font-size:16px;margin:28px 0 16px;color:var(--text2)">Supabase Auth User Migration</h3><div class="card" style="max-width:560px"><p style="color:var(--text2);font-size:13.5px;line-height:1.65;margin-bottom:16px">Database එකෙහි සිටින පැරණි සිසුන් (Students) සියලු දෙනාම එකවර Supabase Auth වෙත ඇතුළත් කිරීමට මෙම බොත්තම ඔබන්න. එමඟින් ඔවුන්ට වෙබ් අඩවියට ලොග් වීමට හැකි වනු ඇත.</p><button class="btn btn-ghost btn-block" id="migrateBtn" onclick="migrateExistingStudents()">🚀 Migrate All Students to Supabase Auth</button><div id="migrationProgress" style="margin-top:12px;font-size:13px"></div></div>`;}
 async function saveAdminSettings(){const btn=document.getElementById("saveSetBtn");btn.classList.add("btn-loading");btn.disabled=true;SYSTEM_SETTINGS.waNumber=document.getElementById("setWa").value.trim();SYSTEM_SETTINGS.bankName=document.getElementById("setBankName").value.trim();SYSTEM_SETTINGS.bankAccount=document.getElementById("setBankAccount").value.trim();SYSTEM_SETTINGS.bankNameHolder=document.getElementById("setBankHolder").value.trim();try{await saveSystemSettings();toast("Settings saved successfully!");}catch(e){toast("Save failed: "+e.message,"err");}finally{btn.classList.remove("btn-loading");btn.disabled=false;}}
+async function migrateExistingStudents(){const btn=document.getElementById("migrateBtn");const prog=document.getElementById("migrationProgress");btn.disabled=true;btn.textContent="Migrating...";prog.innerHTML="Loading students from database...";try{const rows=await sbGet("students","?select=username,name,password");const students=rows.filter(r=>r.username!=="demo"&&r.password);if(!students.length){prog.innerHTML=`<div style="color:var(--green)">No student accounts found to migrate.</div>`;btn.disabled=false;btn.textContent="🚀 Migrate All Students to Supabase Auth";return;}const tempSb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{persistSession:false,autoRefreshToken:false}});let successCount=0;let skipCount=0;for(let i=0;i<students.length;i++){const s=students[i];prog.innerHTML=`Migrating student ${i+1}/${students.length}: <strong>${esc(s.username)}</strong>...`;try{const{data,error}=await tempSb.auth.signUp({email:`${s.username}@rvacademy.com`,password:s.password,options:{data:{role:"student",name:s.name}}});if(error){if(error.message.includes("already registered")||error.message.includes("already exists")){skipCount++;}else{throw error;}}else{successCount++;}}catch(err){console.warn(`Failed to migrate ${s.username}:`,err);}}prog.innerHTML=`<div style="color:var(--green);font-weight:600;margin-top:10px">✓ Migration Completed!</div><div style="color:var(--text2);margin-top:4px">${successCount} students newly registered, ${skipCount} students already existed.</div>`;}catch(e){prog.innerHTML=`<div style="color:var(--red)">Migration failed: ${esc(e.message)}</div>`;}finally{btn.disabled=false;btn.textContent="🚀 Migrate All Students to Supabase Auth";}}
 document.addEventListener("DOMContentLoaded",init);
 </script>
 </body>
