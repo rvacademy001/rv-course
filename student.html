@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard | RV ACADEMY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ---- Student-specific styles ---- */
+    .course-select-card {
+      display: grid; grid-template-columns: repeat(2,1fr); gap: 16px;
+    }
+    @media(max-width:600px){ .course-select-card { grid-template-columns: 1fr; } }
+
+    .course-progress-card {
+      cursor: pointer; display: flex; flex-direction: column; gap: 12px;
+    }
+    .course-progress-card:hover { border-color: var(--gold-dim); }
+
+    .progress-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--muted);
+    }
+
+    /* Journal */
+    .journal-entry {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px;
+      transition: border-color var(--transition);
+    }
+    .journal-entry:hover { border-color: var(--border2); }
+    .journal-date {
+      font-size: 11.5px; color: var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 8px;
+    }
+    .journal-text { font-size: 14px; color: var(--text2); line-height: 1.65; }
+
+    /* Profile */
+    .profile-avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 900; color: #080b12;
+      margin-bottom: 16px;
+    }
+
+    /* Mobile nav indicator */
+    .mobile-back {
+      display: none;
+    }
+    @media(max-width:780px){
+      .mobile-back { display: flex; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">
+        <span class="mark">RV</span>
+        <span>RV <span class="rv">ACADEMY</span></span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html">මුල් පිටුව</a>
+        <a href="courses.html">කෝස්</a>
+        <button class="navbtn active">📊 ඩෑශ්බෝඩ්</button>
+        <button class="navbtn" onclick="logout()" style="color:#e5484d">🚪 Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== DASHBOARD SHELL ===== -->
+  <div class="dash" id="dashApp">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="dashSidebar">
+      <div class="who">
+        <div class="avatar" id="sidebarAvatar">?</div>
+        <div class="name" id="sidebarName">Loading...</div>
+        <div class="role">STUDENT</div>
+      </div>
+      <div class="sidebar-section">Menu</div>
+      <button class="sidebar-btn active" id="btn-course" onclick="switchTab('course')">📘 මගේ Courses</button>
+      <button class="sidebar-btn" id="btn-community" onclick="switchTab('community')">💬 Community</button>
+      <button class="sidebar-btn" id="btn-journal" onclick="switchTab('journal')">📓 My Journal</button>
+      <button class="sidebar-btn" id="btn-profile" onclick="switchTab('profile')">👤 Profile</button>
+      <div class="sidebar-section" style="margin-top:auto">Account</div>
+      <button class="sidebar-btn logout" onclick="logout()">🚪 ලොගවුට්</button>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dash-main no-select" oncontextmenu="return false" id="dashMain">
+      <div class="loading-screen"><div class="spinner"></div><span>Loading...</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="db.js"></script>
+<script src="navbar.js"></script>
+<script>
+/* ===== Auth Guard ===== */
+if(!SESSION || SESSION.type !== 'student'){
+  window.location.href = 'login.html';
+}
+
+let dashTab = 'course';
+let currentCourseView = null;
+let activeVidId = null;
+
+/* ===== Tab Switcher ===== */
+function switchTab(tab){
+  dashTab = tab;
+  currentCourseView = null;
+  activeVidId = null;
+  document.querySelectorAll('.sidebar-btn').forEach(b=>{
+    b.classList.toggle('active', b.id === 'btn-'+tab);
+  });
+  renderMain();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ===== Init ===== */
+async function init(){
+  await loadDB();
+  const stu = DB.students[SESSION.username];
+  if(!stu){ logout(); return; }
+
+  // Sidebar
+  const initial = (stu.name || SESSION.username || 'S').charAt(0).toUpperCase();
+  document.getElementById('sidebarAvatar').textContent = initial;
+  document.getElementById('sidebarName').textContent = stu.name || SESSION.username;
+
+  // Render
+  renderMain();
+  initNavbar();
+}
+
+/* ===== Render Main Area ===== */
+function renderMain(){
+  const stu = DB.students[SESSION.username];
+  if(!stu) return;
+  const main = document.getElementById('dashMain');
+  main.innerHTML = '';
+
+  if(dashTab === 'course'){
+    main.innerHTML = renderCourseTab(stu);
+  } else if(dashTab === 'community'){
+    main.innerHTML = renderCommunityTab(stu);
+  } else if(dashTab === 'journal'){
+    main.innerHTML = renderJournalTab(stu);
+  } else if(dashTab === 'profile'){
+    main.innerHTML = renderProfileTab(stu);
+  }
+}
+
+/* ===== COURSE TAB ===== */
+function renderCourseTab(stu){
+  const myCourses = (stu.courses||[]).map(k=>DB.courses[k]).filter(Boolean);
+
+  if(!myCourses.length){
+    return `<div class="empty fade-in">
+      <div class="big">📦</div>
+      <h3>Course නෑ</h3>
+      <p>Admin විසින් ඔබට Course assign කරාම මෙතන පෙන්වයි. Course ගැනීමට WhatsApp කරන්න.</p>
+      <a href="https://wa.me/94765450055" target="_blank" class="btn btn-gold" style="margin-top:20px">WhatsApp කරන්න</a>
+    </div>`;
+  }
+
+  if(currentCourseView && DB.courses[currentCourseView] && (stu.courses||[]).includes(currentCourseView)){
+    return renderVideoView(stu, DB.courses[currentCourseView]);
+  }
+
+  return `<div class="dash-header fade-in">
+    <h2>📘 මගේ Courses</h2>
+    <div class="sub">Course card click කරලා videos බලන්න</div>
+  </div>
+  <div class="course-select-card stagger">
+    ${myCourses.map(c=>{
+      const watched = (stu.watched && stu.watched[c.key]) ? stu.watched[c.key].length : 0;
+      const total = (c.videos||[]).length;
+      const pct = total ? Math.round(watched/total*100) : 0;
+      return `<div class="card course-progress-card" onclick="currentCourseView='${c.key}';renderMain()">
+        <div class="course-name">${esc(c.title)}</div>
+        <div style="color:var(--text2);font-size:13px">${total} Videos • ${watched} Watched</div>
+        <div class="progress-label">
+          <span>Progress</span><span style="color:var(--green)">${pct}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="btn btn-ghost btn-sm">Course Open කරන්න →</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderVideoView(stu, course){
+  const watchedList = (stu.watched && stu.watched[course.key]) || [];
+  const videos = (course.videos||[]).slice().sort((a,b)=>a.order-b.order);
+  const activeVid = videos.find(v=>v.id===activeVidId) || videos[0];
+
+  return `<div class="fade-in">
+    <button class="btn btn-ghost btn-sm" style="margin-bottom:20px" onclick="currentCourseView=null;activeVidId=null;renderMain()">← Courses වලට ආපසු</button>
+    <div class="dash-header">
+      <h2>${esc(course.title)}</h2>
+      <div class="sub">${videos.length} Videos — Right-click සහ Screen Recording අක්‍රීයයි</div>
+    </div>
+    ${activeVid ? `<div class="player-wrap">
+      ${/youtube|vimeo/.test(toEmbed(activeVid.link))
+        ? `<iframe src="${toEmbed(activeVid.link)}" allowfullscreen></iframe>`
+        : `<div style="color:#999;text-align:center;padding:20px"><a href="${activeVid.link}" target="_blank" class="btn btn-gold">Video Open කරන්න ↗</a></div>`
+      }
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;font-size:13.5px">
+      <strong>▶ ${esc(activeVid.name)}</strong>
+    </div>` : ''}
+    <div>
+      ${videos.map((v,i)=>{
+        const isW = watchedList.includes(v.id);
+        return `<div class="video-row ${isW?'watched':''}">
+          <div class="video-idx">${i+1}</div>
+          <div class="video-title" style="cursor:pointer" onclick="activeVidId='${v.id}';renderMain()">${esc(v.name)}</div>
+          <div class="video-actions">
+            <label class="chk" onclick="event.stopPropagation()">
+              <input type="checkbox" ${isW?'checked':''} onchange="toggleWatched('${course.key}','${v.id}',this.checked)">
+              <span>බැලුවා</span>
+            </label>
+          </div>
+        </div>`;
+      }).join('') || `<div class="empty"><p>Admin විසින් videos add කළ පසු මෙතන පෙන්වයි.</p></div>`}
+    </div>
+  </div>`;
+}
+
+async function toggleWatched(courseKey, vidId, checked){
+  const stu = DB.students[SESSION.username];
+  stu.watched = stu.watched || {};
+  stu.watched[courseKey] = stu.watched[courseKey] || [];
+  const set = new Set(stu.watched[courseKey]);
+  if(checked) set.add(vidId); else set.delete(vidId);
+  stu.watched[courseKey] = Array.from(set);
+  await saveStudent(SESSION.username);
+  renderMain();
+}
+
+/* ===== COMMUNITY TAB ===== */
+function renderCommunityTab(stu){
+  const posts = DB.community.slice().reverse();
+  return `<div class="fade-in">
+    <div class="dash-header">
+      <h2>💬 Community</h2>
+      <div class="sub">ප්‍රශ්න අහන්න, අදහස් share කරගන්න</div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="field" style="margin-bottom:12px">
+        <textarea id="postText" placeholder="ඔබේ ප්‍රශ්නය හෝ අදහස ලියන්න..." rows="3"></textarea>
+      </div>
+      <button class="btn btn-gold" onclick="addPost()">📤 Post කරන්න</button>
+    </div>
+    <div id="postsContainer">
+    ${posts.length ? posts.map(p=>`
+      <div class="post">
+        <div class="post-head">
+          <div class="post-avatar">${(p.name||'S').charAt(0).toUpperCase()}</div>
+          <span class="post-name">${esc(p.name)}</span>
+          <span class="post-date">${esc(p.date)}</span>
+        </div>
+        <div class="post-text">${esc(p.text)}</div>
+        ${(p.replies||[]).map(r=>`
+          <div class="reply">
+            <div class="post-head" style="margin-bottom:4px">
+              <div class="post-avatar" style="width:24px;height:24px;font-size:10px">${(r.name||'S').charAt(0).toUpperCase()}</div>
+              <span class="post-name" style="font-size:12.5px">${esc(r.name)}</span>
+            </div>
+            <div class="post-text" style="font-size:13.5px">${esc(r.text)}</div>
+          </div>`).join('')}
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <input type="text" id="reply-${p.id}" placeholder="Reply..." style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;font-family:inherit">
+          <button class="btn-icon" onclick="addReply('${p.id}')">Reply</button>
+        </div>
+      </div>`).join('') : `<div class="empty"><div class="big">💬</div><h3>Posts නෑ</h3><p>මුලින්ම ඔබ ලියන්න!</p></div>`}
+    </div>
+  </div>`;
+}
+
+async function addPost(){
+  const stu = DB.students[SESSION.username];
+  const text = document.getElementById('postText').value.trim();
+  if(!text) return;
+  DB.community.push({id:'p'+Date.now(), username:SESSION.username, name:stu.name||SESSION.username, text, date:new Date().toLocaleDateString('en-GB'), replies:[]});
+  await saveCommunity();
+  switchTab('community');
+}
+async function addReply(postId){
+  const stu = DB.students[SESSION.username];
+  const input = document.getElementById('reply-'+postId);
+  const text = input?.value?.trim();
+  if(!text) return;
+  const post = DB.community.find(p=>p.id===postId);
+  if(!post) return;
+  post.replies = post.replies || [];
+  post.replies.push({username:SESSION.username, name:stu.name||SESSION.username, text});
+  await saveCommunity();
+  switchTab('community');
+}
+
+/* ===== JOURNAL TAB ===== */
+function renderJournalTab(stu){
+  const entries = (stu.journal||[]).slice().reverse();
+  return `<div class="fade-in">
+    <div class="dash-header">
+      <h2>📓 My Trading Journal</h2>
+      <div class="sub">ඔබේ trading journey record කරන්න — ඔබට පමණයි පේන්නේ</div>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="field" style="margin-bottom:12px">
+        <textarea id="journalText" placeholder="අද trade, lesson, observation... ලියන්න" rows="4"></textarea>
+      </div>
+      <button class="btn btn-gold" onclick="addJournal()">💾 Save කරන්න</button>
+    </div>
+    ${entries.length ? entries.map(j=>`
+      <div class="journal-entry">
+        <div class="journal-date">📅 ${esc(j.date)}</div>
+        <div class="journal-text">${esc(j.text)}</div>
+      </div>`).join('') : `<div class="empty"><div class="big">📓</div><h3>Entries නෑ</h3><p>ඔබේ trading journey document කරන්න — ඔබට පමණයි.</p></div>`}
+  </div>`;
+}
+
+async function addJournal(){
+  const stu = DB.students[SESSION.username];
+  const text = document.getElementById('journalText').value.trim();
+  if(!text) return;
+  stu.journal = stu.journal || [];
+  stu.journal.push({date:new Date().toLocaleDateString('en-GB'), text});
+  await saveStudent(SESSION.username);
+  switchTab('journal');
+}
+
+/* ===== PROFILE TAB ===== */
+function renderProfileTab(stu){
+  return `<div class="fade-in">
+    <div class="dash-header">
+      <h2>👤 Profile</h2>
+      <div class="sub">ඔබේ account details</div>
+    </div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+      <div class="card" style="max-width:380px;flex:1;min-width:240px">
+        <div class="profile-avatar" style="margin:0 auto 16px">${(stu.name||SESSION.username||'S').charAt(0).toUpperCase()}</div>
+        <div class="field">
+          <label>Display Name</label>
+          <input type="text" id="profName" value="${esc(stu.name||'')}">
+        </div>
+        <div class="field">
+          <label>Username</label>
+          <input type="text" value="${esc(SESSION.username)}" disabled style="opacity:0.5;cursor:not-allowed">
+        </div>
+        <div class="field">
+          <label>Enrolled Courses</label>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:4px">
+            ${(stu.courses||[]).map(k=>`<span class="tag tag-gold">${esc(DB.courses[k]?.title||k)}</span>`).join('')||`<span style="color:var(--muted);font-size:13px">Course නෑ</span>`}
+          </div>
+        </div>
+        <button class="btn btn-gold btn-block" onclick="saveProfile()">Save කරන්න</button>
+        <div id="profMsg"></div>
+      </div>
+      <div class="card" style="flex:1;min-width:240px">
+        <h3 style="font-size:16px;margin-bottom:16px">📊 My Stats</h3>
+        ${(stu.courses||[]).map(k=>{
+          const c = DB.courses[k];
+          if(!c) return '';
+          const watched = (stu.watched && stu.watched[k]) ? stu.watched[k].length : 0;
+          const total = (c.videos||[]).length;
+          const pct = total ? Math.round(watched/total*100) : 0;
+          return `<div style="margin-bottom:16px">
+            <div class="progress-label"><span>${esc(c.title)}</span><span style="color:var(--green)">${pct}%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">${watched}/${total} Videos Watched</div>
+          </div>`;
+        }).join('') || `<div style="color:var(--muted);font-size:13.5px">Course assign නොකළ නිසා stats නෑ</div>`}
+        <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:8px">
+            <span style="color:var(--muted)">Journal Entries</span><span>${(stu.journal||[]).length}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px">
+            <span style="color:var(--muted)">Community Posts</span><span>${DB.community.filter(p=>p.username===SESSION.username).length}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function saveProfile(){
+  const stu = DB.students[SESSION.username];
+  stu.name = document.getElementById('profName').value.trim();
+  await saveStudent(SESSION.username);
+  document.getElementById('sidebarName').textContent = stu.name || SESSION.username;
+  document.getElementById('profMsg').innerHTML = `<div class="success-msg">✓ Profile save කළා!</div>`;
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

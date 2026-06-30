@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>නිතර අසන ප්‍රශ්න (FAQ) | RV ACADEMY</title>
+  <meta name="description" content="RV ACADEMY FAQ — Courses, Payment, Access, Broker Links ගැන නිතර අසන ප්‍රශ්නවලට පිළිතුරු.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .faq-hero {
+      padding: 80px 0 50px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .faq-hero::before {
+      content:''; position:absolute; inset:0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212,175,55,0.09), transparent 55%);
+      pointer-events:none;
+    }
+    .faq-hero::after {
+      content:''; position:absolute;
+      bottom:0; left:0; right:0; height:1px;
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+    }
+
+    /* Category tabs */
+    .faq-cats {
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:32px;
+    }
+    .faq-cat {
+      padding:8px 18px; border-radius:999px; font-size:13px; font-weight:600;
+      border:1.5px solid var(--border); background:transparent; color:var(--muted);
+      cursor:pointer; transition:all var(--transition);
+    }
+    .faq-cat:hover { border-color:var(--border2); color:var(--text2); }
+    .faq-cat.active {
+      background:rgba(212,175,55,0.1); border-color:rgba(212,175,55,0.35);
+      color:var(--gold);
+    }
+
+    /* FAQ Accordion */
+    .faq-group { margin-bottom:40px; }
+    .faq-group-title {
+      font-size:13px; text-transform:uppercase; letter-spacing:.1em;
+      color:var(--gold); font-family:'JetBrains Mono',monospace;
+      font-weight:700; margin-bottom:14px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .faq-group-title::after {
+      content:''; flex:1; height:1px;
+      background:linear-gradient(90deg, rgba(212,175,55,0.2), transparent);
+    }
+
+    .faq-item {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); margin-bottom:10px;
+      overflow:hidden; transition:border-color var(--transition);
+    }
+    .faq-item:hover { border-color:var(--border2); }
+    .faq-item.open { border-color:rgba(212,175,55,0.3); }
+
+    .faq-q {
+      width:100%; display:flex; align-items:center; gap:14px;
+      padding:18px 20px; background:none; border:none; cursor:pointer;
+      text-align:left; color:var(--text); font-size:14.5px; font-weight:600;
+      transition:color var(--transition); font-family:inherit;
+    }
+    .faq-q:hover { color:var(--gold); }
+    .faq-item.open .faq-q { color:var(--gold); }
+
+    .faq-num {
+      width:26px; height:26px; border-radius:50%; flex-shrink:0;
+      background:var(--surface2); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted);
+      transition:all var(--transition);
+    }
+    .faq-item.open .faq-num {
+      background:rgba(212,175,55,0.12); border-color:rgba(212,175,55,0.3);
+      color:var(--gold);
+    }
+    .faq-chevron {
+      margin-left:auto; font-size:18px; color:var(--muted); flex-shrink:0;
+      transition:transform .3s cubic-bezier(.2,.8,.2,1), color var(--transition);
+      line-height:1;
+    }
+    .faq-item.open .faq-chevron { transform:rotate(180deg); color:var(--gold); }
+
+    .faq-a {
+      max-height:0; overflow:hidden;
+      transition:max-height .4s cubic-bezier(.2,.8,.2,1), opacity .3s ease;
+      opacity:0;
+    }
+    .faq-item.open .faq-a { max-height:400px; opacity:1; }
+
+    .faq-a-inner {
+      padding:0 20px 20px 60px;
+      color:var(--text2); font-size:14px; line-height:1.75;
+    }
+    .faq-a-inner a { color:var(--gold); font-weight:600; }
+    .faq-a-inner a:hover { color:var(--gold-light); }
+    .faq-a-inner ul { margin-top:8px; display:flex; flex-direction:column; gap:6px; padding-left:0; list-style:none; }
+    .faq-a-inner ul li { display:flex; gap:8px; }
+    .faq-a-inner ul li::before { content:'›'; color:var(--gold); font-weight:700; flex-shrink:0; }
+
+    /* Search */
+    .faq-search-wrap { position:relative; max-width:520px; margin:0 auto 36px; }
+    .faq-search-wrap input {
+      width:100%; background:var(--surface); border:1.5px solid var(--border);
+      border-radius:var(--radius); padding:14px 20px 14px 52px;
+      color:var(--text); font-size:14.5px; font-family:inherit; outline:none;
+      transition:all var(--transition);
+    }
+    .faq-search-wrap input:focus {
+      border-color:rgba(212,175,55,0.4);
+      box-shadow:0 0 0 3px rgba(212,175,55,0.07);
+    }
+    .faq-search-wrap input::placeholder { color:var(--muted); }
+    .faq-search-icon {
+      position:absolute; left:18px; top:50%; transform:translateY(-50%);
+      font-size:18px; pointer-events:none; color:var(--muted);
+    }
+
+    /* CTA bottom */
+    .faq-cta {
+      background:linear-gradient(135deg, var(--surface2), var(--surface));
+      border:1px solid rgba(212,175,55,0.2);
+      border-radius:var(--radius-lg); padding:40px; text-align:center;
+      position:relative; overflow:hidden;
+    }
+    .faq-cta::before {
+      content:''; position:absolute; top:-40%; right:-10%;
+      width:300px; height:300px;
+      background:radial-gradient(circle, rgba(212,175,55,0.08), transparent 70%);
+      pointer-events:none;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">
+        <span class="mark">RV</span><span>RV <span class="rv">ACADEMY</span></span>
+      </a>
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html">මුල් පිටුව</a>
+        <a href="about.html">About</a>
+        <a href="affiliates.html">Affiliates</a>
+        <a href="courses.html">Courses</a>
+        <a href="faq.html" class="active">FAQ</a>
+        <a href="contact.html">Contact</a>
+        <a href="legal.html">Legal</a>
+        <span id="navAuthArea"></span>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HERO -->
+    <section class="faq-hero">
+      <div class="container">
+        <div class="reveal" style="text-align:center; max-width:640px; margin:0 auto;">
+          <div class="eyebrow" style="justify-content:center">FAQ</div>
+          <h1 style="font-size:clamp(28px,4vw,46px); margin:16px 0 14px;">
+            නිතර අසන <span style="color:var(--gold)">ප්‍රශ්න</span>
+          </h1>
+          <p style="color:var(--text2); font-size:15.5px; line-height:1.7; margin-bottom:0">
+            Courses, Payment, Access, Broker links ගැන ඔබේ ප්‍රශ්නවලට ඉක්මන් answers.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ CONTENT -->
+    <section class="section">
+      <div class="container-sm">
+
+        <!-- Search -->
+        <div class="faq-search-wrap reveal">
+          <span class="faq-search-icon">🔍</span>
+          <input type="text" id="faqSearch" placeholder="ප්‍රශ්නය search කරන්න..." oninput="filterFAQ(this.value)">
+        </div>
+
+        <!-- FAQ Groups -->
+        <div id="faqContainer">
+
+          <!-- Courses -->
+          <div class="faq-group reveal" data-group="courses">
+            <div class="faq-group-title">📘 Courses ගැන</div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">1</span>
+                <span>Course ගත් පසු Basic සිට Advance ගන්නාද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                ඔව්. Basic Course ගත් students ලාට Advance Course හිදී deeper content ලැබෙනවා. Basic → Advance order ගැනීම strongly recommended. Basic Course ගැනීමෙන් Forex fundamentals, chart reading, risk management, broker setup සියල්ල cover වෙනවා. Advance Course හිදී advanced strategies, live trade analysis, signals interpretation ඉගෙන ගනිනවා.
+              </div></div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">2</span>
+                <span>Course access ලැබෙන්නේ කවදාද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                Payment confirm කළ පසු <strong style="color:var(--gold)">24 පැය ඇතුළත</strong> ඔබේ student account create කෙරෙනවා. Admin ගෙන් WhatsApp හරහා credentials ලැබෙනවා. Weekend payment නම් Monday ට ලැබෙන්න ඉඩ ඇත. ඉක්මන් access සඳහා WhatsApp කරන්න: <a href="https://wa.me/94765450055" target="_blank">+94 765 450 055</a>
+              </div></div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">3</span>
+                <span>Video content download කළ හැකිද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                නැත. Video content online streaming only. Download, screen record, copy කිරීම <strong style="color:var(--red)">prohibited</strong>. Copyright protection සඳහා right-click සහ screen recording disable. ඔබේ account credentials share කිරීම account ban කිරීමට හේතු වේ.
+              </div></div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">4</span>
+                <span>Mobile phone ගෙන් course access කළ හැකිද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                ඔව්! RV ACADEMY website fully mobile responsive. ඕනෑම phone, tablet, laptop ගෙන් access. Chrome, Firefox, Safari ඕනෑ browser. Internet connection ඕනෑ video streaming සඳහා.
+              </div></div>
+            </div>
+          </div>
+
+          <!-- Payment -->
+          <div class="faq-group reveal" data-group="payment">
+            <div class="faq-group-title">💰 Payment ගැන</div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">5</span>
+                <span>Course buy කිරීමට කොහොමද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                <ul>
+                  <li>1. <a href="courses.html">Courses page</a> බලා ඔබේ course select කරන්න</li>
+                  <li>2. "Enroll" button click කරන්න — payment details ලැබෙනවා</li>
+                  <li>3. Bank transfer / WhatsApp payment</li>
+                  <li>4. Screenshot WhatsApp — <a href="https://wa.me/94765450055" target="_blank">+94 765 450 055</a></li>
+                  <li>5. Confirm වූ පසු credentials ලැබෙනවා</li>
+                </ul>
+              </div></div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">6</span>
+                <span>Refund ලැබෙනවාද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                Digital educational content <strong style="color:var(--red)">non-refundable</strong>. Course access ලැබුණු පසු refund නෑ. Exceptions: duplicate payment, technical error. Details: <a href="legal.html#refund">Legal Page — Refund Policy</a>. ගැටළු: <a href="mailto:rvacademyxm@gmail.com">rvacademyxm@gmail.com</a>
+              </div></div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">7</span>
+                <span>Payment methods මොනවාද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                <ul>
+                  <li>Lanka QR / Bank Transfer (HNB, Commercial Bank, Sampath)</li>
+                  <li>WhatsApp Pay (Dialog Genie, Wave Money)</li>
+                  <li>Direct bank deposit</li>
+                </ul>
+                Payment details course enrollment button click කළ පසු ලැබෙනවා, හෝ WhatsApp කරන්න.
+              </div></div>
+            </div>
+          </div>
+
+          <!-- Technical -->
+          <div class="faq-group reveal" data-group="tech">
+            <div class="faq-group-title">⚙️ Technical ගැන</div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">8</span>
+                <span>Password forget වූ නිසා login කළ නොහැකි නම්?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                Password reset self-service නෑ. Admin හරහා reset කිරීමට: <a href="https://wa.me/94765450055" target="_blank">WhatsApp +94 765 450 055</a> හෝ <a href="mailto:rvacademyxm@gmail.com">Email</a>. Username සහ registered phone number provide කරන්න.
+              </div></div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">9</span>
+                <span>Demo account ඇද? Try කිරීමට?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                Demo account ලබා ගැනීමට admin contact කරන්න. Demo account හරහා dashboard, video player, community, journal features experience කළ හැකි. Course content limited. Contact: <a href="https://wa.me/94765450055" target="_blank">WhatsApp</a>
+              </div></div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">10</span>
+                <span>Videos load නොවේ නම් කරන්නේ කුමක්ද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                <ul>
+                  <li>Internet connection check කරන්න (minimum 2Mbps recommended)</li>
+                  <li>Browser refresh කරන්න (Ctrl+Shift+R)</li>
+                  <li>Different browser try කරන්න (Chrome recommended)</li>
+                  <li>VPN disable කරන්න</li>
+                  <li>Problem persist නම් WhatsApp කරන්න</li>
+                </ul>
+              </div></div>
+            </div>
+          </div>
+
+          <!-- Broker -->
+          <div class="faq-group reveal" data-group="broker">
+            <div class="faq-group-title">📡 Broker / Signals ගැන</div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">11</span>
+                <span>Lifetime Forex Signal Group free ද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                ඔව්! <strong style="color:var(--green)">Completely FREE</strong>. RV ACADEMY affiliate broker link (XM, Exness, etc.) හරහා account register කළ විට Lifetime Forex Signal Group access ලැබෙනවා. Broker register කිරීමට: <a href="affiliates.html">Affiliates Page</a> → broker link click → register → screenshot WhatsApp.
+              </div></div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">12</span>
+                <span>XM account register කිරීමට කොහොමද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                <ul>
+                  <li>1. <a href="affiliates.html">Affiliates page</a> visit කරන්න</li>
+                  <li>2. XM card click කරන්න → Referral link copy කරන්න</li>
+                  <li>3. Link හරහා XM website register</li>
+                  <li>4. Registration screenshot WhatsApp කරන්න</li>
+                  <li>5. Signal Group invite ලැබෙනවා!</li>
+                </ul>
+                ගැටළු: <a href="https://wa.me/94765450055" target="_blank">WhatsApp +94 765 450 055</a>
+              </div></div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-q" onclick="toggleFaq(this)">
+                <span class="faq-num">13</span>
+                <span>Signals follow කිරීම compulsory ද?</span>
+                <span class="faq-chevron">⌄</span>
+              </button>
+              <div class="faq-a"><div class="faq-a-inner">
+                නැත. Signals educational/informational reference. Follow කිරීම ඔබේ own decision. RV ACADEMY signals result guarantee නොකරයි. Trading decisions ඔබේ own research, analysis, risk management based on ගන්න. <a href="legal.html#disclaimer">Financial Disclaimer</a> කියවන්න.
+              </div></div>
+            </div>
+          </div>
+
+        </div><!-- end faqContainer -->
+
+        <!-- CTA -->
+        <div class="faq-cta reveal" style="margin-top:48px">
+          <div style="font-size:32px; margin-bottom:12px">🤔</div>
+          <h2 style="font-size:22px; margin-bottom:10px;">තවත් ප්‍රශ්නයක් ඇද?</h2>
+          <p style="color:var(--text2); font-size:15px; max-width:480px; margin:0 auto 24px; line-height:1.7">
+            ඕනෑම ප්‍රශ්නයක් WhatsApp හෝ Email හරහා අපව contact කරන්න. ඉක්මනින් reply කරනවා.
+          </p>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+            <a href="https://wa.me/94765450055" target="_blank" class="btn btn-gold btn-lg">💬 WhatsApp කරන්න</a>
+            <a href="mailto:rvacademyxm@gmail.com" class="btn btn-ghost btn-lg">📧 Email කරන්න</a>
+            <a href="contact.html" class="btn btn-ghost btn-lg">📞 Contact Page →</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="mark">RV</div>
+          <div class="name">RV <span class="rv">ACADEMY</span></div>
+          <p>ශ්‍රී ලංකාවේ #1 Trading Education Platform. Forex සහ Crypto Trading ඉගෙන ගන්න.</p>
+        </div>
+        <div class="footer-col"><h4>Pages</h4><ul>
+          <li><a href="index.html">මුල් පිටුව</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="affiliates.html">Affiliates</a></li>
+          <li><a href="about.html">About Us</a></li>
+        </ul></div>
+        <div class="footer-col"><h4>Support</h4><ul>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="legal.html">Legal Info</a></li>
+          <li><a href="login.html">Login</a></li>
+        </ul></div>
+        <div class="footer-col"><h4>Contact</h4><ul>
+          <li><a href="mailto:rvacademyxm@gmail.com">📧 rvacademyxm@gmail.com</a></li>
+          <li><a href="https://wa.me/94765450055" target="_blank">💬 WhatsApp</a></li>
+        </ul></div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 RV ACADEMY — Trading Education Sri Lanka</span>
+        <div class="footer-bottom-links">
+          <a href="about.html">About</a>
+          <a href="legal.html">Legal</a>
+          <a href="contact.html">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script src="db.js"></script>
+<script src="navbar.js"></script>
+<script src="animations.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{ initNavbar(); });
+
+function toggleFaq(btn){
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  // Close all others
+  document.querySelectorAll('.faq-item.open').forEach(el=>{
+    if(el !== item) el.classList.remove('open');
+  });
+  item.classList.toggle('open', !isOpen);
+}
+
+function filterFAQ(q){
+  const term = q.toLowerCase().trim();
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    const text = item.textContent.toLowerCase();
+    const show = !term || text.includes(term);
+    item.style.display = show ? '' : 'none';
+  });
+  document.querySelectorAll('.faq-group').forEach(grp=>{
+    const visible = [...grp.querySelectorAll('.faq-item')].some(i=>i.style.display!=='none');
+    grp.style.display = visible ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

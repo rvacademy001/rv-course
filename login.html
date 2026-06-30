@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | RV ACADEMY</title>
+  <meta name="description" content="RV ACADEMY — Student Login">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ============================================================
+       LOGIN PAGE — Animated Premium Design
+       ============================================================ */
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0; overflow-x: hidden;
+      background: #060810;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ---- Animated Background ---- */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden;
+    }
+
+    /* Radial glow spots */
+    .glow-spot {
+      position: absolute; border-radius: 50%; filter: blur(80px);
+      animation: driftGlow 12s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .gs1 { width: 500px; height: 500px; background: rgba(212,175,55,0.09); top: -15%; left: -10%; animation-delay: 0s; }
+    .gs2 { width: 400px; height: 400px; background: rgba(61,142,240,0.05); bottom: -10%; right: -5%; animation-delay: -4s; }
+    .gs3 { width: 300px; height: 300px; background: rgba(31,203,107,0.04); top: 50%; left: 40%; animation-delay: -8s; }
+    @keyframes driftGlow {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%      { transform: translate(30px,-20px) scale(1.05); }
+      66%      { transform: translate(-20px,30px) scale(0.95); }
+    }
+
+    /* Grid lines */
+    .grid-lines {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(212,175,55,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* Animated candlestick particles */
+    .candle-particle {
+      position: absolute; width: 8px; border-radius: 2px;
+      opacity: 0; animation: candleRise 6s ease-in-out infinite;
+    }
+    @keyframes candleRise {
+      0%   { opacity:0; transform: translateY(40px) scaleY(0); }
+      20%  { opacity:0.35; transform: translateY(0) scaleY(1); }
+      80%  { opacity:0.2; transform: translateY(-60px) scaleY(0.8); }
+      100% { opacity:0; transform: translateY(-100px) scaleY(0); }
+    }
+
+    /* Floating trading icons */
+    .float-icon {
+      position: absolute; font-size: 28px; opacity: 0;
+      animation: floatIcon 10s ease-in-out infinite;
+      pointer-events: none; user-select: none;
+    }
+    @keyframes floatIcon {
+      0%   { opacity:0; transform:translateY(20px) rotate(-5deg); }
+      15%  { opacity:0.1; }
+      85%  { opacity:0.07; transform:translateY(-30px) rotate(5deg); }
+      100% { opacity:0; transform:translateY(-60px) rotate(-5deg); }
+    }
+
+    /* ---- Ticker strip at top ---- */
+    .ticker-strip {
+      position: fixed; top: 0; left: 0; right: 0; height: 36px; z-index: 5;
+      background: rgba(8,11,18,0.95); border-bottom: 1px solid rgba(212,175,55,0.1);
+      display: flex; align-items: center; overflow: hidden;
+    }
+    .ticker-inner {
+      display: flex; gap: 36px; white-space: nowrap;
+      animation: tickerScroll 30s linear infinite;
+      font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+    }
+    @keyframes tickerScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .tick-item { display: flex; align-items: center; gap: 7px; }
+    .tick-up   { color: #1fcb6b; }
+    .tick-down { color: #e5484d; }
+    .tick-label{ color: rgba(255,255,255,0.35); font-size: 11px; }
+
+    /* ---- Back button ---- */
+    .back-btn {
+      position: fixed; top: 52px; left: 20px; z-index: 10;
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(17,22,32,0.8); border: 1px solid rgba(31,40,64,0.8);
+      backdrop-filter: blur(12px); border-radius: 8px;
+      padding: 8px 14px; font-size: 13px; color: #8893a6;
+      text-decoration: none; font-family: 'Inter', sans-serif;
+      transition: all .18s ease; cursor: pointer;
+    }
+    .back-btn:hover { color: #d4af37; border-color: rgba(212,175,55,0.35); background: rgba(212,175,55,0.05); }
+
+    /* ---- Main login wrapper ---- */
+    .login-page {
+      position: relative; z-index: 2;
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center;
+      padding: 80px 20px 40px;
+    }
+
+    /* ---- Card ---- */
+    .login-card {
+      width: 100%; max-width: 430px;
+      background: rgba(17,22,32,0.75);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border: 1px solid rgba(31,40,64,0.9);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow:
+        0 8px 60px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(212,175,55,0.04) inset;
+      animation: cardEntrance .6s cubic-bezier(.2,.8,.2,1) both;
+      position: relative; overflow: hidden;
+    }
+    @keyframes cardEntrance {
+      from { opacity:0; transform:translateY(30px) scale(0.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* Gold top border shimmer */
+    .card-top-bar {
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+      background-size: 200% 100%;
+      animation: shimmerBar 3s linear infinite;
+    }
+    @keyframes shimmerBar {
+      from { background-position: -200% 0; }
+      to   { background-position: 200% 0; }
+    }
+
+    /* ---- Logo ---- */
+    .login-logo {
+      text-align: center; margin-bottom: 32px;
+      animation: fadeInDown .5s .2s cubic-bezier(.2,.8,.2,1) both;
+    }
+    @keyframes fadeInDown {
+      from { opacity:0; transform:translateY(-12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .logo-mark {
+      width: 58px; height: 58px; border-radius: 16px; margin: 0 auto 14px;
+      background: linear-gradient(135deg, #f0cc5c 0%, #d4af37 50%, #a9851f 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Sora', sans-serif; font-weight: 900;
+      font-size: 20px; color: #080b12;
+      box-shadow: 0 4px 24px rgba(212,175,55,0.45), 0 0 0 1px rgba(212,175,55,0.2) inset;
+      animation: logoPulse 4s ease-in-out infinite;
+    }
+    @keyframes logoPulse {
+      0%,100% { box-shadow: 0 4px 24px rgba(212,175,55,0.45), 0 0 0 1px rgba(212,175,55,0.2) inset; }
+      50%      { box-shadow: 0 6px 36px rgba(212,175,55,0.65), 0 0 0 1px rgba(212,175,55,0.3) inset; }
+    }
+    .logo-name {
+      font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .logo-name .gold { color: #d4af37; }
+    .logo-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+      letter-spacing: .12em; color: rgba(212,175,55,0.6);
+      text-transform: uppercase; margin-top: 4px;
+    }
+
+    /* ---- Form heading ---- */
+    .login-heading {
+      font-family: 'Sora', sans-serif; font-size: 21px; font-weight: 700;
+      color: #eaf0fa; text-align: center; margin-bottom: 6px;
+      animation: fadeInUp .5s .3s both;
+    }
+    .login-sub {
+      font-size: 13.5px; color: #6b7a96; text-align: center; margin-bottom: 28px;
+      animation: fadeInUp .5s .35s both;
+    }
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(10px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ---- Fields ---- */
+    .f-group {
+      margin-bottom: 18px;
+      animation: fadeInUp .5s both;
+    }
+    .f-group:nth-child(1) { animation-delay: .4s; }
+    .f-group:nth-child(2) { animation-delay: .47s; }
+
+    .f-label {
+      display: block; font-size: 11.5px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: #6b7a96; margin-bottom: 8px;
+    }
+    .f-input-wrap { position: relative; }
+    .f-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; pointer-events: none; z-index: 1;
+    }
+    .f-input {
+      width: 100%; background: rgba(8,11,18,0.7);
+      border: 1.5px solid rgba(31,40,64,0.9);
+      border-radius: 10px; color: #eaf0fa;
+      padding: 12px 44px; font-size: 14.5px;
+      font-family: 'Inter', sans-serif;
+      outline: none; transition: all .18s ease;
+    }
+    .f-input::placeholder { color: #3d4a60; }
+    .f-input:focus {
+      border-color: rgba(212,175,55,0.5);
+      background: rgba(8,11,18,0.9);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.08), 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .f-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: #6b7a96; cursor: pointer;
+      font-size: 17px; padding: 4px; transition: color .18s; z-index: 1;
+    }
+    .f-toggle:hover { color: #d4af37; }
+
+    /* ---- Demo hint ---- */
+    .demo-hint {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(31,203,107,0.06); border: 1px solid rgba(31,203,107,0.15);
+      border-radius: 8px; padding: 10px 14px; margin-bottom: 20px;
+      font-size: 12.5px; color: #6b7a96;
+      animation: fadeInUp .5s .52s both;
+    }
+    .demo-hint .chip {
+      background: rgba(31,203,107,0.15); color: #1fcb6b;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      padding: 2px 8px; border-radius: 5px; white-space: nowrap; flex-shrink: 0;
+      cursor: pointer; transition: background .15s;
+      border: 1px solid rgba(31,203,107,0.2);
+    }
+    .demo-hint .chip:hover { background: rgba(31,203,107,0.25); }
+
+    /* ---- Submit button ---- */
+    .login-btn {
+      width: 100%; padding: 14px; border-radius: 11px;
+      background: linear-gradient(135deg, #f0cc5c 0%, #d4af37 50%, #b8921c 100%);
+      color: #080b12; font-family: 'Sora', sans-serif; font-weight: 800;
+      font-size: 15.5px; border: none; cursor: pointer;
+      transition: all .18s ease; position: relative; overflow: hidden;
+      box-shadow: 0 4px 20px rgba(212,175,55,0.35);
+      animation: fadeInUp .5s .58s both;
+      letter-spacing: 0.01em;
+    }
+    .login-btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+      opacity: 0; transition: opacity .18s;
+    }
+    .login-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(212,175,55,0.55);
+    }
+    .login-btn:hover::before { opacity: 1; }
+    .login-btn:active:not(:disabled) { transform: scale(0.98); }
+    .login-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    /* ---- Loading dots ---- */
+    .dot-loader { display: inline-flex; gap: 5px; vertical-align: middle; }
+    .dot-loader span {
+      width: 6px; height: 6px; background: #080b12; border-radius: 50%;
+      animation: dotBounce .8s ease-in-out infinite;
+    }
+    .dot-loader span:nth-child(2) { animation-delay: .15s; }
+    .dot-loader span:nth-child(3) { animation-delay: .3s; }
+    @keyframes dotBounce {
+      0%,80%,100% { transform: scale(0.6); opacity: 0.5; }
+      40%          { transform: scale(1); opacity: 1; }
+    }
+
+    /* ---- Error / success messages ---- */
+    .msg-box {
+      border-radius: 9px; padding: 11px 16px; font-size: 13px;
+      margin-top: 14px; display: flex; align-items: flex-start; gap: 9px;
+      animation: msgSlide .25s ease;
+    }
+    @keyframes msgSlide {
+      from { opacity:0; transform:translateY(-6px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .msg-error {
+      background: rgba(229,72,77,0.1); border: 1px solid rgba(229,72,77,0.25);
+      color: #e5484d;
+    }
+    .msg-success {
+      background: rgba(31,203,107,0.1); border: 1px solid rgba(31,203,107,0.25);
+      color: #1fcb6b;
+    }
+
+    /* ---- Footer hint ---- */
+    .login-footer {
+      text-align: center; margin-top: 22px; font-size: 13px; color: #4a566a;
+      animation: fadeInUp .5s .65s both;
+    }
+    .login-footer a { color: #d4af37; font-weight: 600; text-decoration: none; transition: color .15s; }
+    .login-footer a:hover { color: #f0cc5c; }
+
+    /* ---- Shake animation for wrong password ---- */
+    .shake {
+      animation: shake .4s cubic-bezier(.36,.07,.19,.97) both !important;
+    }
+    @keyframes shake {
+      10%,90%  { transform: translate3d(-2px,0,0); }
+      20%,80%  { transform: translate3d(4px,0,0); }
+      30%,50%,70% { transform: translate3d(-6px,0,0); }
+      40%,60%  { transform: translate3d(6px,0,0); }
+    }
+
+    /* ---- Right-side decorative panel (desktop only) ---- */
+    @media (min-width: 1000px) {
+      .login-page { gap: 60px; }
+      .deco-panel {
+        display: flex; flex-direction: column; gap: 18px; max-width: 320px;
+        animation: fadeInLeft .7s .2s both;
+      }
+      @keyframes fadeInLeft {
+        from { opacity:0; transform:translateX(-24px); }
+        to   { opacity:1; transform:translateX(0); }
+      }
+      .deco-title {
+        font-family: 'Sora', sans-serif; font-size: 30px; font-weight: 800;
+        line-height: 1.2; color: #eaf0fa;
+      }
+      .deco-title .gold {
+        background: linear-gradient(135deg, #f0cc5c, #d4af37);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .deco-sub { color: #6b7a96; font-size: 14.5px; line-height: 1.65; }
+      .deco-features { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+      .deco-feat {
+        display: flex; align-items: center; gap: 12px;
+        background: rgba(17,22,32,0.6); border: 1px solid rgba(31,40,64,0.7);
+        border-radius: 12px; padding: 14px 16px;
+        backdrop-filter: blur(8px); font-size: 13.5px; color: #b8c4d8;
+        transition: border-color .18s, transform .18s;
+      }
+      .deco-feat:hover { border-color: rgba(212,175,55,0.2); transform: translateX(4px); }
+      .deco-feat-icon { font-size: 20px; flex-shrink: 0; }
+    }
+    .deco-panel { display: none; }
+    @media (min-width: 1000px) { .deco-panel { display: flex; } }
+  </style>
+</head>
+<body>
+
+<!-- ========== ANIMATED BACKGROUND ========== -->
+<div class="bg-canvas">
+  <div class="grid-lines"></div>
+  <div class="glow-spot gs1"></div>
+  <div class="glow-spot gs2"></div>
+  <div class="glow-spot gs3"></div>
+
+  <!-- Candlestick particles -->
+  <div class="candle-particle" style="left:8%;bottom:0;height:60px;background:#1fcb6b;animation-delay:0s;animation-duration:7s"></div>
+  <div class="candle-particle" style="left:15%;bottom:0;height:45px;background:#e5484d;animation-delay:1.2s;animation-duration:8s"></div>
+  <div class="candle-particle" style="left:80%;bottom:0;height:70px;background:#1fcb6b;animation-delay:2.5s;animation-duration:6s"></div>
+  <div class="candle-particle" style="left:88%;bottom:0;height:50px;background:#e5484d;animation-delay:0.7s;animation-duration:9s"></div>
+  <div class="candle-particle" style="left:55%;bottom:0;height:40px;background:#1fcb6b;animation-delay:3.5s;animation-duration:7.5s"></div>
+  <div class="candle-particle" style="left:63%;bottom:0;height:80px;background:#d4af37;animation-delay:1.8s;animation-duration:10s"></div>
+  <div class="candle-particle" style="left:30%;bottom:0;height:55px;background:#e5484d;animation-delay:4.2s;animation-duration:8.5s"></div>
+
+  <!-- Floating icons -->
+  <div class="float-icon" style="left:5%;top:20%;animation-delay:0s;animation-duration:12s">📈</div>
+  <div class="float-icon" style="left:92%;top:15%;animation-delay:3s;animation-duration:9s">💹</div>
+  <div class="float-icon" style="left:3%;top:70%;animation-delay:6s;animation-duration:11s">🪙</div>
+  <div class="float-icon" style="left:90%;top:65%;animation-delay:2s;animation-duration:14s">📊</div>
+  <div class="float-icon" style="left:45%;top:5%;animation-delay:5s;animation-duration:10s">💰</div>
+</div>
+
+<!-- ========== TICKER STRIP ========== -->
+<div class="ticker-strip">
+  <div class="ticker-inner">
+    <div class="tick-item"><span class="tick-label">EUR/USD</span><span class="tick-up">▲ 1.0842</span></div>
+    <div class="tick-item"><span class="tick-label">BTC/USDT</span><span class="tick-up">▲ 67,420</span></div>
+    <div class="tick-item"><span class="tick-label">GBP/USD</span><span class="tick-down">▼ 1.2718</span></div>
+    <div class="tick-item"><span class="tick-label">ETH/USDT</span><span class="tick-up">▲ 3,584</span></div>
+    <div class="tick-item"><span class="tick-label">XAU/USD</span><span class="tick-up">▲ 2,318</span></div>
+    <div class="tick-item"><span class="tick-label">USD/JPY</span><span class="tick-down">▼ 154.20</span></div>
+    <div class="tick-item"><span class="tick-label">BNB/USDT</span><span class="tick-up">▲ 589</span></div>
+    <div class="tick-item"><span class="tick-label">AUD/USD</span><span class="tick-down">▼ 0.6612</span></div>
+    <div class="tick-item"><span class="tick-label">SOL/USDT</span><span class="tick-up">▲ 172</span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="tick-item"><span class="tick-label">EUR/USD</span><span class="tick-up">▲ 1.0842</span></div>
+    <div class="tick-item"><span class="tick-label">BTC/USDT</span><span class="tick-up">▲ 67,420</span></div>
+    <div class="tick-item"><span class="tick-label">GBP/USD</span><span class="tick-down">▼ 1.2718</span></div>
+    <div class="tick-item"><span class="tick-label">ETH/USDT</span><span class="tick-up">▲ 3,584</span></div>
+    <div class="tick-item"><span class="tick-label">XAU/USD</span><span class="tick-up">▲ 2,318</span></div>
+    <div class="tick-item"><span class="tick-label">USD/JPY</span><span class="tick-down">▼ 154.20</span></div>
+    <div class="tick-item"><span class="tick-label">BNB/USDT</span><span class="tick-up">▲ 589</span></div>
+    <div class="tick-item"><span class="tick-label">AUD/USD</span><span class="tick-down">▼ 0.6612</span></div>
+    <div class="tick-item"><span class="tick-label">SOL/USDT</span><span class="tick-up">▲ 172</span></div>
+  </div>
+</div>
+
+<!-- ========== BACK BUTTON ========== -->
+<a href="index.html" class="back-btn">← මුල් පිටුව</a>
+
+<!-- ========== MAIN CONTENT ========== -->
+<div class="login-page">
+
+  <!-- Decorative left panel (desktop) -->
+  <div class="deco-panel">
+    <div class="deco-title">ඔබේ Trading<br><span class="gold">Journey</span> ආරම්භ කරන්න</div>
+    <div class="deco-sub">RV ACADEMY හරහා Professional Forex & Crypto Trading ඉගෙන ගන්න.</div>
+    <div class="deco-features">
+      <div class="deco-feat"><div class="deco-feat-icon">📘</div><div>Basic සිට Full Course — ඔබේ level එකට</div></div>
+      <div class="deco-feat"><div class="deco-feat-icon">📡</div><div>Lifetime Forex Signal Group Access</div></div>
+      <div class="deco-feat"><div class="deco-feat-icon">🎬</div><div>HD Video Lessons — ඕනෑ වෙලාවක</div></div>
+      <div class="deco-feat"><div class="deco-feat-icon">💬</div><div>Student Community & Q&A Support</div></div>
+      <div class="deco-feat"><div class="deco-feat-icon">📓</div><div>Personal Trading Journal</div></div>
+    </div>
+  </div>
+
+  <!-- Login Card -->
+  <div class="login-card" id="loginCard">
+    <div class="card-top-bar"></div>
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="logo-mark">RV</div>
+      <div class="logo-name">RV <span class="gold">ACADEMY</span></div>
+      <div class="logo-tag">● Trading Education Sri Lanka</div>
+    </div>
+
+    <h2 class="login-heading">ආයුබෝවන් 👋</h2>
+    <p class="login-sub">ඔබේ account එකට sign in කරන්න</p>
+
+    <form id="loginForm" onsubmit="return doLogin(event)" novalidate>
+
+      <!-- Username -->
+      <div class="f-group">
+        <label class="f-label" for="loginUser">Username</label>
+        <div class="f-input-wrap">
+          <span class="f-icon">👤</span>
+          <input class="f-input" type="text" id="loginUser"
+            autocomplete="username" required placeholder="ඔබේ username" spellcheck="false">
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="f-group">
+        <label class="f-label" for="loginPass">Password</label>
+        <div class="f-input-wrap">
+          <span class="f-icon">🔒</span>
+          <input class="f-input" type="password" id="loginPass"
+            autocomplete="current-password" required placeholder="••••••••••">
+          <button type="button" class="f-toggle" id="togglePass" aria-label="Show/hide password">👁</button>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button class="login-btn" type="submit" id="loginBtn">ලොගින් වෙන්න →</button>
+
+      <div id="loginMsg"></div>
+    </form>
+
+    <div class="login-footer">
+      Account නැද්ද? <a href="courses.html">Course ගන්න</a> — Admin ලොගින් credentials ලැබෙනවා.
+    </div>
+  </div>
+</div>
+
+<script src="db.js"></script>
+<script>
+/* ---- Redirect if already logged in ---- */
+if(SESSION){
+  if(SESSION.type === 'admin') location.href = 'admin.html';
+  else if(SESSION.type === 'student') location.href = 'student.html';
+}
+
+
+/* ---- Password toggle ---- */
+document.getElementById('togglePass').addEventListener('click', function(){
+  const inp = document.getElementById('loginPass');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  this.textContent = show ? '🙈' : '👁';
+});
+
+/* ---- Login logic — auto-detects admin vs student ---- */
+async function doLogin(e){
+  e.preventDefault();
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const msgBox = document.getElementById('loginMsg');
+  const btn = document.getElementById('loginBtn');
+  const card = document.getElementById('loginCard');
+
+  if(!u || !p){
+    showError('Username සහ Password enter කරන්න'); return false;
+  }
+
+  /* Loading state */
+  btn.disabled = true;
+  btn.innerHTML = `<span class="dot-loader"><span></span><span></span><span></span></span>`;
+  msgBox.innerHTML = '';
+
+  try {
+    await loadDB();
+
+    /* ---- Check admin FIRST (silent, no tab needed) ---- */
+    if(u === ADMIN_CREDENTIALS.username && p === ADMIN_CREDENTIALS.password){
+      SESSION = {type:'admin', username:u};
+      saveSession();
+      btn.innerHTML = '✓ Admin — Redirecting...';
+      btn.style.background = 'linear-gradient(135deg,#25e07a,#1fcb6b)';
+      setTimeout(()=> location.href = 'admin.html', 600);
+      return false;
+    }
+
+    /* ---- Check student ---- */
+    const stu = DB.students[u];
+    if(stu && stu.password === p){
+      SESSION = {type:'student', username:u};
+      saveSession();
+      btn.innerHTML = `✓ ${stu.name||u} — Redirecting...`;
+      btn.style.background = 'linear-gradient(135deg,#25e07a,#1fcb6b)';
+      setTimeout(()=> location.href = 'student.html', 600);
+      return false;
+    }
+
+    /* ---- Wrong credentials ---- */
+    showError('Username හෝ Password වැරදියි. Admin ගෙන් credentials ඉල්ලන්න.');
+    card.classList.remove('shake');
+    void card.offsetWidth; // reflow
+    card.classList.add('shake');
+    setTimeout(()=> card.classList.remove('shake'), 500);
+
+  } catch(err){
+    showError('Connection error — නැවත try කරන්න');
+  }
+
+  btn.disabled = false;
+  if(!btn.style.background.includes('green')){
+    btn.innerHTML = 'ලොගින් වෙන්න →';
+  }
+  return false;
+}
+
+function showError(msg){
+  document.getElementById('loginMsg').innerHTML =
+    `<div class="msg-box msg-error"><span>⚠️</span><span>${msg}</span></div>`;
+}
+
+/* ---- Focus first input on load ---- */
+window.addEventListener('load', ()=>{
+  document.getElementById('loginUser').focus();
+});
+</script>
+</body>
+</html>
