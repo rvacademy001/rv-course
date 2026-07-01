@@ -520,34 +520,6 @@ async function doLogin(e){
   // If user entered a username (no '@'), automatically format it to an email
   const email = inputVal.includes("@") ? inputVal : `${inputVal}@rvacademy.com`;
 
-  // Local fallback bypass for the admin (username: rv, password: Prashan2002$Ni) to prevent lockouts
-  if ((inputVal === "rv" || email === "rv@rvacademy.com") && p === "Prashan2002$Ni") {
-    SESSION = {
-      type: "admin",
-      username: "rv",
-      email: "admin@rvacademy.com"
-    };
-    saveSession();
-    btn.innerHTML = `✓ Authenticated (Local) — Redirecting...`;
-    btn.style.background = "linear-gradient(135deg,#25e07a,#1fcb6b)";
-    setTimeout(()=> { location.href = "admin.html"; }, 800);
-    return false;
-  }
-
-  // Local fallback bypass for the demo student (username: demo, password: demo) for testing
-  if ((inputVal === "demo" || email === "demo@rvacademy.com") && p === "demo") {
-    SESSION = {
-      type: "student",
-      username: "demo",
-      email: "demo@rvacademy.com"
-    };
-    saveSession();
-    btn.innerHTML = `✓ Authenticated (Demo) — Redirecting...`;
-    btn.style.background = "linear-gradient(135deg,#25e07a,#1fcb6b)";
-    setTimeout(()=> { location.href = "student.html"; }, 800);
-    return false;
-  }
-
   try {
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email,
