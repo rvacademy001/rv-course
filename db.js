@@ -355,6 +355,61 @@ async function deletePostFromDB(id)      { await sbDelete("community", "id", id)
 async function deleteStudentFromDB(user) { await sbDelete("students", "username", user); }
 
 /* ==========================================================
+   AFFILIATE SYSTEM HELPERS
+   ========================================================== */
+function getAffiliateData(username) {
+  var stu = DB.students[username];
+  if (!stu) return null;
+  if (!stu.watched) stu.watched = {};
+  if (!stu.watched.__affiliate) {
+    stu.watched.__affiliate = {
+      promoCode: username.toLowerCase() + "rv",
+      referrals: [], // Array of { id, date, referredName, courseKey, amount }
+      withdrawals: [] // Array of { id, date, amount, status: "pending" | "confirmed" }
+    };
+  }
+  // Safe migrations / fallbacks
+  if (!stu.watched.__affiliate.promoCode) {
+    stu.watched.__affiliate.promoCode = username.toLowerCase() + "rv";
+  }
+  if (!Array.isArray(stu.watched.__affiliate.referrals)) {
+    stu.watched.__affiliate.referrals = [];
+  }
+  if (!Array.isArray(stu.watched.__affiliate.withdrawals)) {
+    stu.watched.__affiliate.withdrawals = [];
+  }
+  return stu.watched.__affiliate;
+}
+
+function getAffiliateStats(username) {
+  var aff = getAffiliateData(username);
+  if (!aff) return { totalEarned: 0, totalWithdrawn: 0, pendingWithdraw: 0, balance: 0 };
+  
+  var totalEarned = 0;
+  aff.referrals.forEach(function(r) {
+    totalEarned += parseFloat(r.amount) || 0;
+  });
+  
+  var totalWithdrawn = 0;
+  var pendingWithdraw = 0;
+  aff.withdrawals.forEach(function(w) {
+    if (w.status === "confirmed") {
+      totalWithdrawn += parseFloat(w.amount) || 0;
+    } else if (w.status === "pending") {
+      pendingWithdraw += parseFloat(w.amount) || 0;
+    }
+  });
+  
+  var balance = totalEarned - totalWithdrawn;
+  return {
+    totalEarned: totalEarned,
+    totalWithdrawn: totalWithdrawn,
+    pendingWithdraw: pendingWithdraw,
+    balance: balance
+  };
+}
+
+/* ==========================================================
    UTILITY HELPERS
    ========================================================== */
 function waLink(text) { return "https://wa.me/" + SYSTEM_SETTINGS.waNumber + "?text=" + encodeURIComponent(text); }
