@@ -16,7 +16,7 @@
     }
     .contact-hero::before {
       content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212,175,55,0.1), transparent 60%);
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 230, 118, 0.06), transparent 60%);
       pointer-events: none;
     }
     .contact-grid {
@@ -32,7 +32,7 @@
       transition: all var(--transition); text-decoration: none; color: inherit;
     }
     .contact-method:hover {
-      border-color: var(--gold-dim);
+      border-color: var(--green);
       transform: translateY(-3px);
       box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
@@ -40,12 +40,12 @@
       width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center; font-size: 24px;
     }
-    .contact-method-icon.gold { background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.2); }
-    .contact-method-icon.green { background: rgba(31,203,107,0.1); border: 1px solid rgba(31,203,107,0.2); }
+    .contact-method-icon.gold { background: rgba(255, 59, 69, 0.1); border: 1px solid rgba(255, 59, 69, 0.2); }
+    .contact-method-icon.green { background: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.2); }
     .contact-method-icon.blue { background: rgba(61,142,240,0.1); border: 1px solid rgba(61,142,240,0.2); }
     .contact-method h3 { font-size: 15px; margin-bottom: 4px; }
     .contact-method p { color: var(--muted); font-size: 13px; line-height: 1.55; }
-    .contact-method .val { color: var(--gold); font-size: 14px; font-weight: 600; margin-top: 6px; }
+    .contact-method .val { color: var(--green); font-size: 14px; font-weight: 600; margin-top: 6px; }
 
     /* Form */
     .contact-form-card {
@@ -55,7 +55,7 @@
     }
     .contact-form-card::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--green));
+      background: var(--brand-grad);
     }
 
     /* Hours */

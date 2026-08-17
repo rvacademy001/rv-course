@@ -113,7 +113,7 @@
         dx: (Math.random() - 0.5) * 0.28,
         dy: (Math.random() - 0.5) * 0.28,
         alpha: Math.random() * 0.35 + 0.08,
-        color: Math.random() > 0.5 ? '212,175,55' : '31,203,107',
+        color: Math.random() > 0.5 ? '255,59,69' : '0,230,118',
       };
     }
     let particles = Array.from({ length: COUNT }, mkParticle);
@@ -202,8 +202,162 @@
     });
   }
 
+  /* ---- Premium Unique Features (Cursor Glow, Spotlight, Logo formatting, Bilingual i18n) ---- */
+  function initUniqueFeatures() {
+    // 1. Add card-tilt class dynamically to cards for 3D tilt
+    document.querySelectorAll('.card, .testimonial-card, .broker-card').forEach(card => {
+      card.classList.add('card-tilt');
+    });
+
+    // 2. Logo R & V text styling split
+    document.querySelectorAll('.mark, .logo-mark').forEach(mark => {
+      if (mark.textContent.trim() === 'RV') {
+        mark.innerHTML = '<span class="logo-r">R</span><span class="logo-v">V</span>';
+      }
+    });
+
+    document.querySelectorAll('.brand > span:not(.mark), .footer-brand .name').forEach(span => {
+      if (span.textContent.trim().startsWith('RV')) {
+        span.innerHTML = '<span class="logo-r">R</span><span class="logo-v">V</span> <span class="rv">ACADEMY</span>';
+      }
+    });
+
+    // 3. Mouse spotlight glow effect on cards
+    function updateCardGlows() {
+      document.querySelectorAll('.card, .testimonial-card, .broker-card').forEach(card => {
+        if (card.dataset.glowBound) return;
+        card.dataset.glowBound = '1';
+        card.addEventListener('mousemove', e => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          card.style.setProperty('--x', `${x}px`);
+          card.style.setProperty('--y', `${y}px`);
+        });
+      });
+    }
+    updateCardGlows();
+    window.bindCardGlows = updateCardGlows;
+
+    // 4. Custom Cursor Ambient Spotlight (Desktop Only)
+    if (!document.getElementById('customCursorGlow') && !window.matchMedia('(pointer: coarse)').matches) {
+      const glow = document.createElement('div');
+      glow.id = 'customCursorGlow';
+      document.body.appendChild(glow);
+      
+      let cursorX = -500, cursorY = -500;
+      let targetX = -500, targetY = -500;
+      
+      document.addEventListener('mousemove', e => {
+        targetX = e.clientX;
+        targetY = e.clientY;
+      });
+      
+      function lerpCursor() {
+        cursorX += (targetX - cursorX) * 0.08;
+        cursorY += (targetY - cursorY) * 0.08;
+        glow.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+        requestAnimationFrame(lerpCursor);
+      }
+      lerpCursor();
+    }
+
+    // 5. Bilingual Language Switching Engine
+    const navLinks = document.getElementById('navLinks');
+    if (navLinks && !document.getElementById('langToggle')) {
+      const toggleBtn = document.createElement('button');
+      toggleBtn.id = 'langToggle';
+      toggleBtn.className = 'lang-toggle-btn';
+      toggleBtn.style.marginLeft = '12px';
+      
+      const currentLang = localStorage.getItem('lang') || 'si';
+      toggleBtn.innerHTML = `🌐 ${currentLang === 'si' ? 'English' : 'සිංහල'}`;
+      
+      toggleBtn.addEventListener('click', () => {
+        const lang = localStorage.getItem('lang') || 'si';
+        const nextLang = lang === 'si' ? 'en' : 'si';
+        
+        document.body.classList.remove('lang-si', 'lang-en');
+        document.body.classList.add('lang-' + nextLang);
+        localStorage.setItem('lang', nextLang);
+        
+        toggleBtn.innerHTML = `🌐 ${nextLang === 'si' ? 'English' : 'සිංහල'}`;
+        
+        // Dispatch language change event
+        window.dispatchEvent(new CustomEvent('langChanged', { detail: nextLang }));
+      });
+      
+      navLinks.appendChild(toggleBtn);
+      
+      // Auto-wrap translations for navbar and footer links across all pages
+      const navTranslations = {
+        "මුල් පිටුව": { si: "මුල් පිටුව", en: "Home" },
+        "Home": { si: "මුල් පිටුව", en: "Home" },
+        "Affiliate ලින්ක්": { si: "Affiliate ලින්ක්", en: "Affiliates" },
+        "Affiliates": { si: "Affiliate ලින්ක්", en: "Affiliates" },
+        "කෝස්": { si: "කෝස්", en: "Courses" },
+        "Courses": { si: "කෝස්", en: "Courses" },
+        "About": { si: "අපි ගැන", en: "About Us" },
+        "About Us": { si: "අපි ගැන", en: "About Us" },
+        "අපි ගැන": { si: "අපි ගැන", en: "About Us" },
+        "FAQ": { si: "FAQ", en: "FAQ" },
+        "Contact": { si: "සම්බන්ධ වන්න", en: "Contact" },
+        "Contact Us": { si: "සම්බන්ධ වන්න", en: "Contact" },
+        "Legal": { si: "නීතිමය", en: "Legal" },
+        "Legal Info": { si: "නීතිමය", en: "Legal" },
+        "ලොගින්": { si: "ලොගින්", en: "Login" },
+        "Login": { si: "ලොගින්", en: "Login" },
+        "ඩෑශ්බෝඩ්": { si: "ඩෑශ්බෝඩ්", en: "Dashboard" },
+        "Dashboard": { si: "ඩෑශ්බෝඩ්", en: "Dashboard" }
+      };
+
+      const footerTranslations = {
+        "ශ්රී ලංකාවේ #1 Trading Education Platform. Forex සහ Crypto Trading ඉගෙන ගන්න.": {
+          si: "ශ්‍රී ලංකාවේ #1 Trading Education Platform. Forex සහ Crypto Trading ඉගෙන ගන්න.",
+          en: "Sri Lanka's #1 Trading Education Platform. Learn Forex and Crypto Trading."
+        },
+        "ශ්‍රී ලංකාවේ #1 Trading Education Platform. Forex සහ Crypto Trading ඉගෙන ගන්න.": {
+          si: "ශ්‍රී ලංකාවේ #1 Trading Education Platform. Forex සහ Crypto Trading ඉගෙන ගන්න.",
+          en: "Sri Lanka's #1 Trading Education Platform. Learn Forex and Crypto Trading."
+        }
+      };
+
+      // Auto-wrap nav links
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        const text = a.textContent.trim();
+        if (navTranslations[text] && !a.querySelector('.si-text')) {
+          const trans = navTranslations[text];
+          a.innerHTML = `<span class="si-text">${trans.si}</span><span class="en-text">${trans.en}</span>`;
+        }
+      });
+
+      // Auto-wrap footer brand description
+      document.querySelectorAll('.footer-brand p').forEach(p => {
+        const text = p.textContent.trim();
+        if (footerTranslations[text] && !p.querySelector('.si-text')) {
+          const trans = footerTranslations[text];
+          p.innerHTML = `<span class="si-text">${trans.si}</span><span class="en-text">${trans.en}</span>`;
+        }
+      });
+
+      // Auto-wrap footer links
+      document.querySelectorAll('.footer-grid a').forEach(a => {
+        const text = a.textContent.trim();
+        if (navTranslations[text] && !a.querySelector('.si-text')) {
+          const trans = navTranslations[text];
+          a.innerHTML = `<span class="si-text">${trans.si}</span><span class="en-text">${trans.en}</span>`;
+        }
+      });
+      
+      // Set initial body language class
+      document.body.classList.remove('lang-si', 'lang-en');
+      document.body.classList.add('lang-' + currentLang);
+    }
+  }
+
   /* ---- Init all on DOM ready ---- */
   function onReady() {
+    initUniqueFeatures();
     bindCounters();
     bindTilts();
     bindRipples();
@@ -219,6 +373,10 @@
   const _rebind = window.rebindReveal;
   window.rebindReveal = function() {
     _rebind();
+    document.querySelectorAll('.card, .testimonial-card, .broker-card').forEach(card => {
+      card.classList.add('card-tilt');
+    });
+    if (window.bindCardGlows) window.bindCardGlows();
     bindRipples();
     bindTilts();
   };

@@ -123,40 +123,74 @@ let SESSION = JSON.parse(sessionStorage.getItem("rv_session_temp") || "null");
 function saveSession()  { sessionStorage.setItem("rv_session_temp", JSON.stringify(SESSION)); }
 function clearSession() { SESSION = null; sessionStorage.removeItem("rv_session_temp"); }
 
+// Cryptographically secure session verification using Supabase client (prevents Inspect Element Session faking)
+async function getSecureSession() {
+  if (typeof window.supabase === "undefined") {
+    // If Supabase CDN is not loaded (like on public landing pages), return session from storage if it exists (non-critical read)
+    return SESSION;
+  }
+  try {
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      clearSession();
+      return null;
+    }
+    const user = session.user;
+    const role = (user.user_metadata && user.user_metadata.role) || 
+                 (user.email.toLowerCase() === "admin@rvacademy.com" ? "admin" : "student");
+    const secureSess = {
+      type: role,
+      username: user.email.split("@")[0],
+      email: user.email
+    };
+    // Sync memory session
+    SESSION = secureSess;
+    saveSession();
+    return secureSess;
+  } catch (err) {
+    console.error("Secure session verification failed:", err);
+    return null;
+  }
+}
+
 /* ==========================================================
    LOAD  —  pull all data from Supabase
    ========================================================== */
 async function loadDB() {
+  const secureSession = await getSecureSession();
 
   /* ---- Students ---- */
-  try {
-    let params = "?select=username,name,courses,watched,journal";
-    // Security Restriction: If a student is logged in, only retrieve their own record!
-    if (SESSION && SESSION.type === "student") {
-      params += `&username=eq.${encodeURIComponent(SESSION.username)}`;
+  if (secureSession) {
+    try {
+      let params = "?select=username,name,courses,watched,journal";
+      // Security Restriction: If a student is logged in, only retrieve their own record!
+      if (secureSession.type === "student") {
+        params += `&username=eq.${encodeURIComponent(secureSession.username)}`;
+      }
+      const rows = await sbGet("students", params);
+      DB.students = {};
+      rows.forEach(function(r) {
+        DB.students[r.username] = {
+          name    : r.name,
+          courses : r.courses ? r.courses.split(",").filter(Boolean) : [],
+          watched : safeJson(r.watched) || {},
+          journal : safeJson(r.journal) || [],
+        };
+      });
+    } catch(e) {
+      console.error("loadDB students failed:", e.message);
     }
-    const rows = await sbGet("students", params);
-    DB.students = {};
-    rows.forEach(function(r) {
-      DB.students[r.username] = {
-        name    : r.name,
-        courses : r.courses ? r.courses.split(",").filter(Boolean) : [],
-        watched : safeJson(r.watched) || {},
-        journal : safeJson(r.journal) || [],
-      };
-    });
-  } catch(e) {
-    console.error("loadDB students failed:", e.message);
-  }
 
-  /* ---- Ensure logged-in student exists in local student database ---- */
-  if (SESSION && SESSION.type === "student" && !DB.students[SESSION.username]) {
-    DB.students[SESSION.username] = {
-      name: SESSION.username,
-      courses: [],
-      watched: {},
-      journal: []
-    };
+    /* ---- Ensure logged-in student exists in local student database ---- */
+    if (secureSession.type === "student" && !DB.students[secureSession.username]) {
+      DB.students[secureSession.username] = {
+        name: secureSession.username,
+        courses: [],
+        watched: {},
+        journal: []
+      };
+    }
   }
 
   /* ---- Courses (without videos first — always safe) ---- */
@@ -246,21 +280,23 @@ async function loadDB() {
   }
 
   /* ---- Community ---- */
-  try {
-    const posts = await sbGet("community", "?select=*&order=date.asc");
-    DB.community = posts.map(function(r) {
-      return {
-        id      : r.id,
-        username: r.username,
-        name    : r.name,
-        text    : r.text,
-        date    : r.date,
-        replies : safeJson(r.replies) || [],
-      };
-    });
-  } catch(e) {
-    console.error("loadDB community failed:", e.message);
-    if (!DB.community) DB.community = [];
+  if (secureSession) {
+    try {
+      const posts = await sbGet("community", "?select=*&order=date.asc");
+      DB.community = posts.map(function(r) {
+        return {
+          id      : r.id,
+          username: r.username,
+          name    : r.name,
+          text    : r.text,
+          date    : r.date,
+          replies : safeJson(r.replies) || [],
+        };
+      });
+    } catch(e) {
+      console.error("loadDB community failed:", e.message);
+      if (!DB.community) DB.community = [];
+    }
   }
 }
 

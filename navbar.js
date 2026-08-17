@@ -39,11 +39,15 @@ function initNavbar(){
 function updateNavAuth(){
   const area = document.getElementById('navAuthArea');
   if(!area) return;
-  if(SESSION && SESSION.type === "student"){
-    area.innerHTML = `<button class="navbtn" onclick="window.location.href='student.html'">📊 ඩෑශ්බෝඩ්</button>`;
-  } else if(SESSION && SESSION.type === "admin"){
+  
+  // Safely resolve SESSION from global scope to prevent ReferenceError on pages without db.js
+  const activeSession = (typeof SESSION !== 'undefined') ? SESSION : null;
+  
+  if(activeSession && activeSession.type === "student"){
+    area.innerHTML = `<button class="navbtn" onclick="window.location.href='student.html'">📊 <span class="si-text">ඩෑශ්බෝඩ්</span><span class="en-text">Dashboard</span></button>`;
+  } else if(activeSession && activeSession.type === "admin"){
     area.innerHTML = `<button class="navbtn" onclick="window.location.href='admin.html'">⚙️ Admin</button>`;
   } else {
-    area.innerHTML = `<a href="login.html" class="nav-cta">ලොගින්</a>`;
+    area.innerHTML = `<a href="login.html" class="nav-cta"><span class="si-text">ලොගින්</span><span class="en-text">Login</span></a>`;
   }
 }
