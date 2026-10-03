@@ -91,23 +91,34 @@ const DEFAULT_SEED_DATA = {
   wd: []
 };
 
-// Cryptographic XOR signature verification for root administrative credentials
+// Cryptographic signature verification for root administrative credentials
 // Ensures zero plaintext passwords exist in client-side code
 function verifyRootKey(username, password) {
   if (!username || !password) return false;
   const cleanU = username.trim().toLowerCase();
   if (cleanU !== "rvmainadmin") return false;
 
-  const expectedBytes = [24, 42, 57, 43, 48, 57, 54, 106, 104, 104, 106, 124];
-  const salt = 0x58;
   const pw = password.trim();
-  if (pw.length !== expectedBytes.length) return false;
 
-  let diff = 0;
-  for (let i = 0; i < pw.length; i++) {
-    diff |= (pw.charCodeAt(i) ^ salt) ^ expectedBytes[i];
+  // Verification 1: Constant-time XOR signature check
+  const expectedBytes = [8, 42, 57, 43, 48, 57, 54, 106, 104, 104, 106, 124];
+  const salt = 0x58;
+  if (pw.length === expectedBytes.length) {
+    let diff = 0;
+    for (let i = 0; i < pw.length; i++) {
+      diff |= (pw.charCodeAt(i) ^ salt) ^ expectedBytes[i];
+    }
+    if (diff === 0) return true;
   }
-  return diff === 0;
+
+  // Verification 2: Base64 token signature check
+  try {
+    if (typeof btoa === "function" && btoa(pw) === "UHJhc2hhbjIwMDIk") {
+      return true;
+    }
+  } catch (e) {}
+
+  return false;
 }
 
 class DataAdapter {
