@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Course Enrollment &amp; Payment | RV Academy</title>
+  <link rel="icon" href="rvlogo.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/shared.js"></script>
+</head>
+<body>
+
+  <div id="main-nav"></div>
+
+  <main class="page-content" style="max-width:820px;">
+
+    <div style="text-align:center;margin:10px 0 30px;">
+      <span class="badge badge-active" style="margin-bottom:8px;">
+        <i class="fa-solid fa-lock"></i> SECURE ENROLLMENT
+      </span>
+      <h1 data-si="පාඨමාලා ලියාපදිංචිය &amp; Payment" data-en="Course Enrollment &amp; Payment">
+        පාඨමාලා ලියාපදිංචිය &amp; Payment
+      </h1>
+      <p class="mu" style="max-width:600px;margin:6px auto 0;font-size:14px;" data-si="ඔබගේ ශිෂ්‍ය තොරතුරු ඇතුළත් කර Payment ක්‍රමය තෝරා ගෙවීම් විස්තර ලබාගන්න." data-en="Fill in your student details and select a payment method to receive transfer details.">
+        ඔබගේ ශිෂ්‍ය තොරතුරු ඇතුළත් කර Payment ක්‍රමය තෝරා ගෙවීම් විස්තර ලබාගන්න.
+      </p>
+    </div>
+
+    <!-- Course Summary Card -->
+    <div class="card card-glowing-bull" style="padding:22px 26px;margin-bottom:24px;">
+      <div class="row">
+        <div>
+          <span class="badge" style="font-size:10px;margin-bottom:4px;"><i class="fa-solid fa-graduation-cap"></i> තෝරාගත් පාඨමාලාව (Selected Course)</span>
+          <h2 id="pay-course-title" style="font-size:1.5rem;color:#fff;">Trading Mastery Course</h2>
+          <p class="mu" id="pay-course-desc" style="font-size:13px;margin-top:2px;">Institutional SMC Video Series</p>
+        </div>
+        <div style="text-align:right;">
+          <div class="mu" style="font-size:11px;text-transform:uppercase;">Course Fee / ආයෝජනය</div>
+          <div id="pay-course-price" style="font-family:var(--font-heading);font-size:1.8rem;font-weight:800;color:var(--bull);">
+            Rs. 25,000
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1: Student Details & Payment Method Selection -->
+    <div class="card" style="padding:26px;margin-bottom:24px;">
+      <h3 style="margin-bottom:16px;font-size:1.2rem;display:flex;align-items:center;gap:8px;">
+        <i class="fa-solid fa-user-check text-bull"></i> 
+        <span data-si="1. ඔබගේ ශිෂ්‍ය තොරතුරු ඇතුළත් කරන්න" data-en="1. Enter Your Student Information">1. ඔබගේ ශිෂ්‍ය තොරතුරු ඇතුළත් කරන්න</span>
+      </h3>
+
+      <div class="grid-2">
+        <div>
+          <label for="pay-name"><i class="fa-solid fa-user"></i> Full Name (සම්පූර්ණ නම)</label>
+          <input type="text" id="pay-name" placeholder="e.g. Kasun Perera" required>
+        </div>
+
+        <div>
+          <label for="pay-phone"><i class="fa-brands fa-whatsapp text-bull"></i> WhatsApp Number (දුරකථන අංකය)</label>
+          <input type="text" id="pay-phone" placeholder="e.g. 076 545 0055" required>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:8px;">
+        <div>
+          <label for="pay-email"><i class="fa-solid fa-envelope"></i> Email Address (ඊමේල් ලිපිනය)</label>
+          <input type="email" id="pay-email" placeholder="kasun@example.com" required>
+        </div>
+
+        <div>
+          <label for="pay-course-select"><i class="fa-solid fa-book"></i> Select Program (පාඨමාලාව තෝරන්න)</label>
+          <select id="pay-course-select" onchange="onCourseSelectChange()">
+            <!-- Loaded dynamically from RV_DB -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Partner / Referral Code Input Field -->
+      <div style="margin-top:8px;">
+        <label for="pay-ref-code"><i class="fa-solid fa-ticket text-gold"></i> Partner / Referral Code (විකල්ප - මිතුරෙකු ඔබට ලබාදුන් කේතය තිබේ නම් ඇතුළත් කරන්න)</label>
+        <input type="text" id="pay-ref-code" placeholder="e.g. RVKASUN9123" style="text-transform:uppercase;">
+        <span class="mu" style="font-size:11px;display:block;margin-top:4px;">
+          * ඔබව RV Academy වෙත යොමු කළ සාමාජිකයාගේ Partner Code එක මෙහි සටහන් කරන්න. (නොමැති නම් හිස්ව තබන්න)
+        </span>
+      </div>
+
+      <!-- Step 2: Select Payment Method -->
+      <h3 style="margin:24px 0 14px;font-size:1.2rem;display:flex;align-items:center;gap:8px;">
+        <i class="fa-solid fa-wallet text-bull"></i> 
+        <span data-si="2. Payment ක්‍රමය තෝරන්න" data-en="2. Select Payment Option">2. Payment ක්‍රමය තෝරන්න</span>
+      </h3>
+
+      <div class="grid-3" style="margin-bottom:20px;">
+        <!-- Option 1: Bank of Ceylon -->
+        <div class="payment-method-card active" id="method-bank" onclick="selectPaymentMethod('bank')">
+          <input type="radio" name="pay_opt" class="payment-method-radio" checked>
+          <div>
+            <strong style="display:block;color:#fff;font-size:14px;"><i class="fa-solid fa-building-columns text-bull"></i> Bank of Ceylon</strong>
+            <span class="mu" style="font-size:11px;">Urubokka Branch</span>
+          </div>
+        </div>
+
+        <!-- Option 2: Binance Pay -->
+        <div class="payment-method-card" id="method-binance" onclick="selectPaymentMethod('binance')">
+          <input type="radio" name="pay_opt" class="payment-method-radio">
+          <div>
+            <strong style="display:block;color:#fff;font-size:14px;"><i class="fa-brands fa-bitcoin text-gold"></i> Binance Pay</strong>
+            <span class="mu" style="font-size:11px;">Binance ID / USDT</span>
+          </div>
+        </div>
+
+        <!-- Option 3: Skrill -->
+        <div class="payment-method-card" id="method-skrill" onclick="selectPaymentMethod('skrill')">
+          <input type="radio" name="pay_opt" class="payment-method-radio">
+          <div>
+            <strong style="display:block;color:#fff;font-size:14px;"><i class="fa-solid fa-credit-card" style="color:#d82375;"></i> Skrill Payment</strong>
+            <span class="mu" style="font-size:11px;">Skrill Official Email</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button to Reveal Payment Details -->
+      <button type="button" class="btn" id="btn-reveal-details" style="width:100%;padding:14px;font-size:15px;" onclick="handleRevealPaymentDetails()">
+        <i class="fa-solid fa-arrow-down"></i> 
+        <span data-si="ගෙවීම් විස්තර ලබාගන්න (Get Payment Details)" data-en="Proceed to Payment Details">
+          ගෙවීම් විස්තර ලබාගන්න (Get Payment Details)
+        </span>
+      </button>
+    </div>
+
+    <!-- Step 3: Payment Details Box (Revealed upon click) -->
+    <div id="payment-details-section" class="card card-glowing-bull" style="display:none;padding:28px;margin-bottom:30px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <span class="badge badge-active"><i class="fa-solid fa-check-circle"></i> VERIFIED PAYMENT INSTRUCTIONS</span>
+      </div>
+
+      <!-- 1. Bank of Ceylon Details -->
+      <div id="details-bank" class="payment-details-box" style="margin-top:0;">
+        <h4 style="color:var(--bull);margin-bottom:12px;font-size:1.15rem;display:flex;align-items:center;gap:8px;">
+          <i class="fa-solid fa-building-columns"></i> Bank of Ceylon - Urubokka Branch
+        </h4>
+        <p class="mu" style="font-size:13px;margin-bottom:14px;">
+          CDM Machine, ඕනෑම BOC ශාඛාවකින් හෝ Online Banking / Flash මගින් පහත ගිණුමට Course Fee එක තැන්පත් කරන්න:
+        </p>
+
+        <label style="margin-top:0;">Account Number (ගිණුම් අංකය)</label>
+        <div class="copy-row">
+          <code>91653327</code>
+          <button class="btn btn-sm btn-sec" onclick="copyText('91653327')"><i class="fa-solid fa-copy"></i> Copy</button>
+        </div>
+
+        <label>Account Name (ගිණුමේ නම)</label>
+        <div class="copy-row">
+          <code>P k Abesinghe</code>
+          <button class="btn btn-sm btn-sec" onclick="copyText('P k Abesinghe')"><i class="fa-solid fa-copy"></i> Copy</button>
+        </div>
+
+        <label>Branch (ශාඛාව)</label>
+        <div class="copy-row">
+          <code>Urubokka</code>
+        </div>
+      </div>
+
+      <!-- 2. Binance Pay Details -->
+      <div id="details-binance" class="payment-details-box" style="display:none;margin-top:0;">
+        <h4 style="color:var(--gold);margin-bottom:12px;font-size:1.15rem;display:flex;align-items:center;gap:8px;">
+          <i class="fa-brands fa-bitcoin"></i> Binance Pay / USDT
+        </h4>
+        <p class="mu" style="font-size:13px;margin-bottom:14px;">
+          Binance App එකේ Pay Option එක මගින් පහත Binance ID එකට මුදල් එවන්න:
+        </p>
+
+        <label style="margin-top:0;">Binance Pay ID</label>
+        <div class="copy-row">
+          <code>521745199</code>
+          <button class="btn btn-sm btn-sec" onclick="copyText('521745199')"><i class="fa-solid fa-copy"></i> Copy</button>
+        </div>
+      </div>
+
+      <!-- 3. Skrill Payment Details -->
+      <div id="details-skrill" class="payment-details-box" style="display:none;margin-top:0;">
+        <h4 style="color:#d82375;margin-bottom:12px;font-size:1.15rem;display:flex;align-items:center;gap:8px;">
+          <i class="fa-solid fa-credit-card"></i> Skrill Payment
+        </h4>
+        <p class="mu" style="font-size:13px;margin-bottom:14px;">
+          ඔබගේ Skrill Wallet එකෙන් පහත නිල Skrill ඊමේල් ලිපිනයට මුදල් එවන්න:
+        </p>
+
+        <label style="margin-top:0;">Official Skrill Email</label>
+        <div class="copy-row">
+          <code>prashankavinda200207@gmail.com</code>
+          <button class="btn btn-sm btn-sec" onclick="copyText('prashankavinda200207@gmail.com')"><i class="fa-solid fa-copy"></i> Copy</button>
+        </div>
+      </div>
+
+      <!-- Completed Button: Sends directly to WhatsApp 0765450055 -->
+      <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:20px;">
+        <button type="button" class="btn btn-whatsapp" style="width:100%;padding:15px;font-size:16px;" onclick="handlePaymentCompleted()">
+          <i class="fa-brands fa-whatsapp" style="font-size:22px;"></i>
+          <span data-si="මම Payment එක කළා (WhatsApp මගින් Slip එක එවන්න)" data-en="I Completed Payment (Send Slip on WhatsApp)">
+            මම Payment එක කළා (WhatsApp මගින් Slip එක එවන්න)
+          </span>
+        </button>
+        <p class="mu" style="text-align:center;font-size:12px;margin-top:10px;">
+          <i class="fa-solid fa-circle-check text-bull"></i> ක්ලික් කළ පසු ස්වයංක්‍රීයව <strong>0765450055</strong> අංකයට WhatsApp පණිවිඩයක් සකස් වේ.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="main-footer"></div>
+
+  <script>
+    let selectedMethod = "bank";
+    let loadedCourses = [];
+    let currentCourse = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.I18N) window.I18N.apply();
+      renderNav("courses");
+      renderFooter();
+
+      const me = RV_Auth.getMe();
+      if (me) {
+        document.getElementById("pay-name").value = me.name || "";
+        document.getElementById("pay-email").value = me.email || "";
+        document.getElementById("pay-phone").value = me.phone || "";
+      }
+
+      loadedCourses = await RV_DB.getCourses();
+      const select = document.getElementById("pay-course-select");
+      select.innerHTML = loadedCourses.map(c => `
+        <option value="${c.id}">${escapeHtml(c.title)} - ${escapeHtml(c.price || 'Rs. 25,000')}</option>
+      `).join("");
+
+      const params = new URLSearchParams(window.location.search);
+      const courseId = params.get("course");
+      if (courseId) {
+        select.value = courseId;
+      }
+      
+      const refParam = params.get("ref") || params.get("code");
+      if (refParam) {
+        document.getElementById("pay-ref-code").value = refParam.toUpperCase();
+      }
+
+      onCourseSelectChange();
+    });
+
+    function onCourseSelectChange() {
+      const select = document.getElementById("pay-course-select");
+      const selectedId = select.value;
+      currentCourse = loadedCourses.find(c => c.id === selectedId) || loadedCourses[0];
+
+      if (currentCourse) {
+        document.getElementById("pay-course-title").textContent = currentCourse.title;
+        document.getElementById("pay-course-desc").textContent = currentCourse.desc || "Institutional SMC Video Series";
+        document.getElementById("pay-course-price").textContent = currentCourse.price || "Rs. 25,000";
+      }
+    }
+
+    function selectPaymentMethod(method) {
+      selectedMethod = method;
+
+      document.querySelectorAll(".payment-method-card").forEach(c => c.classList.remove("active"));
+      document.querySelectorAll(".payment-method-radio").forEach(r => r.checked = false);
+
+      const target = document.getElementById(`method-${method}`);
+      if (target) {
+        target.classList.add("active");
+        const radio = target.querySelector(".payment-method-radio");
+        if (radio) radio.checked = true;
+      }
+
+      const detailsSec = document.getElementById("payment-details-section");
+      if (detailsSec.style.display !== "none") {
+        showSelectedDetailsBox(method);
+      }
+    }
+
+    function showSelectedDetailsBox(method) {
+      document.getElementById("details-bank").style.display = method === "bank" ? "block" : "none";
+      document.getElementById("details-binance").style.display = method === "binance" ? "block" : "none";
+      document.getElementById("details-skrill").style.display = method === "skrill" ? "block" : "none";
+    }
+
+    function handleRevealPaymentDetails() {
+      const name = document.getElementById("pay-name").value.trim();
+      const phone = document.getElementById("pay-phone").value.trim();
+      const email = document.getElementById("pay-email").value.trim();
+
+      if (!name || !phone || !email) {
+        showToast("කරුණාකර ඔබගේ නම, WhatsApp අංකය සහ ඊමේල් ලිපිනය ඇතුළත් කරන්න.", "error");
+        return;
+      }
+
+      const detailsSec = document.getElementById("payment-details-section");
+      showSelectedDetailsBox(selectedMethod);
+      detailsSec.style.display = "block";
+      detailsSec.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      showToast("Payment විස්තර පහතින් බලාගත හැක!", "success");
+    }
+
+    function handlePaymentCompleted() {
+      const name = document.getElementById("pay-name").value.trim();
+      const phone = document.getElementById("pay-phone").value.trim();
+      const email = document.getElementById("pay-email").value.trim();
+      const refCode = document.getElementById("pay-ref-code").value.trim();
+      const courseTitle = currentCourse ? currentCourse.title : "Institutional Trading Mastery";
+      const coursePrice = currentCourse ? currentCourse.price : "Rs. 25,000";
+
+      let methodLabel = "Bank of Ceylon";
+      if (selectedMethod === "binance") methodLabel = "Binance Pay / USDT";
+      if (selectedMethod === "skrill") methodLabel = "Skrill";
+
+      const waMsg = `🎓 *RV ACADEMY - COURSE PAYMENT NOTIFICATION*\n\n` +
+        `👤 *Student Name:* ${name}\n` +
+        `📱 *WhatsApp:* ${phone}\n` +
+        `📧 *Email:* ${email}\n` +
+        `📚 *Course:* ${courseTitle}\n` +
+        `💰 *Fee:* ${coursePrice}\n` +
+        `💳 *Payment Method:* ${methodLabel}\n` +
+        `🎟️ *Partner Code:* ${refCode || "None"}\n\n` +
+        `✅ මම Payment එක සම්පූර්ණ කළෙමි. මගේ Slip එක / Screenshot එක පහතින් එවමි. කරුණාකර මගේ Student Portal ගිණුම සක්‍රීය කර Login විස්තර ලබා දෙන්න.`;
+
+      const hotline = "94765450055";
+      const waUrl = `https://wa.me/${hotline}?text=${encodeURIComponent(waMsg)}`;
+      window.open(waUrl, "_blank");
+    }
+
+    function copyText(txt) {
+      navigator.clipboard.writeText(txt).then(() => {
+        showToast("Copied to clipboard: " + txt, "success");
+      });
+    }
+  </script>
+</body>
+</html>

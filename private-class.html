@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Private Class Request | RV Academy Student LMS</title>
+  <link rel="icon" href="rvlogo.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/shared.js"></script>
+</head>
+<body>
+
+  <div id="main-nav"></div>
+
+  <main class="page-content" style="max-width:920px;">
+
+    <div style="margin-bottom:28px;">
+      <span class="badge badge-active" style="margin-bottom:8px;">
+        <i class="fa-solid fa-chalkboard-user"></i> 1-ON-1 MENTORSHIP
+      </span>
+      <h1 data-si="Private Class Request (පෞද්ගලික පන්ති ඉල්ලීම්)" data-en="Private Class Request">
+        Private Class Request (පෞද්ගලික පන්ති ඉල්ලීම්)
+      </h1>
+      <p class="mu" data-si="ඔබට නොතේරෙන Trading සංකල්ප, Chart Analysis හෝ Risk Management ගැටළු පිළිබඳව උපදේශකවරයා සමග සෘජුව 1-on-1 සාකච්ඡා කිරීමට මෙතැනින් ඉල්ලුම් කරන්න." data-en="Request a direct 1-on-1 private mentoring session with the lead instructor for chart reviews and trading strategy guidance.">
+        ඔබට නොතේරෙන Trading සංකල්ප, Chart Analysis හෝ Risk Management ගැටළු පිළිබඳව උපදේශකවරයා සමග සෘජුව 1-on-1 සාකච්ඡා කිරීමට මෙතැනින් ඉල්ලුම් කරන්න.
+      </p>
+    </div>
+
+    <div class="grid-2" style="align-items:start;">
+      
+      <!-- Request Submission Form -->
+      <div class="card card-glowing-bull" style="padding:28px;">
+        <h3 style="margin-bottom:16px;font-size:1.25rem;display:flex;align-items:center;gap:8px;">
+          <i class="fa-solid fa-calendar-plus text-bull"></i> නව Private Class එකක් වෙන්කරගන්න
+        </h3>
+
+        <form onsubmit="handlePrivateClassSubmit(event)">
+          <label for="pc-name"><i class="fa-solid fa-user"></i> Student Name (ශිෂ්‍යයාගේ නම)</label>
+          <input type="text" id="pc-name" required placeholder="Kasun Perera">
+
+          <label for="pc-phone"><i class="fa-brands fa-whatsapp text-bull"></i> WhatsApp Number (සම්බන්ධ විය හැකි WhatsApp අංකය)</label>
+          <input type="text" id="pc-phone" required placeholder="076 545 0055">
+
+          <label for="pc-topic"><i class="fa-solid fa-chart-line text-bull"></i> Class Topic (සාකච්ඡා කිරීමට අවශ්‍ය මාතෘකාව)</label>
+          <select id="pc-topic" required>
+            <option value="Smart Money Concepts (SMC) & Liquidity">Smart Money Concepts (SMC) &amp; Liquidity Mechanics</option>
+            <option value="Order Blocks, FVG & Sniper Entries">Order Blocks, FVG &amp; Sniper Entries</option>
+            <option value="Live Trade Breakdown & Chart Analysis">Live Trade Breakdown &amp; Chart Analysis</option>
+            <option value="Risk Management & Prop-Firm Passing">Risk Management &amp; Prop-Firm (FTMO) Passing Strategy</option>
+            <option value="Trading Psychology & Emotional Control">Trading Psychology &amp; Emotional Discipline</option>
+            <option value="Other Specific Query">වෙනත් විශේෂිත ගැටළුවක් (Other Query)</option>
+          </select>
+
+          <label for="pc-time"><i class="fa-solid fa-clock text-gold"></i> Preferred Time &amp; Date (ඔබට පහසු වේලාව සහ දිනය)</label>
+          <input type="text" id="pc-time" placeholder="e.g. Saturday evening after 7:00 PM" required>
+
+          <label for="pc-notes"><i class="fa-solid fa-pen-to-square"></i> Additional Questions / Details (අමතර විස්තර)</label>
+          <textarea id="pc-notes" rows="4" placeholder="ඔබට විශේෂයෙන් පැහැදිලි කරගත යුතු කරුණු මෙහි කෙටියෙන් සටහන් කරන්න..."></textarea>
+
+          <div style="margin-top:20px;">
+            <button type="submit" class="btn" id="btn-submit-pc" style="width:100%;padding:13px;">
+              <i class="fa-solid fa-paper-plane"></i> Private Class ඉල්ලීම යොමු කරන්න
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Information & Request History -->
+      <div>
+        
+        <!-- Mentor Info Card -->
+        <div class="card" style="padding:24px;margin-bottom:24px;background:rgba(0,240,118,0.03);border-color:rgba(0,240,118,0.2);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div style="font-size:26px;color:var(--bull);"><i class="fa-solid fa-headset"></i></div>
+            <div>
+              <strong style="color:#fff;font-size:15px;display:block;">1-on-1 Mentorship Guidelines</strong>
+              <span class="mu" style="font-size:12px;">Zoom or Google Meet Private Session</span>
+            </div>
+          </div>
+          <p class="mu" style="font-size:13px;line-height:1.6;margin-bottom:12px;">
+            ඔබ ඉල්ලීම යොමු කළ පසු Admin Panel එක මගින් එය පරීක්ෂා කර, ඔබගේ WhatsApp අංකය ඔස්සේ දිනය සහ වේලාව තහවුරු කරනු ඇත.
+          </p>
+          <div style="font-size:12px;color:#fff;">
+            <i class="fa-brands fa-whatsapp text-bull"></i> හදිසි විමසීම්: <strong>0765450055</strong>
+          </div>
+        </div>
+
+        <!-- My Past Requests -->
+        <div class="card" style="padding:24px;">
+          <h3 style="font-size:1.15rem;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-clock-rotate-left text-bull"></i> මගේ ඉල්ලීම් (My Requests)
+          </h3>
+          <div id="my-pc-requests">
+            <p class="mu" style="font-size:13px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading previous requests...</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <div id="main-footer"></div>
+
+  <script>
+    let currentUser = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.I18N) window.I18N.apply();
+      renderStudentNav("private-class");
+      renderFooter();
+
+      currentUser = requireAuth();
+      if (!currentUser) return;
+
+      document.getElementById("pc-name").value = currentUser.name || "";
+      document.getElementById("pc-phone").value = currentUser.phone || "";
+
+      loadMyRequests();
+    });
+
+    async function handlePrivateClassSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById("pc-name").value.trim();
+      const phone = document.getElementById("pc-phone").value.trim();
+      const topic = document.getElementById("pc-topic").value;
+      const prefTime = document.getElementById("pc-time").value.trim();
+      const notes = document.getElementById("pc-notes").value.trim();
+
+      const btn = document.getElementById("btn-submit-pc");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Submitting...`;
+
+      try {
+        await RV_DB.addPrivateClassRequest(currentUser.id, name, phone, topic, prefTime, notes);
+        showToast("Private Class ඉල්ලීම සාර්ථකව යොමු කරන ලදී! Admin විසින් ඔබව WhatsApp මගින් සම්බන්ධ කරගනු ඇත.", "success");
+        document.getElementById("pc-notes").value = "";
+        document.getElementById("pc-time").value = "";
+        loadMyRequests();
+      } catch (err) {
+        showToast(err.message || "Submission failed", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Private Class ඉල්ලීම යොමු කරන්න`;
+      }
+    }
+
+    async function loadMyRequests() {
+      const container = document.getElementById("my-pc-requests");
+      try {
+        const all = await RV_DB.getPrivateClassRequests();
+        const myRequests = all.filter(r => r.uid === currentUser.id);
+
+        if (!myRequests || myRequests.length === 0) {
+          container.innerHTML = `<p class="mu" style="font-size:13px;">තවමත් ඔබ විසින් Private Class ඉල්ලීමක් යොමු කර නොමැත. (No private class requests yet).</p>`;
+          return;
+        }
+
+        container.innerHTML = myRequests.map(r => {
+          let badgeClass = "badge-pending";
+          let badgeText = "Pending (සලකා බලමින්)";
+          if (r.status === "contacted" || r.status === "approved") {
+            badgeClass = "badge-active";
+            badgeText = "Contacted / Approved (සම්බන්ධ කරගෙන ඇත)";
+          }
+
+          return `
+            <div style="padding:12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <strong style="color:#fff;font-size:13px;">${escapeHtml(r.topic)}</strong>
+                <span class="badge ${badgeClass}" style="font-size:10px;">${badgeText}</span>
+              </div>
+              <div class="mu" style="font-size:11px;">
+                දිනය/වේලාව: <strong>${escapeHtml(r.pref_time || "N/A")}</strong> | යොමුකළ දිනය: ${escapeHtml(r.date || "")}
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (e) {
+        container.innerHTML = `<p class="mu" style="font-size:13px;">Could not load past requests.</p>`;
+      }
+    }
+  </script>
+</body>
+</html>

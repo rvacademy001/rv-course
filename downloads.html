@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Indicators &amp; Softwares Download | RV Academy Student LMS</title>
+  <link rel="icon" href="rvlogo.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/shared.js"></script>
+</head>
+<body>
+
+  <div id="main-nav"></div>
+
+  <main class="page-content">
+
+    <div style="margin-bottom:28px;">
+      <span class="badge badge-active" style="margin-bottom:8px;">
+        <i class="fa-solid fa-gift"></i> FREE COURSE BONUSES &amp; TOOLS
+      </span>
+      <h1 data-si="බාගත කිරීම් (Indicators &amp; Softwares)" data-en="Downloads (Indicators &amp; Softwares)">
+        බාගත කිරීම් (Indicators &amp; Softwares)
+      </h1>
+      <p class="mu" data-si="ඔබගේ පාඨමාලාවට නොමිලේ හිමිවන Indicators, MT5 Scripts, Risk Calculators සහ Trading Journal Templates මෙතැනින් Download කරගන්න." data-en="Download free indicators, MT5 scripts, risk calculators, and trading journal templates included with your program.">
+        ඔබගේ පාඨමාලාවට නොමිලේ හිමිවන Indicators, MT5 Scripts, Risk Calculators සහ Trading Journal Templates මෙතැනින් Download කරගන්න.
+      </p>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="tabs" style="margin-bottom:24px;">
+      <button class="btn btn-sm" id="tab-cat-all" onclick="filterCategory('all')">
+        <i class="fa-solid fa-list-check"></i> සියල්ල (All Tools)
+      </button>
+      <button class="btn btn-sm btn-sec" id="tab-cat-indicator" onclick="filterCategory('Indicator')">
+        <i class="fa-solid fa-chart-simple text-bull"></i> Indicators
+      </button>
+      <button class="btn btn-sm btn-sec" id="tab-cat-software" onclick="filterCategory('Software')">
+        <i class="fa-solid fa-laptop-code text-cyan"></i> Softwares &amp; Scripts
+      </button>
+      <button class="btn btn-sm btn-sec" id="tab-cat-template" onclick="filterCategory('Template')">
+        <i class="fa-solid fa-file-excel text-gold"></i> Templates &amp; PDFs
+      </button>
+    </div>
+
+    <!-- Downloads Grid -->
+    <div id="downloads-grid" class="grid-2" style="margin-bottom:40px;">
+      <p class="mu"><i class="fa-solid fa-spinner fa-spin"></i> Loading tools &amp; resources...</p>
+    </div>
+
+  </main>
+
+  <div id="main-footer"></div>
+
+  <script>
+    let allDownloads = [];
+    let currentCategory = "all";
+    let allCourses = [];
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.I18N) window.I18N.apply();
+      renderStudentNav("downloads");
+      renderFooter();
+
+      const user = requireAuth();
+      if (!user) return;
+
+      allCourses = await RV_DB.getCourses();
+      allDownloads = await RV_DB.getDownloads();
+      renderDownloads();
+    });
+
+    function filterCategory(cat) {
+      currentCategory = cat;
+      const cats = ["all", "indicator", "software", "template"];
+      cats.forEach(c => {
+        const btn = document.getElementById(`tab-cat-${c}`);
+        if (btn) {
+          const isTarget = (c === "all" && cat === "all") || (c.toLowerCase() === cat.toLowerCase());
+          btn.className = isTarget ? "btn btn-sm" : "btn btn-sm btn-sec";
+        }
+      });
+      renderDownloads();
+    }
+
+    function renderDownloads() {
+      const container = document.getElementById("downloads-grid");
+      let filtered = allDownloads;
+
+      if (currentCategory !== "all") {
+        filtered = allDownloads.filter(d => (d.category || "").toLowerCase() === currentCategory.toLowerCase());
+      }
+
+      if (!filtered || filtered.length === 0) {
+        container.innerHTML = `
+          <div class="card mu" style="grid-column: 1 / -1;text-align:center;padding:40px;">
+            <i class="fa-solid fa-folder-open" style="font-size:36px;margin-bottom:12px;display:block;opacity:0.5;"></i>
+            මේ මොහොතේ මෙම කාණ්ඩයේ බාගත කිරීම් නොමැත. (No downloads available in this category).
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        let catColor = "var(--bull)";
+        let catIcon = "fa-chart-simple";
+        if (item.category === "Software") {
+          catColor = "var(--cyan)";
+          catIcon = "fa-laptop-code";
+        } else if (item.category === "Template") {
+          catColor = "var(--gold)";
+          catIcon = "fa-file-lines";
+        }
+
+        let courseLabel = "All Courses (සියලු සිසුන්ට)";
+        if (item.course_id && item.course_id !== "all") {
+          const match = allCourses.find(c => c.id === item.course_id);
+          if (match) courseLabel = match.title;
+        }
+
+        return `
+          <div class="card card-glowing-bull" style="padding:24px;display:flex;flex-direction:column;justify-content:space-between;">
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <span class="badge" style="background:rgba(255,255,255,0.06);color:${catColor};border-color:${catColor};font-size:11px;">
+                  <i class="fa-solid ${catIcon}"></i> ${escapeHtml(item.category || "Tool")}
+                </span>
+                <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">
+                  <i class="fa-solid fa-graduation-cap"></i> ${escapeHtml(courseLabel)}
+                </span>
+              </div>
+
+              <h3 style="font-size:1.25rem;color:#fff;margin-bottom:8px;">
+                ${escapeHtml(item.title)}
+              </h3>
+
+              <p class="mu" style="font-size:13px;line-height:1.6;margin-bottom:18px;">
+                ${escapeHtml(item.description || "Download tool package provided by RV Academy.")}
+              </p>
+            </div>
+
+            <div>
+              <a href="${escapeHtml(item.link)}" target="_blank" class="btn btn-sm" style="width:100%;text-align:center;padding:10px;">
+                <i class="fa-solid fa-cloud-arrow-down"></i> Free Download ලබාගන්න →
+              </a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Staff Terminal | RV Academy Admin Command Center</title>
+  <link rel="icon" href="rvlogo.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/shared.js"></script>
+</head>
+<body>
+
+  <div id="main-nav"></div>
+
+  <main class="page-content">
+
+    <div class="row" style="margin-bottom:20px;">
+      <div>
+        <span class="badge badge-active" style="margin-bottom:6px;"><i class="fa-solid fa-lock"></i> RESTRICTED ACCESS</span>
+        <h1 style="font-size:2rem;margin-bottom:4px;">Academy Command Center</h1>
+        <p class="mu" style="font-size:13px;">Manage course curriculum, register student accounts, manage indicators/downloads, and private class requests.</p>
+      </div>
+      <div>
+        <span class="badge badge-active" style="padding:6px 14px;font-size:12px;">
+          <i class="fa-solid fa-shield-halved"></i> Super Admin: <strong>rvmainadmin</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Admin Navigation Tabs -->
+    <div class="tabs" style="flex-wrap:wrap;gap:8px;">
+      <button id="tab-btn-students" class="btn" onclick="switchAdminTab('students')">
+        <i class="fa-solid fa-user-plus"></i> Students
+      </button>
+      <button id="tab-btn-courses" class="btn btn-sec" onclick="switchAdminTab('courses')">
+        <i class="fa-solid fa-graduation-cap"></i> Courses &amp; Lessons
+      </button>
+      <button id="tab-btn-downloads" class="btn btn-sec" onclick="switchAdminTab('downloads')">
+        <i class="fa-solid fa-cloud-arrow-down"></i> Indicators &amp; Downloads
+      </button>
+      <button id="tab-btn-privateclasses" class="btn btn-sec" onclick="switchAdminTab('privateclasses')">
+        <i class="fa-solid fa-chalkboard-user"></i> Private Classes
+      </button>
+      <button id="tab-btn-requests" class="btn btn-sec" onclick="switchAdminTab('requests')">
+        <i class="fa-solid fa-envelope-open-text"></i> Lesson Requests
+      </button>
+      <button id="tab-btn-withdrawals" class="btn btn-sec" onclick="switchAdminTab('withdrawals')">
+        <i class="fa-solid fa-money-bill-transfer"></i> Payouts
+      </button>
+      <button id="tab-btn-pages" class="btn btn-sec" onclick="switchAdminTab('pages')">
+        <i class="fa-solid fa-sliders"></i> Site Content
+      </button>
+    </div>
+
+    <!-- Tab 1: Students & Registration -->
+    <div id="sec-students" class="admin-tab-pane">
+      
+      <!-- Register New Student Form -->
+      <div class="card card-glowing-bull" style="margin-bottom:24px;padding:26px;">
+        <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px;font-size:1.25rem;">
+          <i class="fa-solid fa-user-plus text-bull"></i> Register New Student (ශිෂ්‍ය ගිණුමක් සෑදීම)
+        </h3>
+        <p class="mu" style="font-size:13px;margin-bottom:18px;">
+          ශිෂ්‍යයා Payment එක සිදු කළ පසු ඔහු ලියාපදිංචි වූ Course එක තෝරා Username සහ Password එක සාදා ලබා දෙන්න:
+        </p>
+
+        <form onsubmit="handleAdminRegisterStudent(event)">
+          <div class="grid-3">
+            <div>
+              <label for="adm-st-name">Student Full Name</label>
+              <input type="text" id="adm-st-name" placeholder="e.g. Kasun Perera" required>
+            </div>
+
+            <div>
+              <label for="adm-st-user">Username (Login කිරීමට)</label>
+              <input type="text" id="adm-st-user" placeholder="e.g. kasun123" required>
+            </div>
+
+            <div>
+              <label for="adm-st-pw">Password</label>
+              <input type="text" id="adm-st-pw" placeholder="e.g. Kasun2026$" required>
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-top:8px;">
+            <div>
+              <label for="adm-st-email">Email Address</label>
+              <input type="email" id="adm-st-email" placeholder="kasun@example.com" required>
+            </div>
+
+            <div>
+              <label for="adm-st-phone">WhatsApp Number</label>
+              <input type="text" id="adm-st-phone" placeholder="e.g. 077 123 4567" required>
+            </div>
+
+            <div>
+              <label for="adm-st-course">Enrolled Course (පාඨමාලාව තෝරන්න)</label>
+              <select id="adm-st-course" required>
+                <!-- Loaded dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:16px;">
+            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;margin:0;text-transform:none;color:#fff;">
+              <input type="checkbox" id="adm-st-active" checked style="width:auto;margin:0;"> Immediate Course Access Active (වහාම පාඨමාලා නැරඹීමේ අවසරය ලබාදෙන්න)
+            </label>
+            <button type="submit" class="btn" style="padding:10px 22px;">
+              <i class="fa-solid fa-check"></i> Register Student &amp; Create Access
+            </button>
+          </div>
+        </form>
+
+        <!-- Newly Registered Credentials Display Card -->
+        <div id="new-cred-box" style="display:none;margin-top:20px;background:rgba(0,240,118,0.08);border:1px solid rgba(0,240,118,0.3);border-radius:var(--radius-sm);padding:16px;">
+          <strong style="color:var(--bull);display:block;margin-bottom:8px;">
+            <i class="fa-solid fa-circle-check"></i> Student Account Successfully Created!
+          </strong>
+          <div id="new-cred-text" style="font-family:var(--font-mono);font-size:13px;color:#fff;line-height:1.7;"></div>
+          <div style="margin-top:12px;display:flex;gap:10px;">
+            <button class="btn btn-sm btn-sec" onclick="copyCreatedCredentials()"><i class="fa-solid fa-copy"></i> Copy Credentials</button>
+            <a id="btn-send-wa-cred" target="_blank" class="btn btn-sm btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Send to Student via WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Students List -->
+      <div class="row" style="margin-bottom:14px;">
+        <h3 style="font-size:1.2rem;">All Enrolled Students</h3>
+        <input type="text" id="student-search-input" placeholder="Search by name, username or email..." oninput="filterStudents()" style="max-width:300px;padding:7px 12px;font-size:13px;">
+      </div>
+      <div id="admin-students-list">
+        <p class="mu"><i class="fa-solid fa-spinner fa-spin"></i> Loading students list...</p>
+      </div>
+    </div>
+
+    <!-- Tab 2: Courses & Lessons -->
+    <div id="sec-courses" class="admin-tab-pane" style="display:none;">
+      <div class="card card-glowing-bull" style="margin-bottom:24px;padding:24px;">
+        <h3 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <i class="fa-solid fa-plus-circle text-bull"></i> Add New Trading Program
+        </h3>
+        <div class="row">
+          <input type="text" id="new-course-title" placeholder="e.g. Advanced Forex &amp; Gold SMC Scalping Masterclass" style="flex:1;">
+          <button class="btn" onclick="handleCreateCourse()">
+            <i class="fa-solid fa-plus"></i> Create Course
+          </button>
+        </div>
+      </div>
+
+      <div id="admin-courses-list">
+        <p class="mu"><i class="fa-solid fa-spinner fa-spin"></i> Loading courses...</p>
+      </div>
+    </div>
+
+    <!-- Tab 3: Downloads & Tools Management -->
+    <div id="sec-downloads" class="admin-tab-pane" style="display:none;">
+      <div class="card card-glowing-bull" style="margin-bottom:24px;padding:26px;">
+        <h3 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <i class="fa-solid fa-cloud-arrow-down text-bull"></i> Add New Indicator / Tool Download
+        </h3>
+        <p class="mu" style="font-size:13px;margin-bottom:18px;">
+          පාඨමාලාව හදාරන සිසුන්ට නොමිලේ හිමිවන Indicators, MT5 Scripts, Softwares හෝ Templates මෙතැනින් එකතු කරන්න. මෙය Student Portal එකේ Downloads පිටුවට ස්වයංක්‍රීයව එක්වේ.
+        </p>
+
+        <form onsubmit="handleAddDownload(event)">
+          <div class="grid-3">
+            <div>
+              <label for="adm-dl-title">Resource Title (නම)</label>
+              <input type="text" id="adm-dl-title" placeholder="e.g. SMC Order Block Indicator MT5" required>
+            </div>
+
+            <div>
+              <label for="adm-dl-cat">Category (කාණ්ඩය)</label>
+              <select id="adm-dl-cat" required>
+                <option value="Indicator">Indicator (MetaTrader / PineScript)</option>
+                <option value="Software">Software &amp; Bot Script</option>
+                <option value="Template">Template &amp; Excel Sheet</option>
+                <option value="PDF Guide">PDF Guide &amp; Cheat Sheet</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="adm-dl-course">Target Course (අදාළ පාඨමාලාව)</label>
+              <select id="adm-dl-course" required>
+                <option value="all">All Courses (සියලු සිසුන්ට)</option>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label for="adm-dl-desc">Short Description (විස්තරය)</label>
+            <input type="text" id="adm-dl-desc" placeholder="e.g. MetaTrader 5 order block detector and liquidity sweep highlighter." required>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label for="adm-dl-link">Download / Google Drive Share Link</label>
+            <input type="url" id="adm-dl-link" placeholder="https://drive.google.com/..." required>
+          </div>
+
+          <div style="margin-top:16px;">
+            <button type="submit" class="btn" style="padding:10px 22px;">
+              <i class="fa-solid fa-plus"></i> Add Download Resource
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <h3 style="margin-bottom:14px;font-size:1.2rem;">Existing Downloads &amp; Tools</h3>
+      <div id="admin-downloads-list">
+        <p class="mu"><i class="fa-solid fa-spinner fa-spin"></i> Loading downloads...</p>
+      </div>
+    </div>
+
+    <!-- Tab 4: Private Class Requests -->
+    <div id="sec-privateclasses" class="admin-tab-pane" style="display:none;">
+      <h3 style="margin-bottom:14px;font-size:1.2rem;">Student Private Class Requests (පෞද්ගලික පන්ති ඉල්ලීම්)</h3>
+      <p class="mu" style="font-size:13px;margin-bottom:18px;">
+        සිසුන් විසින් Student Portal එකෙන් යොමුකළ 1-on-1 Mentorship ඉල්ලීම්. WhatsApp button එක ක්ලික් කර ශිෂ්‍යයා සමග සෘජුව සම්බන්ධ වන්න:
+      </p>
+      <div id="admin-private-classes-list">
+        <p class="mu"><i class="fa-solid fa-spinner fa-spin"></i> Loading private class requests...</p>
+      </div>
+    </div>
+
+    <!-- Tab 5: Lesson Requests -->
+    <div id="sec-requests" class="admin-tab-pane" style="display:none;">
+      <h3 style="margin-bottom:14px;font-size:1.2rem;">Student Custom Video Topic Requests</h3>
+      <div id="admin-requests-list">
+        <p class="mu"><i class="fa-solid fa-spinner fa-spin"></i> Loading requests...</p>
+      </div>
+    </div>
+
+    <!-- Tab 6: Withdrawals -->
+    <div id="sec-withdrawals" class="admin-tab-pane" style="display:none;">
+      <h3 style="margin-bottom:14px;font-size:1.2rem;">Affiliate Commission Payouts</h3>
+      <div id="admin-withdrawals-list">
+        <p class="mu"><i class="fa-solid fa-spinner fa-spin"></i> Loading payout requests...</p>
+      </div>
+    </div>
+
+    <!-- Tab 7: Site Pages -->
+    <div id="sec-pages" class="admin-tab-pane" style="display:none;">
+      <h3 style="margin-bottom:14px;font-size:1.2rem;">Edit Public Pages Copy (Supabase Cloud Synced)</h3>
+      
+      <div class="card" style="margin-bottom:18px;padding:20px;">
+        <strong style="display:block;margin-bottom:8px;color:#fff;font-size:14px;">
+          <i class="fa-solid fa-circle-info text-bull"></i> About Us Content
+        </strong>
+        <textarea id="page-about" rows="5"></textarea>
+      </div>
+
+      <div class="card" style="margin-bottom:18px;padding:20px;">
+        <strong style="display:block;margin-bottom:8px;color:#fff;font-size:14px;">
+          <i class="fa-solid fa-headset text-bull"></i> Contact Channels (WhatsApp, Phone, Email, Office)
+        </strong>
+        <textarea id="page-contact" rows="5"></textarea>
+      </div>
+
+      <div class="card" style="margin-bottom:18px;padding:20px;">
+        <strong style="display:block;margin-bottom:8px;color:#fff;font-size:14px;">
+          <i class="fa-solid fa-triangle-exclamation text-bear"></i> Legal Terms &amp; Risk Disclosure
+        </strong>
+        <textarea id="page-legal" rows="5"></textarea>
+      </div>
+
+      <button class="btn" style="padding:12px 24px;" onclick="handleSavePages()">
+        <i class="fa-solid fa-floppy-disk"></i> Save &amp; Publish Changes
+      </button>
+    </div>
+
+  </main>
+
+  <div id="main-footer"></div>
+
+  <script>
+    let currentAdmin = null;
+    let allLoadedStudents = [];
+    let allLoadedCourses = [];
+    let lastCreatedCredText = "";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      renderNav("admin");
+      renderFooter();
+
+      currentAdmin = requireAdmin();
+      if (!currentAdmin) return;
+
+      loadAllAdminData();
+    });
+
+    function switchAdminTab(tabKey) {
+      const tabs = ["students", "courses", "downloads", "privateclasses", "requests", "withdrawals", "pages"];
+      tabs.forEach(t => {
+        const pane = document.getElementById(`sec-${t}`);
+        if (pane) pane.style.display = t === tabKey ? "block" : "none";
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (btn) btn.className = t === tabKey ? "btn" : "btn btn-sec";
+      });
+    }
+
+    async function loadAllAdminData() {
+      await loadAdminCourses();
+      await loadAdminStudents();
+      await loadAdminDownloads();
+      await loadAdminPrivateClasses();
+      await loadAdminRequests();
+      await loadAdminWithdrawals();
+      await loadAdminPages();
+    }
+
+    // --- STUDENT REGISTRATION ---
+    async function handleAdminRegisterStudent(e) {
+      e.preventDefault();
+      const name = document.getElementById("adm-st-name").value.trim();
+      const user = document.getElementById("adm-st-user").value.trim();
+      const pw = document.getElementById("adm-st-pw").value.trim();
+      const email = document.getElementById("adm-st-email").value.trim();
+      const phone = document.getElementById("adm-st-phone").value.trim();
+      const course = document.getElementById("adm-st-course").value;
+      const active = document.getElementById("adm-st-active").checked;
+
+      try {
+        const student = await RV_DB.adminRegisterStudent(name, user, email, pw, phone, course, active);
+
+        lastCreatedCredText = `RV Academy Student Login Details:\nWebsite: ${window.location.origin}/login.html\nUsername: ${student.username}\nPassword: ${student.pw}\nStatus: ${active ? 'Active' : 'Pending'}`;
+        
+        document.getElementById("new-cred-text").innerHTML = `
+          Student: <strong>${escapeHtml(student.name)}</strong><br>
+          Username: <strong>${escapeHtml(student.username)}</strong><br>
+          Password: <strong>${escapeHtml(student.pw)}</strong><br>
+          Phone/WhatsApp: <strong>${escapeHtml(student.phone)}</strong><br>
+          Partner Code: <strong>${escapeHtml(student.code)}</strong>
+        `;
+        document.getElementById("new-cred-box").style.display = "block";
+
+        const cleanPhone = phone.replace(/[^0-9]/g, "");
+        const waPhone = cleanPhone.startsWith("0") ? "94" + cleanPhone.slice(1) : cleanPhone;
+        const waMsg = `Hello ${name}! Welcome to RV Academy. 🎓\n\nYour Course Student Account has been created:\n\n🌐 Login Portal: ${window.location.origin}/login.html\n👤 Username: ${student.username}\n🔑 Password: ${student.pw}\n🎟️ Your Partner Code: ${student.code}\n\nYou can now log in to the Student Portal!`;
+        document.getElementById("btn-send-wa-cred").href = `https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`;
+
+        showToast("Student account created successfully!", "success");
+
+        // Reset form
+        document.getElementById("adm-st-name").value = "";
+        document.getElementById("adm-st-user").value = "";
+        document.getElementById("adm-st-pw").value = "";
+        document.getElementById("adm-st-email").value = "";
+        document.getElementById("adm-st-phone").value = "";
+
+        loadAdminStudents();
+      } catch (err) {
+        showToast(err.message || "Registration failed", "error");
+      }
+    }
+
+    function copyCreatedCredentials() {
+      if (!lastCreatedCredText) return;
+      navigator.clipboard.writeText(lastCreatedCredText);
+      showToast("Credentials copied to clipboard!", "success");
+    }
+
+    // --- STUDENTS LIST ---
+    async function loadAdminStudents() {
+      allLoadedStudents = await RV_DB.getUsers();
+      renderStudentsList(allLoadedStudents);
+    }
+
+    function renderStudentsList(students) {
+      const container = document.getElementById("admin-students-list");
+      if (!students || students.length === 0) {
+        container.innerHTML = `<div class="card mu" style="text-align:center;padding:30px;">No registered students found.</div>`;
+        return;
+      }
+
+      container.innerHTML = students.map(s => {
+        let courseName = "Institutional Trading Mastery";
+        if (s.enrolled_course) {
+          const match = allLoadedCourses.find(c => c.id === s.enrolled_course);
+          if (match) courseName = match.title;
+        }
+
+        return `
+          <div class="card" style="margin-bottom:10px;padding:16px;">
+            <div class="row">
+              <div>
+                <strong style="font-size:15px;color:#fff;">${escapeHtml(s.name)}</strong> 
+                <span class="badge ${s.active ? 'badge-active' : 'badge-pending'}" style="margin-left:8px;">
+                  <i class="fa-solid ${s.active ? 'fa-circle-check' : 'fa-clock'}"></i>
+                  ${s.active ? 'Active' : 'Pending Activation'}
+                </span>
+                <span class="badge" style="margin-left:6px;font-size:10px;">
+                  <i class="fa-solid fa-book"></i> ${escapeHtml(courseName)}
+                </span>
+                <div class="mu" style="font-size:12px;margin-top:4px;">
+                  Username: <strong style="color:var(--bull);">${escapeHtml(s.username || 'N/A')}</strong> • Email: <span style="color:#fff;">${escapeHtml(s.email)}</span> • Phone: <strong>${escapeHtml(s.phone || 'N/A')}</strong> • Partner Code: <span style="color:var(--gold);font-family:var(--font-mono);font-weight:700;">${escapeHtml(s.code || '---')}</span>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-sm ${s.active ? 'btn-sec' : ''}" onclick="handleToggleStudent('${s.id}')">
+                  <i class="fa-solid ${s.active ? 'fa-ban' : 'fa-check'}"></i>
+                  ${s.active ? 'Revoke' : 'Activate'}
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="handleDeleteStudent('${s.id}')">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function filterStudents() {
+      const q = document.getElementById("student-search-input").value.toLowerCase();
+      const filtered = allLoadedStudents.filter(s => 
+        (s.name && s.name.toLowerCase().includes(q)) || 
+        (s.username && s.username.toLowerCase().includes(q)) || 
+        (s.email && s.email.toLowerCase().includes(q)) || 
+        (s.phone && s.phone.toLowerCase().includes(q)) ||
+        (s.code && s.code.toLowerCase().includes(q))
+      );
+      renderStudentsList(filtered);
+    }
+
+    async function handleToggleStudent(id) {
+      const res = await RV_DB.toggleUserActive(id);
+      showToast(res ? "Student access activated!" : "Student access revoked.", "info");
+      loadAdminStudents();
+    }
+
+    async function handleDeleteStudent(id) {
+      if (!confirm("Permanently delete this student account?")) return;
+      await RV_DB.deleteUser(id);
+      showToast("Student deleted", "info");
+      loadAdminStudents();
+    }
+
+    // --- COURSES ---
+    async function loadAdminCourses() {
+      const list = document.getElementById("admin-courses-list");
+      allLoadedCourses = await RV_DB.getCourses();
+
+      // Populate student course dropdown
+      const stCourseSel = document.getElementById("adm-st-course");
+      if (stCourseSel) {
+        stCourseSel.innerHTML = allLoadedCourses.map(c => `
+          <option value="${c.id}">${escapeHtml(c.title)} (${escapeHtml(c.price || 'Rs. 25,000')})</option>
+        `).join("");
+      }
+
+      // Populate downloads course dropdown
+      const dlCourseSel = document.getElementById("adm-dl-course");
+      if (dlCourseSel) {
+        dlCourseSel.innerHTML = `<option value="all">All Courses (සියලු සිසුන්ට)</option>` + allLoadedCourses.map(c => `
+          <option value="${c.id}">${escapeHtml(c.title)}</option>
+        `).join("");
+      }
+
+      if (!allLoadedCourses || allLoadedCourses.length === 0) {
+        list.innerHTML = `<div class="card mu" style="text-align:center;padding:30px;">No courses found. Add one above!</div>`;
+        return;
+      }
+
+      list.innerHTML = allLoadedCourses.map(c => `
+        <div class="card card-glowing-bull" style="margin-bottom:24px;padding:24px;">
+          <div class="row" style="margin-bottom:12px;">
+            <input type="text" id="t_${c.id}" value="${escapeHtml(c.title)}" style="font-weight:800;font-size:1.15rem;flex:1;">
+            <input type="text" id="p_${c.id}" value="${escapeHtml(c.price || '')}" placeholder="Price (e.g. Rs. 25,000)" style="max-width:180px;">
+          </div>
+          
+          <label>Short Overview</label>
+          <input type="text" id="d_${c.id}" value="${escapeHtml(c.desc || '')}">
+
+          <label>Course Syllabus Details</label>
+          <textarea id="x_${c.id}" rows="3">${escapeHtml(c.details || '')}</textarea>
+
+          <div class="row" style="margin-top:14px;">
+            <button class="btn btn-sm" onclick="handleSaveCourse('${c.id}')"><i class="fa-solid fa-floppy-disk"></i> Save Details</button>
+            <button class="btn btn-sm btn-danger" onclick="handleDeleteCourse('${c.id}')"><i class="fa-solid fa-trash"></i> Delete Course</button>
+          </div>
+
+          <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:18px;">
+            <h4 style="margin-bottom:12px;color:var(--bull);"><i class="fa-solid fa-folder-tree"></i> Chapters &amp; Lessons</h4>
+            
+            <div class="row" style="margin-bottom:14px;">
+              <input type="text" id="new_chap_${c.id}" placeholder="New Chapter Title (e.g. Chapter 3 - Liquidity Sweeps)" style="flex:1;">
+              <button class="btn btn-sm btn-sec" onclick="handleAddChapter('${c.id}')">+ Add Chapter</button>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              ${(c.chapters || []).map(ch => `
+                <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;">
+                  <div class="row" style="margin-bottom:10px;">
+                    <strong style="color:#fff;"><i class="fa-solid fa-folder-open text-bull"></i> ${escapeHtml(ch.title)}</strong>
+                    <button class="btn btn-sm btn-danger" onclick="handleDeleteChapter('${c.id}', '${ch.id}')">Delete Chapter</button>
+                  </div>
+
+                  <div class="lesson-list" style="margin-bottom:12px;">
+                    ${(ch.lessons || []).map(l => `
+                      <div class="row" style="background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:6px;border:1px solid var(--border);">
+                        <span><i class="fa-solid fa-play text-bull" style="font-size:11px;margin-right:6px;"></i> ${escapeHtml(l.title)} <span class="mu" style="font-size:11px;">(Drive: ${escapeHtml(l.drive)})</span></span>
+                        <button class="btn btn-sm btn-danger" onclick="handleDeleteLesson('${c.id}', '${ch.id}', '${l.id}')">Delete</button>
+                      </div>
+                    `).join("")}
+                  </div>
+
+                  <div class="row">
+                    <input type="text" id="lt_${ch.id}" placeholder="Lesson Title" style="flex:1;">
+                    <input type="text" id="ll_${ch.id}" placeholder="Google Drive Shareable Link or File ID" style="flex:1;">
+                    <button class="btn btn-sm" onclick="handleAddLesson('${c.id}', '${ch.id}')">+ Add Lesson</button>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function handleCreateCourse() {
+      const title = document.getElementById("new-course-title").value.trim();
+      if (!title) return showToast("Enter course title", "error");
+      await RV_DB.addCourse(title);
+      document.getElementById("new-course-title").value = "";
+      showToast("Course created successfully!", "success");
+      loadAdminCourses();
+    }
+
+    async function handleSaveCourse(id) {
+      const title = document.getElementById(`t_${id}`).value.trim();
+      const price = document.getElementById(`p_${id}`).value.trim();
+      const desc = document.getElementById(`d_${id}`).value.trim();
+      const details = document.getElementById(`x_${id}`).value.trim();
+      await RV_DB.updateCourse(id, title, price, desc, details);
+      showToast("Course updated successfully!", "success");
+    }
+
+    async function handleDeleteCourse(id) {
+      if (!confirm("Permanently delete this entire course?")) return;
+      await RV_DB.deleteCourse(id);
+      showToast("Course deleted", "info");
+      loadAdminCourses();
+    }
+
+    async function handleAddChapter(courseId) {
+      const title = document.getElementById(`new_chap_${courseId}`).value.trim();
+      if (!title) return showToast("Enter chapter title", "error");
+      await RV_DB.addChapter(courseId, title);
+      showToast("Chapter added!", "success");
+      loadAdminCourses();
+    }
+
+    async function handleDeleteChapter(courseId, chapterId) {
+      if (!confirm("Delete chapter and all its lessons?")) return;
+      await RV_DB.deleteChapter(courseId, chapterId);
+      showToast("Chapter removed", "info");
+      loadAdminCourses();
+    }
+
+    async function handleAddLesson(courseId, chapterId) {
+      const title = document.getElementById(`lt_${chapterId}`).value.trim();
+      const link = document.getElementById(`ll_${chapterId}`).value.trim();
+
+      if (!title || !link) {
+        return showToast("Please enter title and Google Drive link/ID", "error");
+      }
+
+      const match = link.match(/[-\w]{25,}/);
+      const driveId = match ? match[0] : link;
+
+      await RV_DB.addLesson(courseId, chapterId, title, driveId);
+      showToast("Lesson uploaded!", "success");
+      loadAdminCourses();
+    }
+
+    async function handleDeleteLesson(courseId, chapterId, lessonId) {
+      if (!confirm("Delete lesson?")) return;
+      await RV_DB.deleteLesson(courseId, chapterId, lessonId);
+      showToast("Lesson deleted", "info");
+      loadAdminCourses();
+    }
+
+    // --- DOWNLOADS & RESOURCES ---
+    async function loadAdminDownloads() {
+      const list = document.getElementById("admin-downloads-list");
+      const dls = await RV_DB.getDownloads();
+
+      if (!dls || dls.length === 0) {
+        list.innerHTML = `<div class="card mu" style="text-align:center;padding:30px;">No downloads available yet.</div>`;
+        return;
+      }
+
+      list.innerHTML = dls.map(d => `
+        <div class="card" style="margin-bottom:12px;padding:16px;">
+          <div class="row">
+            <div>
+              <strong style="color:#fff;font-size:14px;">${escapeHtml(d.title)}</strong>
+              <span class="badge" style="margin-left:8px;font-size:10px;">${escapeHtml(d.category)}</span>
+              <span class="badge" style="margin-left:4px;font-size:10px;">Course: ${escapeHtml(d.course_id === 'all' ? 'All' : d.course_id)}</span>
+              <p class="mu" style="font-size:12px;margin:4px 0 0;">${escapeHtml(d.description)}</p>
+              <a href="${escapeHtml(d.link)}" target="_blank" style="font-size:11px;color:var(--bull);display:inline-block;margin-top:4px;">
+                <i class="fa-solid fa-link"></i> ${escapeHtml(d.link)}
+              </a>
+            </div>
+            <div>
+              <button class="btn btn-sm btn-danger" onclick="handleDeleteDownload('${d.id}')">
+                <i class="fa-solid fa-trash"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function handleAddDownload(e) {
+      e.preventDefault();
+      const title = document.getElementById("adm-dl-title").value.trim();
+      const category = document.getElementById("adm-dl-cat").value;
+      const courseId = document.getElementById("adm-dl-course").value;
+      const desc = document.getElementById("adm-dl-desc").value.trim();
+      const link = document.getElementById("adm-dl-link").value.trim();
+
+      await RV_DB.addDownload(courseId, title, category, desc, link);
+      showToast("Download resource added successfully!", "success");
+
+      document.getElementById("adm-dl-title").value = "";
+      document.getElementById("adm-dl-desc").value = "";
+      document.getElementById("adm-dl-link").value = "";
+
+      loadAdminDownloads();
+    }
+
+    async function handleDeleteDownload(id) {
+      if (!confirm("Delete this download resource?")) return;
+      await RV_DB.deleteDownload(id);
+      showToast("Resource removed", "info");
+      loadAdminDownloads();
+    }
+
+    // --- PRIVATE CLASS REQUESTS ---
+    async function loadAdminPrivateClasses() {
+      const container = document.getElementById("admin-private-classes-list");
+      const list = await RV_DB.getPrivateClassRequests();
+
+      if (!list || list.length === 0) {
+        container.innerHTML = `<div class="card mu" style="text-align:center;padding:30px;">No private class requests received yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(item => {
+        const cleanPhone = (item.phone || "").replace(/[^0-9]/g, "");
+        const waPhone = cleanPhone.startsWith("0") ? "94" + cleanPhone.slice(1) : cleanPhone;
+        const waMsg = `Hello ${item.name}! This is RV Academy regarding your 1-on-1 Private Class request on "${item.topic}". Are you ready to schedule your session?`;
+
+        return `
+          <div class="card" style="margin-bottom:14px;padding:18px;">
+            <div class="row" style="margin-bottom:8px;">
+              <div>
+                <strong style="color:#fff;font-size:15px;"><i class="fa-solid fa-user-graduate text-bull"></i> ${escapeHtml(item.name)}</strong>
+                <span class="badge ${item.status === 'contacted' ? 'badge-active' : 'badge-pending'}" style="margin-left:8px;">
+                  ${item.status === 'contacted' ? 'Contacted' : 'Pending Review'}
+                </span>
+                <span class="mu" style="font-size:12px;margin-left:8px;">Requested: ${escapeHtml(item.date || "")}</span>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <a href="https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}" target="_blank" class="btn btn-sm btn-whatsapp">
+                  <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
+                </a>
+                <button class="btn btn-sm ${item.status === 'contacted' ? 'btn-sec' : ''}" onclick="handleTogglePrivateClass('${item.id}', '${item.status === 'contacted' ? 'pending' : 'contacted'}')">
+                  ${item.status === 'contacted' ? 'Mark Pending' : 'Mark Contacted'}
+                </button>
+              </div>
+            </div>
+
+            <div style="font-size:13px;line-height:1.6;">
+              <div><strong style="color:var(--bull);">Topic:</strong> ${escapeHtml(item.topic)}</div>
+              <div><strong style="color:var(--gold);">Preferred Time:</strong> ${escapeHtml(item.pref_time || 'N/A')}</div>
+              ${item.notes ? `<div style="margin-top:4px;color:var(--text-muted);"><strong style="color:#fff;">Notes:</strong> ${escapeHtml(item.notes)}</div>` : ''}
+              <div style="margin-top:4px;"><strong style="color:var(--text-muted);">Phone:</strong> <span style="font-family:var(--font-mono);">${escapeHtml(item.phone)}</span></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function handleTogglePrivateClass(id, newStatus) {
+      await RV_DB.updatePrivateClassStatus(id, newStatus);
+      showToast("Request status updated!", "success");
+      loadAdminPrivateClasses();
+    }
+
+    // --- LESSON REQUESTS ---
+    async function loadAdminRequests() {
+      const container = document.getElementById("admin-requests-list");
+      const reqs = await RV_DB.getRequests();
+
+      if (!reqs || reqs.length === 0) {
+        container.innerHTML = `<div class="card mu" style="text-align:center;padding:30px;">No lesson requests submitted yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = reqs.map(r => `
+        <div class="card" style="margin-bottom:12px;padding:18px;">
+          <div class="row" style="margin-bottom:6px;">
+            <strong style="color:var(--bull);"><i class="fa-solid fa-user"></i> ${escapeHtml(r.name)}</strong>
+            <span class="mu" style="font-size:12px;"><i class="fa-regular fa-calendar"></i> ${escapeHtml(r.date || "")}</span>
+          </div>
+          <p style="white-space:pre-wrap;color:#f8fafc;font-size:14px;line-height:1.7;">${escapeHtml(r.text)}</p>
+        </div>
+      `).join("");
+    }
+
+    // --- WITHDRAWALS ---
+    async function loadAdminWithdrawals() {
+      const container = document.getElementById("admin-withdrawals-list");
+      const wd = await RV_DB.getWithdrawals();
+
+      if (!wd || wd.length === 0) {
+        container.innerHTML = `<div class="card mu" style="text-align:center;padding:30px;">No payout requests found.</div>`;
+        return;
+      }
+
+      container.innerHTML = wd.map(w => `
+        <div class="card" style="margin-bottom:10px;padding:16px;">
+          <div class="row">
+            <div>
+              <strong style="color:#fff;font-size:15px;">${escapeHtml(w.name)}:</strong> 
+              <span style="color:var(--bull);font-weight:800;font-size:16px;margin-left:6px;">${escapeHtml(w.amount)}</span>
+              <div class="mu" style="font-size:12px;margin-top:4px;">
+                Destination: <strong>${escapeHtml(w.acc)}</strong> • Date: ${escapeHtml(w.date || "")}
+              </div>
+            </div>
+            <div>
+              ${w.done ? '<span class="badge badge-active"><i class="fa-solid fa-check-double"></i> Completed</span>' : `
+                <button class="btn btn-sm" onclick="handleMarkWdDone('${w.id}')">
+                  <i class="fa-solid fa-check"></i> Mark as Paid
+                </button>
+              `}
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function handleMarkWdDone(id) {
+      await RV_DB.markWithdrawalDone(id);
+      showToast("Payout marked as completed!", "success");
+      loadAdminWithdrawals();
+    }
+
+    // --- SITE PAGES ---
+    async function loadAdminPages() {
+      const site = await RV_DB.getSiteSettings();
+      document.getElementById("page-about").value = site.about || "";
+      document.getElementById("page-contact").value = site.contact || "";
+      document.getElementById("page-legal").value = site.legal || "";
+    }
+
+    async function handleSavePages() {
+      const about = document.getElementById("page-about").value.trim();
+      const contact = document.getElementById("page-contact").value.trim();
+      const legal = document.getElementById("page-legal").value.trim();
+
+      await RV_DB.saveSiteSettings({ about, contact, legal });
+      showToast("Public pages updated successfully!", "success");
+    }
+  </script>
+</body>
+</html>

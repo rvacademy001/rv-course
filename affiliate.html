@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Partner Program &amp; Earnings | RV Academy Student LMS</title>
+  <link rel="icon" href="rvlogo.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/shared.js"></script>
+</head>
+<body>
+
+  <div id="main-nav"></div>
+
+  <main class="page-content" style="max-width:960px;">
+
+    <!-- Top Centerpiece: Total Earnings (ඔබ උපයාගත් මුළු මුදල) -->
+    <div class="card card-glowing-bull" style="padding:32px;margin-bottom:28px;background:linear-gradient(135deg, rgba(0,240,118,0.08), rgba(8,12,18,0.95));border:1px solid rgba(0,240,118,0.35);text-align:center;">
+      <span class="badge badge-active" style="margin-bottom:12px;font-size:11px;letter-spacing:1px;">
+        <i class="fa-solid fa-coins"></i> AFFILIATE COMMISSIONS
+      </span>
+      <h3 class="mu" style="font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;" data-si="ඔබ උපයාගත් මුළු මුදල (Total Earned)" data-en="Total Earned Commissions">
+        ඔබ උපයාගත් මුළු මුදල (Total Earned)
+      </h3>
+      <div id="aff-total-earnings" style="font-family:var(--font-heading);font-size:3rem;font-weight:900;color:var(--bull);line-height:1.2;margin-bottom:12px;">
+        Rs. 0.00
+      </div>
+      <p class="mu" style="font-size:13px;max-width:550px;margin:0 auto;">
+        ඔබ හඳුන්වා දුන් සිසුන් පාඨමාලාවට ලියාපදිංචි වී Payment එක සම්පූර්ණ කළ පසු හිමිවන මුළු කොමිස් මුදල.
+      </p>
+    </div>
+
+    <!-- Partner Code & Stats (NO REFERRAL LINK - CODE ONLY) -->
+    <div class="grid-3" style="margin-bottom: 28px;">
+      
+      <!-- Box 1: Your Official Partner Code -->
+      <div class="card card-glowing-bull" style="padding:22px;border-color:rgba(255,184,0,0.4);">
+        <div style="font-size:18px;color:var(--gold);margin-bottom:6px;"><i class="fa-solid fa-ticket"></i></div>
+        <span class="stat-label">ඔබගේ Partner Code එක</span>
+        <div class="row" style="margin-top:10px;">
+          <div id="partner-code-val" style="font-family:var(--font-mono);font-size:1.6rem;font-weight:800;color:var(--gold);letter-spacing:1px;">
+            ---
+          </div>
+          <button class="btn btn-sm btn-sec" onclick="copyPartnerCode()" style="padding:6px 14px;">
+            <i class="fa-solid fa-copy"></i> Copy
+          </button>
+        </div>
+      </div>
+
+      <!-- Box 2: Total Referred Students -->
+      <div class="card" style="padding:22px;">
+        <div style="font-size:18px;color:var(--bull);margin-bottom:6px;"><i class="fa-solid fa-user-group"></i></div>
+        <span class="stat-label">හඳුන්වාදුන් මුළු සිසුන්</span>
+        <div id="referrals-count" style="font-family:var(--font-heading);font-size:2rem;font-weight:800;color:#fff;margin-top:10px;">
+          0
+        </div>
+      </div>
+
+      <!-- Box 3: Supported Payout Methods -->
+      <div class="card" style="padding:22px;">
+        <div style="font-size:18px;color:var(--cyan);margin-bottom:6px;"><i class="fa-solid fa-building-columns"></i></div>
+        <span class="stat-label">මුදල් ලබාගැනීමේ ක්‍රම</span>
+        <div style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;color:#fff;margin-top:10px;">
+          Bank of Ceylon / USDT
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Clear How-To Instructions (Highlighting Code usage on Payment page) -->
+    <div class="card" style="margin-bottom: 30px;padding:24px;background:rgba(255,184,0,0.03);border:1px solid rgba(255,184,0,0.25);">
+      <div style="display:flex;align-items:flex-start;gap:14px;">
+        <div style="font-size:26px;color:var(--gold);margin-top:2px;">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <div>
+          <h3 style="font-size:1.15rem;color:#fff;margin-bottom:6px;">
+            නව සිසුන් හඳුන්වාදීමේ නිවැරදි ක්‍රමවේදය (How to Invite &amp; Earn)
+          </h3>
+          <p class="mu" style="font-size:13.5px;line-height:1.7;margin-bottom:10px;">
+            ඔබට වෙනම Referral Link එකක් නොමැත. ඒ වෙනුවට ඉහත සඳහන් වන්නේ ඔබගේ නිල <strong>Partner Code</strong> (ආකෘතිය: <code>RV(Name)Number</code>) එකයි.
+          </p>
+          <ul style="color:var(--text-muted);font-size:13px;line-height:1.7;padding-left:18px;margin:0;">
+            <li>ඔබ RV Academy වෙත නව සිසුවෙකු හඳුන්වා දෙන විට, ඔහු හෝ ඇය පාඨමාලා ගාස්තුව ගෙවන පිටුවේ (<strong>Payment Page</strong>) ඇති <strong>'Partner / Referral Code'</strong> ස්ථානයට ඔබගේ මෙම රහස්‍ය කේතය ඇතුළත් කිරීමට උපදෙස් දෙන්න.</li>
+            <li>එම ශිෂ්‍යයා Payment එක සම්පූර්ණ කළ පසු ස්වයංක්‍රීයව අදාළ කොමිස් මුදල ඔබගේ ගිණුමට එකතු වේ.</li>
+            <li>එකතු වූ මුදල් පහත පෝරමය මගින් ඔබගේ බැංකු ගිණුමට (BOC / Commercial) හෝ Binance USDT වෙත ලබාගත හැක.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Referred Members & Withdrawal Request Grid -->
+    <div class="grid-2" style="align-items:start;">
+      
+      <!-- Referred Members List -->
+      <div class="card" style="padding:26px;">
+        <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:1.15rem;">
+          <i class="fa-solid fa-users text-bull"></i> ඔබ යොමුකළ සිසුන් (Referred Students)
+        </h3>
+        <div id="referred-list">
+          <p class="mu" style="font-size:13px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading referrals...</p>
+        </div>
+      </div>
+
+      <!-- Withdrawal Request Form -->
+      <div class="card card-glowing-bull" style="padding:26px;">
+        <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:1.15rem;">
+          <i class="fa-solid fa-hand-holding-dollar text-bull"></i> කොමිස් මුදල් ලබාගැනීමට ඉල්ලුම් කරන්න
+        </h3>
+        
+        <label for="w-amount"><i class="fa-solid fa-coins"></i> මුදල් ප්‍රමාණය (Withdrawal Amount in LKR)</label>
+        <input type="text" id="w-amount" placeholder="e.g. Rs. 10,000">
+
+        <label for="w-acc"><i class="fa-solid fa-building-columns"></i> බැංකු ගිණුම / Binance USDT Pay ID</label>
+        <input type="text" id="w-acc" placeholder="Bank Name, Branch, Account Number, Account Name">
+
+        <div style="margin: 12px 0 16px;">
+          <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-main);text-transform:none;">
+            <input type="checkbox" id="w-save-acc" checked style="width:auto;margin:0;"> මගේ ගිණුමට මෙම බැංකු විස්තර Save කර තබන්න
+          </label>
+        </div>
+
+        <button type="button" class="btn" style="width:100%;padding:13px;" onclick="handleWithdrawal()">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Withdrawal Request එක යොමු කරන්න
+        </button>
+
+        <h4 style="margin-top:24px;margin-bottom:12px;font-size:13px;display:flex;align-items:center;gap:8px;text-transform:uppercase;color:var(--text-muted);">
+          <i class="fa-solid fa-clock-rotate-left"></i> Withdrawal History
+        </h4>
+        <div id="withdrawal-history">
+          <p class="mu" style="font-size:13px;">No past withdrawal requests.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div id="main-footer"></div>
+
+  <script>
+    let currentUser = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.I18N) window.I18N.apply();
+      renderStudentNav("affiliate");
+      renderFooter();
+
+      currentUser = requireAuth();
+      if (!currentUser) return;
+
+      const users = await RV_DB.getUsers();
+      currentUser = users.find(u => u.id === currentUser.id) || currentUser;
+
+      // Display Partner Code
+      document.getElementById("partner-code-val").textContent = currentUser.code || "---";
+
+      // Display Total Earned
+      const earnings = Number(currentUser.earnings || 0);
+      document.getElementById("aff-total-earnings").textContent = `Rs. ${earnings.toLocaleString()}`;
+
+      if (currentUser.acc) {
+        document.getElementById("w-acc").value = currentUser.acc;
+      }
+
+      loadReferredList(users);
+      loadWithdrawals();
+    });
+
+    function copyPartnerCode() {
+      const code = currentUser ? currentUser.code : "";
+      if (!code) return;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast("Partner Code එක Copy කරගන්නා ලදී: " + code, "success");
+      });
+    }
+
+    function loadReferredList(allUsers) {
+      const listContainer = document.getElementById("referred-list");
+      if (!allUsers) return;
+
+      // Find students who were referred by this user
+      const referrals = allUsers.filter(u => u.ref === currentUser.id || (u.code && currentUser.code && u.ref === currentUser.code));
+      document.getElementById("referrals-count").textContent = referrals.length;
+
+      if (referrals.length === 0) {
+        listContainer.innerHTML = `
+          <div class="mu" style="text-align:center;padding:26px 14px;font-size:13px;">
+            <i class="fa-solid fa-user-plus" style="font-size:26px;display:block;margin-bottom:8px;opacity:0.4;"></i>
+            ඔබගේ Partner Code එක භාවිතා කර ලියාපදිංචි වූ සිසුන් තවමත් නොමැත.<br>
+            (No students referred yet).
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = referrals.map(r => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;">
+          <div>
+            <strong style="color:#fff;font-size:13px;">${escapeHtml(r.name)}</strong>
+            <div class="mu" style="font-size:11px;">Joined: ${escapeHtml(r.joined || "Recent")}</div>
+          </div>
+          <span class="badge ${r.active ? 'badge-active' : 'badge-pending'}" style="font-size:10px;">
+            ${r.active ? 'Active Enrolled' : 'Pending Verification'}
+          </span>
+        </div>
+      `).join("");
+    }
+
+    async function loadWithdrawals() {
+      const listContainer = document.getElementById("withdrawal-history");
+      const list = await RV_DB.getWithdrawals();
+      const myWd = list.filter(w => w.uid === currentUser.id);
+
+      if (myWd.length === 0) {
+        listContainer.innerHTML = `<p class="mu" style="font-size:12px;">තවමත් Withdrawals නොමැත. (No withdrawal requests yet).</p>`;
+        return;
+      }
+
+      listContainer.innerHTML = myWd.map(w => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;">
+          <div>
+            <strong style="color:var(--bull);">${escapeHtml(w.amount)}</strong>
+            <span class="mu">(${escapeHtml(w.date || "")})</span>
+          </div>
+          <span class="badge ${w.done ? 'badge-active' : 'badge-pending'}" style="font-size:9px;">
+            ${w.done ? 'Paid (සම්පූර්ණයි)' : 'Processing'}
+          </span>
+        </div>
+      `).join("");
+    }
+
+    async function handleWithdrawal() {
+      const amount = document.getElementById("w-amount").value.trim();
+      const acc = document.getElementById("w-acc").value.trim();
+      const saveAcc = document.getElementById("w-save-acc").checked;
+
+      if (!amount || !acc) {
+        showToast("Please enter withdrawal amount and account details.", "error");
+        return;
+      }
+
+      if (saveAcc) {
+        await RV_DB.updateProfile(currentUser.id, currentUser.name, currentUser.phone, acc);
+      }
+
+      await RV_DB.addWithdrawal(currentUser.id, currentUser.name, amount, acc);
+      showToast("Withdrawal request submitted to Admin!", "success");
+      document.getElementById("w-amount").value = "";
+      loadWithdrawals();
+    }
+  </script>
+</body>
+</html>

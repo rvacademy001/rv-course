@@ -1,284 +1,366 @@
 <!DOCTYPE html>
-<html lang="si">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RV ACADEMY | Trading Mastery — Sri Lanka's #1 Trading Academy</title>
-  <meta name="description" content="RV ACADEMY — ශ්‍රී ලංකාවේ #1 Trading Education Platform. Forex සහ Crypto Trading හරියටම ඉගෙන ගන්න. Basic සිට Pro Trader කෙනෙක් වෙනකම්.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    /* ---- Page-specific styles ---- */
-    .hero { min-height: 90vh; display: flex; align-items: center; padding: 60px 0; }
-    
-    /* Testimonial row */
-    .testimonial-row {
-      display: flex; gap: 16px; overflow-x: auto; padding: 10px 4px 20px;
-      -ms-overflow-style: none; scrollbar-width: none;
-    }
-    .testimonial-row::-webkit-scrollbar { display: none; }
-    .testimonial-card {
-      flex-shrink: 0; width: 290px; background: var(--surface);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 24px; transition: border-color var(--transition), transform var(--transition);
-    }
-    .testimonial-card:hover { border-color: var(--border2); transform: translateY(-2px); }
-    .stars { color: var(--green); font-size: 14px; margin-bottom: 10px; letter-spacing: 2px; }
-    .testimonial-text { color: var(--text2); font-size: 13.5px; line-height: 1.65; margin-bottom: 14px; }
-    .testimonial-author { display: flex; align-items: center; gap: 10px; }
-    .author-avatar {
-      width: 34px; height: 34px; border-radius: 50%;
-      background: var(--brand-grad);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 800; color: #020203; flex-shrink: 0;
-    }
-    .author-name { font-weight: 700; font-size: 13px; }
-    .author-tag { color: var(--muted); font-size: 11.5px; }
-
-    /* How it works */
-    .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
-    .step { text-align: center; padding: 28px 16px; }
-    .step-num {
-      width: 50px; height: 50px; border-radius: 50%;
-      background: var(--surface2); border: 2px solid var(--green);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700;
-      color: var(--green); margin: 0 auto 16px;
-    }
-    .step h4 { font-size: 15px; margin-bottom: 8px; }
-    .step p { color: var(--muted); font-size: 13px; line-height: 1.6; }
-    @media (max-width: 860px) { .steps { grid-template-columns: repeat(2,1fr); } }
-    @media (max-width: 500px) { .steps { grid-template-columns: 1fr; } }
-
-    /* Floating badge */
-    .float-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--green-dim); border: 1px solid rgba(0, 210, 122, 0.2);
-      border-radius: 999px; padding: 5px 14px; font-size: 12px;
-      color: var(--green); font-weight: 600; margin-bottom: 20px;
-      animation: pulse 2s ease infinite;
-    }
-    .float-badge::before { content: '●'; font-size: 8px; animation: pulse 1.5s ease infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>RV Academy | Sri Lanka's #1 Institutional Trading Mentorship</title>
+  <link rel="icon" href="rvlogo.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/shared.js"></script>
 </head>
-<body class="lang-si">
-<div class="app">
+<body>
 
-  <!-- ===== NAVBAR ===== -->
-  <nav class="navbar">
-    <div class="nav-inner">
-      <a href="index.html" class="brand">
-        <span class="mark">RV</span>
-        <span>RV <span class="rv">ACADEMY</span></span>
-      </a>
-      <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
-      <div class="nav-links" id="navLinks">
-        <a href="index.html" data-page="index.html" class="active">
-          <span class="si-text">මුල් පිටුව</span>
-          <span class="en-text">Home</span>
+  <!-- Navigation with Compact Live Ticker and Language Toggle -->
+  <div id="main-nav"></div>
+
+  <!-- Page Content -->
+  <main class="page-content">
+
+    <div id="backend-notice"></div>
+
+    <!-- Live Market Session Indicator Banner -->
+    <div class="session-card">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="pulse-dot"></span>
+        <div>
+          <strong style="color:#fff;font-size:13px;" data-si="🕒 සජීවී Market Sessions (Sri Lanka Time)" data-en="🕒 Active Market Sessions (Sri Lanka Time)">
+            🕒 සජීවී Market Sessions (Sri Lanka Time)
+          </strong>
+          <div class="mu" style="font-size:11px;margin-top:2px;">
+            London Killzone: <strong>1:30 PM - 4:30 PM</strong> | New York Open: <strong>6:30 PM - 10:30 PM</strong>
+          </div>
+        </div>
+      </div>
+      <div>
+        <a href="https://wa.me/94765450055" target="_blank" class="btn btn-sm btn-whatsapp" style="font-size:12px;padding:6px 14px;">
+          <i class="fa-brands fa-whatsapp"></i> Hotline: 0765450055
         </a>
-        <a href="affiliates.html" data-page="affiliates.html">
-          <span class="si-text">Affiliate ලින්ක්</span>
-          <span class="en-text">Affiliates</span>
-        </a>
-        <a href="courses.html" data-page="courses.html">
-          <span class="si-text">කෝස්</span>
-          <span class="en-text">Courses</span>
-        </a>
-        <a href="about.html" data-page="about.html">
-          <span class="si-text">අපි ගැන</span>
-          <span class="en-text">About Us</span>
-        </a>
-        <a href="faq.html" data-page="faq.html">
-          <span class="si-text">FAQ</span>
-          <span class="en-text">FAQ</span>
-        </a>
-        <a href="contact.html" data-page="contact.html">
-          <span class="si-text">සම්බන්ධ වන්න</span>
-          <span class="en-text">Contact</span>
-        </a>
-        <a href="legal.html" data-page="legal.html">
-          <span class="si-text">නීතිමය</span>
-          <span class="en-text">Legal</span>
-        </a>
-        <span id="navAuthArea"></span>
       </div>
     </div>
-  </nav>
 
-  <main>
-    <!-- ===== HERO ===== -->
-    <section class="hero">
-      <div class="hero-bg"></div>
-      <div class="hero-grid"></div>
-      <div class="container">
-        <div class="hero-facelift">
-          <div class="hero-left">
-            <div class="float-badge">
-              <span class="si-text">ශ්‍රී ලංකාවේ #1 Trading Academy</span>
-              <span class="en-text">Sri Lanka's #1 Trading Academy</span>
-            </div>
-            <h1>
-              <span class="si-text">ඔබේ Trading <span class="accent">Journey</span> එක<br>අදම පටන් ගමු</span>
-              <span class="en-text">Start Your Trading <span class="accent">Journey</span><br>With Us Today</span>
-            </h1>
-            <p class="lead">
-              <span class="si-text">RV ACADEMY සමඟ Forex සහ Crypto Trading හරියටම ඉගෙන ගන්න. Basic සිට Pro Trader කෙනෙක් වෙනකම් අපි ඔබ සමඟ ඉන්නවා.</span>
-              <span class="en-text">Master Forex and Crypto trading with RV ACADEMY. We provide step-by-step guidance to take you from an absolute beginner to a profitable Pro Trader.</span>
-            </p>
-            <div class="hero-actions">
-              <a href="courses.html" class="btn btn-gold btn-lg">
-                <span class="si-text">කෝස් බලන්න →</span>
-                <span class="en-text">View Courses →</span>
-              </a>
-              <a href="https://wa.me/94765450055" id="heroWaLink" target="_blank" class="btn btn-ghost btn-lg">
-                <span class="si-text">💬 WhatsApp කරන්න</span>
-                <span class="en-text">💬 WhatsApp Us</span>
-              </a>
-            </div>
+    <!-- Uncommon Epic Hero Section -->
+    <section class="hero-epic" style="padding:40px 16px 60px;">
+      <div class="hero-pill">
+        <span class="pulse-dot"></span> 
+        <span data-si="SMART MONEY CONCEPTS (SMC) &amp; INSTITUTIONAL MASTERY" data-en="SMART MONEY CONCEPTS (SMC) &amp; INSTITUTIONAL MASTERY">
+          SMART MONEY CONCEPTS (SMC) &amp; INSTITUTIONAL MASTERY
+        </span>
+      </div>
+
+      <h1 class="hero-main-title">
+        <span data-si="වෙළඳපොලෙන් Stop Loss කන එක නවත්වන්න." data-en="Stop Losing To Bank Traps.">
+          වෙළඳපොලෙන් Stop Loss කන එක නවත්වන්න.
+        </span><br>
+        <span class="text-gradient" data-si="Banks ලා Trade කරන විදියටම Trade කරන්න." data-en="Trade Like Financial Institutions.">
+          Banks ලා Trade කරන විදියටම Trade කරන්න.
+        </span>
+      </h1>
+
+      <p class="hero-description" data-si="Lagging indicators සහ Fake Signal Groups පසුපස හඹායාමෙන් වළකින්න. නියම Institutional Order Flow, Liquidity Sweeps සහ 1% Risk Architecture මගින් ස්ථාවර ආදායමක් උපයන Trader කෙනෙක් වන්න." data-en="Avoid lagging retail indicators and fake signal traps. Master true Institutional Order Flow, Liquidity Sweeps, and High-Probability Risk Architecture engineered for consistent funding.">
+        Lagging indicators සහ Fake Signal Groups පසුපස හඹායාමෙන් වළකින්න. නියම Institutional Order Flow, Liquidity Sweeps සහ 1% Risk Architecture මගින් ස්ථාවර ආදායමක් උපයන Trader කෙනෙක් වන්න.
+      </p>
+
+      <!-- Centerpiece: Glowing Bull Logo with Floating Stats -->
+      <div class="hero-visual-center">
+        <div class="floating-stat stat-left">
+          <i class="fa-solid fa-chart-line text-bull" style="font-size:18px;"></i>
+          <div style="text-align:left;">
+            <div style="font-weight:700;font-size:13px;color:#fff;">82.4% Win Rate</div>
+            <div style="font-size:10px;color:var(--bull);">Institutional SMC</div>
           </div>
-          <div class="hero-right">
-            <div class="card glass-card" style="width: 100%; padding: 24px; position: relative;">
-              <div class="ticker" id="tickerSvg" style="height: 150px; margin-bottom: 20px;"></div>
-              <div class="stat-row stagger" style="margin-top: 10px; background: transparent; border: none;">
-                <div class="stat"><div class="num mono">3</div><div class="lbl">Levels</div></div>
-                <div class="stat"><div class="num mono">7</div><div class="lbl">Brokers</div></div>
-                <div class="stat"><div class="num mono">500+</div><div class="lbl">Students</div></div>
-                <div class="stat"><div class="num mono">∞</div><div class="lbl">Signals</div></div>
-              </div>
-            </div>
+        </div>
+
+        <img src="rvlogo.jpg" alt="RV Academy Bull Logo" class="hero-bull-avatar" style="width:150px;height:150px;">
+
+        <div class="floating-stat stat-right">
+          <i class="fa-solid fa-trophy text-gold" style="font-size:18px;"></i>
+          <div style="text-align:left;">
+            <div style="font-weight:700;font-size:13px;color:#fff;">$1.5M+ Funded</div>
+            <div style="font-size:10px;color:var(--gold);">Student Accounts</div>
           </div>
+        </div>
+      </div>
+
+      <div class="row" style="justify-content:center;gap:14px;">
+        <a class="btn" id="hero-cta" href="courses.html">
+          <i class="fa-solid fa-bolt"></i> 
+          <span data-si="පාඨමාලා විස්තර බලන්න &amp; Enroll වන්න" data-en="Explore Courses &amp; Enroll">පාඨමාලා විස්තර බලන්න &amp; Enroll වන්න</span>
+        </a>
+        <a class="btn btn-sec" href="about.html">
+          <i class="fa-brands fa-whatsapp text-bull"></i> 
+          <span data-si="නිල WhatsApp Groups වලට එක්වන්න" data-en="Join Our WhatsApp Groups">නිල WhatsApp Groups වලට එක්වන්න</span>
+        </a>
+      </div>
+
+      <!-- Trust Metrics Bar -->
+      <div class="trust-bar" style="margin-top:28px;">
+        <div class="trust-item">
+          <div class="trust-num text-bull">1,500+</div>
+          <div class="trust-label" data-si="සක්‍රීය ශිෂ්‍ය පිරිස" data-en="Active Students">සක්‍රීය ශිෂ්‍ය පිරිස</div>
+        </div>
+        <div style="height:25px;width:1px;background:var(--border);"></div>
+        <div class="trust-item">
+          <div class="trust-num text-pure">95+</div>
+          <div class="trust-label" data-si="Funded Traders" data-en="Funded Traders">Funded Traders</div>
+        </div>
+        <div style="height:25px;width:1px;background:var(--border);"></div>
+        <div class="trust-item">
+          <div class="trust-num text-gold">4.9 / 5.0</div>
+          <div class="trust-label">⭐⭐⭐⭐⭐ Review Score</div>
+        </div>
+        <div style="height:25px;width:1px;background:var(--border);"></div>
+        <div class="trust-item">
+          <div class="trust-num text-bull">1:4.5 Avg</div>
+          <div class="trust-label">Risk-to-Reward Ratio</div>
         </div>
       </div>
     </section>
 
-    <!-- ===== ABOUT ===== -->
-    <section class="section" style="border-top:1px solid var(--border)">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">
-            <span class="si-text">RV ACADEMY ගැන</span>
-            <span class="en-text">About RV ACADEMY</span>
-          </div>
-          <h2>
-            <span class="si-text">අපි කවුද?</span>
-            <span class="en-text">Who We Are</span>
+    <!-- Uncommon Section: Institutional Liquidity Model & Execution Blueprint -->
+    <section class="card card-glowing-bull" style="padding:32px;margin-bottom:60px;">
+      <div class="row" style="margin-bottom:20px;">
+        <div>
+          <span class="badge badge-active"><i class="fa-solid fa-microchip"></i> PROPRIETARY TRADING ARCHITECTURE</span>
+          <h2 style="font-size:1.6rem;margin-top:6px;" data-si="RV Institutional SMC ක්‍රමවේදය ක්‍රියාත්මක වන ආකාරය" data-en="How The RV Institutional SMC Model Executes">
+            RV Institutional SMC ක්‍රමවේදය ක්‍රියාත්මක වන ආකාරය
           </h2>
-          <p>
-            <span class="si-text">RV ACADEMY යනු ශ්‍රී ලාංකික ට්‍රේඩර්ලා සඳහා සකස් කරන ලද සම්පූර්ණ Trading Education Platform එකකි. Theory එක විතරක් නෙවෙයි, Live Market එකේ සැබෑ අත්දැකීම් එක්කම ඔබව Pro Trader කෙනෙක් කරනවා.</span>
-            <span class="en-text">RV ACADEMY is a fully structured trading education platform designed specifically for Sri Lankan traders. We go beyond theory to turn you into a profitable pro trader with live market experience.</span>
+        </div>
+      </div>
+
+      <div class="grid-4">
+        <div style="background:var(--bg-input);padding:20px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <div style="font-size:1.6rem;font-weight:900;color:var(--bull);font-family:var(--font-mono);margin-bottom:8px;">01. SWEEP</div>
+          <h4 style="margin-bottom:6px;color:#fff;">Liquidity Grab</h4>
+          <p class="mu" style="font-size:12px;line-height:1.6;">Asian Range highs සහ previous day lows වල ඇති Retail Stop Loss අත්පත් කර ගැනීම.</p>
+        </div>
+
+        <div style="background:var(--bg-input);padding:20px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <div style="font-size:1.6rem;font-weight:900;color:var(--cyan);font-family:var(--font-mono);margin-bottom:8px;">02. CHOCH</div>
+          <h4 style="margin-bottom:6px;color:#fff;">Change of Character</h4>
+          <p class="mu" style="font-size:12px;line-height:1.6;">Market Structure එක Institutional Order Flow එකට අනුකූලව වෙනස් වීම තහවුරු කිරීම.</p>
+        </div>
+
+        <div style="background:var(--bg-input);padding:20px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <div style="font-size:1.6rem;font-weight:900;color:var(--gold);font-family:var(--font-mono);margin-bottom:8px;">03. FVG MITIGATION</div>
+          <h4 style="margin-bottom:6px;color:#fff;">Imbalance Return</h4>
+          <p class="mu" style="font-size:12px;line-height:1.6;">මිල ආපසු Fair Value Gap එකට පැමිණෙන විට කුඩා Stop Loss එකක් සහිතව Entry එක ගැනීම.</p>
+        </div>
+
+        <div style="background:var(--bg-input);padding:20px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <div style="font-size:1.6rem;font-weight:900;color:var(--bull);font-family:var(--font-mono);margin-bottom:8px;">04. EXPANSION</div>
+          <h4 style="margin-bottom:6px;color:#fff;">1:5+ R:R Target</h4>
+          <p class="mu" style="font-size:12px;line-height:1.6;">Opposite side liquidity pool එක ඉලක්ක කර ඉහළ ලාභ අනුපාතයක් සහිතව Trade එක Close කිරීම.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mentor Spotlight Card -->
+    <section class="card" style="padding:32px;background:linear-gradient(135deg, rgba(15,21,35,0.95) 0%, rgba(9,12,20,0.98) 100%);margin-bottom:60px;">
+      <div class="row">
+        <div style="max-width:720px;">
+          <span class="badge badge-active" style="margin-bottom:8px;"><i class="fa-solid fa-user-tie"></i> LEAD MENTOR</span>
+          <h2 style="font-size:1.6rem;margin-bottom:8px;">Prashan Kavinda — Founder &amp; Head Trader</h2>
+          <p class="mu" style="font-size:14px;line-height:1.8;">
+            "වෙළඳපලෙන් ස්ථාවරව මුදල් උපයන්නට නම් ඔබට අවශ්‍ය වන්නේ බොහෝ indicators හෝ signals නොවේ. ඔබට අවශ්‍ය වන්නේ Banks ලා Liquidity හසුරුවන සැබෑ යාන්ත්‍රණය සහ 1% Risk එකක් තුළ දැඩි විනයක් පවත්වා ගැනීමයි. RV Academy හි මාගේ එකම ඉලක්කය ලංකාවේ තරුණ තරුණියන් ලොව විශාලතම Prop-Firm වලින් Funded Accounts ලබාගන්නා දක්ෂ Traders ලා බවට පත් කිරීමයි."
+          </p>
+          <div style="margin-top:14px;display:flex;align-items:center;gap:12px;">
+            <a href="https://wa.me/94765450055" target="_blank" class="btn btn-sm btn-whatsapp">
+              <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp (0765450055)
+            </a>
+            <a href="about.html" class="btn btn-sm btn-sec">
+              <i class="fa-solid fa-users"></i> All Community Channels →
+            </a>
+          </div>
+        </div>
+
+        <div style="text-align:center;padding:10px;">
+          <img src="rvlogo.jpg" alt="RV Academy" style="height:110px;width:110px;border-radius:20px;border:2px solid rgba(255,255,255,0.15);box-shadow:0 10px 30px rgba(0,0,0,0.8);">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--bull);margin-top:8px;">VERIFIED SMC MENTOR</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Courses Section -->
+    <section style="margin-bottom: 60px;">
+      <div class="row" style="margin-bottom: 24px;">
+        <div>
+          <span class="badge badge-active" style="margin-bottom:6px;">MASTERCLASS PROGRAMS</span>
+          <h2 style="font-size:1.6rem;" data-si="ප්‍රධාන පාඨමාලා (Featured Courses)" data-en="Featured Academy Courses">
+            ප්‍රධාන පාඨමාලා (Featured Courses)
+          </h2>
+          <p class="mu" style="font-size:13px;" data-si="Lifetime Updates සහ Mentor Support සහිත Full HD වීඩියෝ පාඨමාලාව." data-en="High-definition video lectures with lifetime updates and direct mentor support.">
+            Lifetime Updates සහ Mentor Support සහිත Full HD වීඩියෝ පාඨමාලාව.
           </p>
         </div>
-        <div class="bento-grid stagger">
-          <div class="card bento-card-large feat glass-card">
-            <div class="feat-icon">📚</div>
-            <h3>
-              <span class="si-text">ව්‍යුහගත Courses</span>
-              <span class="en-text">Structured Courses</span>
-            </h3>
-            <p>
-              <span class="si-text">Basic සිට Full Course දක්වා ඔබේ level එකට ගැලපෙන විදියට design කරපු structured syllabus එකක්.</span>
-              <span class="en-text">A structured syllabus designed for your specific skill level, taking you from complete beginner to pro.</span>
-            </p>
-          </div>
-          <div class="card feat glass-card">
-            <div class="feat-icon">📡</div>
-            <h3>
-              <span class="si-text">Lifetime Signal Group</span>
-              <span class="en-text">Lifetime Signal Group</span>
-            </h3>
-            <p>
-              <span class="si-text">ඕනෑම Course එකක් හෝ Broker Account එකක් හැදුවම Forex Signal Group access ලැබෙනවා.</span>
-              <span class="en-text">Get lifetime access to our premium Forex and Crypto signals when you join any course.</span>
-            </p>
-          </div>
-          <div class="card feat glass-card">
-            <div class="feat-icon">🤝</div>
-            <h3>
-              <span class="si-text">Official Broker Partners</span>
-              <span class="en-text">Official Broker Partners</span>
-            </h3>
-            <p>
-              <span class="si-text">XM, Exness, Bybit, Binance, Deriv, Bitget — විශ්වාසනීය Broker/Exchange හතක් සමඟ official partnership.</span>
-              <span class="en-text">Official partnerships with 7 trusted brokers/exchanges including XM, Exness, and Bybit.</span>
-            </p>
-          </div>
-          <div class="card bento-card-large feat glass-card">
-            <div class="feat-icon">🎯</div>
-            <h3>
-              <span class="si-text">Real-Market Focus</span>
-              <span class="en-text">Real-Market Focus</span>
-            </h3>
-            <p>
-              <span class="si-text">Theory පමණක් නෙවෙයි — Live trade analysis, market news, සහ real-time market commentary.</span>
-              <span class="en-text">Not just theoretical knowledge — get access to live trade analysis, real-time news commentary, and trade execution.</span>
-            </p>
-          </div>
-          <div class="card feat glass-card">
-            <div class="feat-icon">💬</div>
-            <h3>
-              <span class="si-text">Community Support</span>
-              <span class="en-text">Community Support</span>
-            </h3>
-            <p>
-              <span class="si-text">Students community, Q&A sessions, සහ peer support network — ඔබ හිඳින්නේ තනිවම නෙවෙයි.</span>
-              <span class="en-text">Join a growing community of active students with continuous Q&A sessions and peer support.</span>
-            </p>
-          </div>
-          <div class="card feat glass-card">
-            <div class="feat-icon">📓</div>
-            <h3>
-              <span class="si-text">Trading Journal</span>
-              <span class="en-text">Trading Journal</span>
-            </h3>
-            <p>
-              <span class="si-text">ඔබේ trading journey document කරන personal digital journal — growth track කරන්න.</span>
-              <span class="en-text">Document your personal trading journey with our digital journal to track your progress and performance.</span>
-            </p>
-          </div>
+        <a href="courses.html" class="btn btn-sec btn-sm">
+          <i class="fa-solid fa-arrow-right"></i> <span data-si="සියලුම පාඨමාලා බලන්න" data-en="View All Courses">සියලුම පාඨමාලා බලන්න</span>
+        </a>
+      </div>
+
+      <div class="grid" id="courses-grid">
+        <div class="card mu" style="text-align:center;padding:40px;">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size:20px;margin-bottom:8px;"></i>
+          <p>Syncing institutional course catalog...</p>
         </div>
       </div>
     </section>
 
-    <!-- ===== HOW IT WORKS ===== -->
-    <section class="section" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">
-            <span class="si-text">ක්‍රියා කරන ආකාරය</span>
-            <span class="en-text">How It Works</span>
+    <!-- Official Community Groups Grid Callout -->
+    <section class="card card-glowing-bull" style="padding:32px;margin-bottom:60px;">
+      <div style="text-align:center;margin-bottom:20px;">
+        <span class="badge badge-active"><i class="fa-brands fa-whatsapp"></i> FREE COMMUNITY ACCESS</span>
+        <h2 style="font-size:1.6rem;margin-top:6px;">අපගේ නිල WhatsApp Groups 1 - 5 ට දැන්ම එක්වන්න</h2>
+        <p class="mu" style="font-size:13px;">දිනපතා Market Analysis සහ Trade Setups නොමිලේ ලබාගැනීමට පහත Groups වලට සම්බන්ධ වන්න:</p>
+      </div>
+
+      <div class="grid-3">
+        <a href="https://chat.whatsapp.com/LTl2OEZtbWn9PQiQiuNXLm" target="_blank" class="social-card whatsapp">
+          <div>
+            <strong style="color:#fff;font-size:13px;">WhatsApp Group 01</strong>
+            <div class="mu" style="font-size:11px;">Market Structure &amp; SMC</div>
           </div>
-          <h2>
-            <span class="si-text">පහසු ලෙස ආරම්භ කරන්න</span>
-            <span class="en-text">Start Easily in 4 Steps</span>
-          </h2>
-        </div>
-        <div class="steps">
-          <div class="step">
-            <div class="step-num">01</div>
-            <h4>
-              <span class="si-text">Course එකක් තෝරන්න</span>
-              <span class="en-text">Choose a Course</span>
-            </h4>
-            <p>
-              <span class="si-text">ඔබේ level එකට ගැලපෙන Basic, Advance, හෝ Full Course එකක් select කරන්න.</span>
-              <span class="en-text">Select Basic, Advance, or the complete course based on your skill level.</span>
-            </p>
+          <span class="btn btn-sm btn-whatsapp">Join</span>
+        </a>
+
+        <a href="https://chat.whatsapp.com/IVk5ACechIK4L13TLB6jAf" target="_blank" class="social-card whatsapp">
+          <div>
+            <strong style="color:#fff;font-size:13px;">WhatsApp Group 02</strong>
+            <div class="mu" style="font-size:11px;">Order Blocks &amp; FVG</div>
           </div>
-          <div class="step">
-            <div class="step-num">02</div>
-            <h4>
-              <span class="si-text">Payment කරන්න</span>
-              <span class="en-text">Make Payment</span>
-            </h4>
-            <p>
-              <span class="si-text">Bank of Ceylon ගිණුමට transfer කරලා WhatsApp හරහා confirm කරන්න.</span>
-              <span class="en-text">Transfer to our Bank of Ceylon account and confirm via WhatsApp.</span>
-            </p>
+          <span class="btn btn-sm btn-whatsapp">Join</span>
+        </a>
+
+        <a href="https://whatsapp.com/channel/0029VbBeQltHgZWUAxtv252k" target="_blank" class="social-card whatsapp">
+          <div>
+            <strong style="color:#fff;font-size:13px;">WhatsApp Channel</strong>
+            <div class="mu" style="font-size:11px;">Official News &amp; Updates</div>
           </div>
-          <div class="step">
-            <div class="step-num">03</div>
-            <h4>
-              <span class="si-text">Account ලැබෙනවා</span>\n              <span class="en-text">Get Activated</span>\n            </h4>\n            <p>\n              <span class="si-text">Admin විසින් ඔබේ student account activate කර credentials දෙනවා.</span>\n              <span class="en-text">Admin will activate your student account and send your credentials.</span>\n            </p>\n          </div>\n          <div class="step">\n            <div class="step-num">04</div>\n            <h4>\n              <span class="si-text">Learning ආරම්භ!</span>\n              <span class="en-text">Start Learning!</span>\n            </h4>\n            <p>\n              <span class="si-text">Dashboard login වෙලා videos, community, journal — ඔක්කොම access කරන්න.</span>\n              <span class="en-text">Log in to the dashboard to access videos, community, and your journal.</span>\n            </p>\n          </div>\n        </div>\n      </div>\n    </section>\n\n    <!-- ===== SIGNAL BANNER ===== -->\n    <section class="section-sm">\n      <div class="container">\n        <div class="signal-banner">\n          <div>\n            <h3>\n              <span class="si-text">🎁 Lifetime Forex Signal Group — FREE</span>\n              <span class="en-text">🎁 FREE Lifetime Forex Signal Group</span>\n            </h3>\n            <p>\n              <span class="si-text">අපේ broker links හරහා account එකක් හැදුවම, ඔබට ලයිෆ් ටයිම් Signal Group එකට FREE access ලැබෙනවා. Course ගැනීම අනිවාර්ය නෑ!</span>\n              <span class="en-text">Create an account using our partner broker links and get FREE lifetime access to our Signal Group. Buying a course is not mandatory!</span>\n            </p>\n          </div>\n          <a href="affiliates.html" class="btn btn-gold" style="flex-shrink:0">\n            <span class="si-text">Broker එකක් තෝරන්න →</span>\n            <span class="en-text">Choose a Broker →</span>\n          </a>\n        </div>\n      </div>\n    </section>\n\n    <!-- ===== TESTIMONIALS ===== -->\n    <section class="section" style="border-top:1px solid var(--border)">\n      <div class="container">\n        <div class="section-head">\n          <div class="eyebrow">\n            <span class="si-text">Student Reviews</span>\n            <span class="en-text">Student Reviews</span>\n          </div>\n          <h2>\n            <span class="si-text">Students කිව්ව දේ</span>\n            <span class="en-text">What Our Students Say</span>\n          </h2>\n        </div>\n        <div class="testimonial-row">\n          <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"RV Academy නිසා Forex කියන්නේ මොකද කියල හරිම ලේසියෙන් තේරුණා. Admin ඉතාම supportive."</p><div class="testimonial-author"><div class="author-avatar">S</div><div><div class="author-name">Samitha P.</div><div class="author-tag">Basic Course</div></div></div></div>\n          <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"Advance course ගත්තාට පස්සේ TA ගැන ඉතාම clear understanding ලැබිලා profitable trade කරන්න පුළුවන් වුණා."</p><div class="testimonial-author"><div class="author-avatar">K</div><div><div class="author-name">Kasun R.</div><div class="author-tag">Advance Course</div></div></div></div>\n          <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"Full course + mentorship ගත්තාට ලොකු value ලැබිලා. Signal group also very useful!"</p><div class="testimonial-author"><div class="author-avatar">N</div><div><div class="author-name">Nipuna M.</div><div class="author-tag">Full Course</div></div></div></div>\n          <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"XM affiliate link ගත්තාට ඉතා ලේසියෙන් signal group join වෙන්නත් help කළා. Thank you RV!"</p><div class="testimonial-author"><div class="author-avatar">A</div><div><div class="author-name">Anusha G.</div><div class="author-tag">Signal Group Member</div></div></div></div>\n          <div class="testimonial-card"><div class="stars">★★★★☆</div><p class="testimonial-text">"Community එක ගොඩාක් helpful — ඕනෑම ප්‍රශ්නයකට ඉක්මනින් answer ලැබෙනවා."</p><div class="testimonial-author"><div class="author-avatar">D</div><div><div class="author-name">Dilshan W.</div><div class="author-tag">Advance Course</div></div></div></div>\n        </div>\n      </div>\n    </section>\n\n    <!-- ===== COURSES PREVIEW ===== -->\n    <section class="section" style="background:var(--surface);border-top:1px solid var(--border)">\n      <div class="container">\n        <div class="section-head">\n          <div class="eyebrow">\n            <span class="si-text">Courses</span>\n            <span class="en-text">Courses</span>\n          </div>\n          <h2>\n            <span class="si-text">ඔබට ගැලපෙන Course එක</span>\n            <span class="en-text">Choose Your Course</span>\n          </h2>\n        </div>\n        <div class="grid grid-3 stagger" id="homeCoursesGrid">\n          <div class="card" style="display:flex;align-items:center;justify-content:center;min-height:200px">\n            <div class="spinner"></div>\n          </div>\n        </div>\n        <div style="text-align:center;margin-top:32px\">\n          <a href="courses.html" class="btn btn-ghost btn-lg">\n            <span class="si-text">සියලු Courses බලන්න →</span>\n            <span class="en-text">View All Courses →</span>\n          </a>\n        </div>\n      </div>\n    </section>\n\n    <!-- ===== CTA ===== -->\n    <section class="section-sm" style="border-top:1px solid var(--border)">\n      <div class="container" style="text-align:center">\n        <div class="eyebrow" style="justify-content:center">\n          <span class="si-text">ආරම්භ කරන්න</span>\n          <span class="en-text">Get Started</span>\n        </div>\n        <h2 style="font-size:clamp(24px,3.5vw,38px);margin:16px 0;">\n          <span class="si-text">Trading Journey ආරම්භ කිරීමට<br>සූදානම්ද?</span>\n          <span class="en-text">Ready to Start Your<br>Trading Journey?</span>\n        </h2>\n        <p style="color:var(--text2);max-width:480px;margin:0 auto 28px;font-size:15px;line-height:1.7">\n          <span class="si-text">අද ලොගින් කරන්න, නැතිනම් course ගන්න — ඕනෑ දෙයකටත් WhatsApp හරහා connect වෙන්න.</span>\n          <span class="en-text">Login today, buy a course, or connect directly via WhatsApp for any support.</span>\n        </p>\n        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">\n          <a href="courses.html" class="btn btn-gold btn-lg">\n            <span class="si-text">Course ගන්න</span>\n            <span class="en-text">Buy Course</span>\n          </a>\n          <a href="https://wa.me/94765450055" id="ctaWaLink" target="_blank" class="btn btn-ghost btn-lg">WhatsApp</a>\n        </div>\n      </div>\n    </section>\n  </main>\n\n  <footer>\n  <div class="container">\n    <div class="footer-grid">\n      <div class="footer-brand">\n        <div class="mark">RV</div>\n        <div class="name">RV <span class="rv">ACADEMY</span></div>\n        <p>\n          <span class="si-text">ශ්රී ලංකාවේ #1 Trading Education Platform. Forex සහ Crypto Trading ඉගෙන ගන්න.</span>\n          <span class="en-text">Sri Lanka's #1 Trading Education Platform. Learn Forex and Crypto Trading.</span>\n        </p>\n      </div>\n      <div class="footer-col"><h4>Pages</h4><ul>\n        <li><a href="index.html"><span class="si-text">මුල් පිටුව</span><span class="en-text">Home</span></a></li>\n        <li><a href="courses.html"><span class="si-text">Courses</span><span class="en-text">Courses</span></a></li>\n        <li><a href="affiliates.html"><span class="si-text">Affiliates</span><span class="en-text">Affiliates</span></a></li>\n        <li><a href="about.html"><span class="si-text">අපි ගැන</span><span class="en-text">About Us</span></a></li>\n      </ul></div>\n      <div class="footer-col"><h4>Support</h4><ul>\n        <li><a href="faq.html"><span class="si-text">FAQ</span><span class="en-text">FAQ</span></a></li>\n        <li><a href="contact.html"><span class="si-text">Contact Us</span><span class="en-text">Contact Us</span></a></li>\n        <li><a href="legal.html"><span class="si-text">Legal Info</span><span class="en-text">Legal Info</span></a></li>\n        <li><a href="login.html"><span class="si-text">Login</span><span class="en-text">Login</span></a></li>\n      </ul></div>\n      <div class="footer-col"><h4>Contact</h4><ul>\n        <li><a href="mailto:rvacademyxm@gmail.com">📧 rvacademyxm@gmail.com</a></li>\n        <li><a href="https://wa.me/94765450055" id="footerWaLink" target="_blank">💬 WhatsApp</a></li>\n      </ul></div>\n    </div>\n    <div class="footer-bottom">\n      <span>© 2026 RV ACADEMY — Trading Education Sri Lanka</span>\n      <div class="footer-bottom-links\">\n        <a href="about.html">About</a>\n        <a href="legal.html">Legal</a>\n        <a href="contact.html">Contact</a>\n      </div>\n    </div>\n  </div>\n</footer>\n</div>\n\n<script src="db.js"></script>\n<script src="navbar.js"></script>\n<script>\n/* ===== Ticker SVG ===== */\nfunction renderTicker(){\n  const candles = [\n    {x:30,h:38,up:true},{x:72,h:60,up:true},{x:114,h:28,up:false},{x:156,h:72,up:true},\n    {x:198,h:45,up:false},{x:240,h:88,up:true},{x:282,h:36,up:false},{x:324,h:65,up:true},\n    {x:366,h:50,up:true},{x:408,h:30,up:false},{x:450,h:80,up:true},{x:492,h:42,up:false},\n    {x:534,h:95,up:true},{x:576,h:55,up:true},{x:618,h:40,up:false},{x:660,h:74,up:true},\n    {x:702,h:58,up:true},{x:744,h:33,up:false}\n  ];\n  const base = 130;\n  const rects = candles.map((c,i) => {\n    const color = c.up ? \"var(--green)\" : \"var(--red)\";\n    const w = 14;\n    return `<g class=\"candle\" style=\"animation-delay:${(i*0.05).toFixed(2)}s\">\n      <line x1=\"${c.x+w/2}\" y1=\"${base-c.h-12}\" x2=\"${c.x+w/2}\" y2=\"${base+8}\" stroke=\"${color}\" stroke-width=\"2\" opacity=\"0.5\"/>\n      <rect x=\"${c.x}\" y=\"${base-c.h}\" width=\"${w}\" height=\"${c.h}\" fill=\"${color}\" rx=\"2.5\"/>\n    </g>`;\n  }).join('');\n  const pathD = candles.map((c,i) => `${i===0?'M':'L'} ${c.x+7} ${base-c.h*0.55}`).join(' ');\n  document.getElementById('tickerSvg').innerHTML = `<svg viewBox=\"0 0 800 140\" preserveAspectRatio=\"xMidYMid meet\">\n    <defs>\n      <linearGradient id=\"tickerGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"0%\">\n        <stop offset=\"0%\" stop-color=\"var(--red)\"/>\n        <stop offset=\"100%\" stop-color=\"var(--green)\"/>\n      </linearGradient>\n    </defs>\n    <path d=\"${pathD}\" fill=\"none\" stroke=\"url(#tickerGrad)\" stroke-width=\"2.5\" class=\"tickline\" opacity=\"0.85\"/>\n    ${rects}\n  </svg>`;\n}\n\nasync function renderHomeCourses(){\n  await loadDB();\n  updateWaLinks();\n  const grid=document.getElementById(\"homeCoursesGrid\");\n  if(!grid)return;\n  const courses=Object.values(DB.courses).filter(c=>c.key!==\"settings\");\n  grid.innerHTML=courses.map(c=>`\n    <div class=\"card course-card\">\n      <div class=\"course-name\">${esc(c.title)}</div>\n      <div class=\"course-price mono\">Rs. ${esc(c.price)} <span><span class=\"si-text\">/ එකවර</span><span class=\"en-text\">/ one-time</span></span></div>\n      <div class=\"course-desc\">${esc(c.desc)}</div>\n      <a href="courses.html" class=\"btn btn-ghost btn-block\">\n        <span class=\"si-text\">විස්තර බලන්න →</span>\n        <span class=\"en-text\">View Details →</span>\n      </a>\n    </div>`).join(\"\");\n}\nfunction updateWaLinks(){\n  const wa=SYSTEM_SETTINGS.waNumber;\n  const h=document.getElementById(\"heroWaLink\");\n  if(h)h.href=\"https://wa.me/\"+wa;\n  const c=document.getElementById(\"ctaWaLink\");\n  if(c)c.href=\"https://wa.me/\"+wa;\n  const f=document.getElementById(\"footerWaLink\");\n  if(f)f.href=\"https://wa.me/\"+wa;\n}\ndocument.addEventListener('DOMContentLoaded', ()=>{initNavbar();renderTicker();renderHomeCourses();});\n</script>\n<script src="animations.js"></script>\n</body>\n</html>
+          <span class="btn btn-sm btn-whatsapp">Follow</span>
+        </a>
+      </div>
+
+      <div style="text-align:center;margin-top:20px;">
+        <a href="about.html" class="btn btn-sm btn-sec">
+          <i class="fa-solid fa-list"></i> සියලුම Groups 5 සහ TikTok / Facebook බලන්න →
+        </a>
+      </div>
+    </section>
+
+    <!-- Direct Enrollment CTA -->
+    <section class="card" style="background:radial-gradient(circle at center, rgba(0,240,118,0.15) 0%, rgba(9,12,20,0.95) 75%);border:1px solid rgba(0,240,118,0.3);text-align:center;padding:50px 20px;">
+      <h2 style="font-size:2rem;margin-bottom:12px;" data-si="වෘත්තීය Trader කෙනෙකු වීමට ඔබ සූදානම්ද?" data-en="Ready To Trade With Institutional Precision?">
+        වෘත්තීය Trader කෙනෙකු වීමට ඔබ සූදානම්ද?
+      </h2>
+      <p class="mu" style="max-width:560px;margin:0 auto 24px;font-size:14px;" data-si="Bank of Ceylon, Binance Pay (USDT) හෝ Skrill මගින් ගෙවා අදම ඔබගේ Course Enrollment එක තහවුරු කරගන්න." data-en="Enroll with Bank of Ceylon, Binance Pay (USDT), or Skrill for verified course access.">
+        Bank of Ceylon, Binance Pay (USDT) හෝ Skrill මගින් ගෙවා අදම ඔබගේ Course Enrollment එක තහවුරු කරගන්න.
+      </p>
+      <div class="row" style="justify-content:center;gap:14px;">
+        <a href="payment.html" class="btn" style="padding:12px 28px;font-size:15px;">
+          <i class="fa-solid fa-credit-card"></i> 
+          <span data-si="Register &amp; Make Payment" data-en="Register &amp; Enroll Now">Register &amp; Make Payment</span>
+        </a>
+        <a href="https://wa.me/94765450055" target="_blank" class="btn btn-sec" style="padding:12px 24px;font-size:14px;">
+          <i class="fa-brands fa-whatsapp text-bull"></i> WhatsApp (0765450055)
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <div id="main-footer"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.I18N) window.I18N.apply();
+      renderNav("home");
+      renderFooter();
+      renderBackendBanner("backend-notice");
+
+      const me = RV_Auth.getMe();
+      if (me) {
+        const heroCta = document.getElementById("hero-cta");
+        if (heroCta) {
+          heroCta.innerHTML = me.admin ? '<i class="fa-solid fa-lock"></i> Staff Command Center →' : '<i class="fa-solid fa-chart-line"></i> Go to Student Dashboard →';
+          heroCta.href = me.admin ? "admin.html" : "dashboard.html";
+        }
+      }
+
+      try {
+        const courses = await RV_DB.getCourses();
+        const grid = document.getElementById("courses-grid");
+        if (!courses || courses.length === 0) {
+          grid.innerHTML = `<div class="card mu" style="text-align:center;padding:30px;">No courses published yet.</div>`;
+          return;
+        }
+
+        const lang = window.I18N ? window.I18N.currentLang : "si";
+
+        grid.innerHTML = courses.map(c => {
+          const totalLessons = (c.chapters || []).reduce((acc, ch) => acc + (ch.lessons ? ch.lessons.length : 0), 0);
+          return `
+            <div class="course-card-epic">
+              <div class="course-banner" style="height:150px;">
+                <div class="course-badge-overlay">
+                  <span class="badge badge-active"><i class="fa-solid fa-fire"></i> Best Seller</span>
+                </div>
+                <div class="course-banner-icon" style="font-size:42px;">
+                  <i class="fa-solid fa-chart-simple"></i>
+                </div>
+              </div>
+
+              <div class="course-body">
+                <div>
+                  <div class="row" style="margin-bottom:10px;">
+                    <span class="badge" style="background:rgba(0,240,118,0.1);color:var(--bull);border:1px solid rgba(0,240,118,0.25);">
+                      <i class="fa-solid fa-circle-play"></i> ${totalLessons} Lessons
+                    </span>
+                    <span class="badge">
+                      <i class="fa-solid fa-infinity"></i> Lifetime Access
+                    </span>
+                  </div>
+
+                  <h3 style="margin-bottom:8px;font-size:1.2rem;">${escapeHtml(c.title)}</h3>
+                  <p class="mu" style="font-size:13px;margin-bottom:16px;line-height:1.6;">${escapeHtml(c.desc || "Step-by-step institutional order flow and market structure mastery.")}</p>
+                </div>
+
+                <div>
+                  <div class="row" style="margin-bottom:14px;border-top:1px solid var(--border);padding-top:12px;">
+                    <div>
+                      <div class="mu" style="font-size:10px;text-transform:uppercase;">Price / ආයෝජනය</div>
+                      <div style="font-family:var(--font-heading);font-size:1.4rem;font-weight:800;color:var(--bull);">
+                        ${escapeHtml(c.price || 'Rs. 25,000')}
+                      </div>
+                    </div>
+                    <div style="color:var(--gold);font-size:11px;">
+                      ⭐⭐⭐⭐⭐ (4.9)
+                    </div>
+                  </div>
+
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <a href="payment.html?course=${c.id}" class="btn" style="width:100%;padding:10px;">
+                      <i class="fa-solid fa-credit-card"></i> 
+                      ${lang === 'si' ? 'Register &amp; Payment කරන්න' : 'Enroll &amp; Pay Now'}
+                    </a>
+                    <a href="courses.html" class="btn btn-sec btn-sm" style="width:100%;">
+                      <i class="fa-solid fa-list-ul"></i> 
+                      ${lang === 'si' ? 'විෂය නිර්දේශය බලන්න' : 'View Syllabus'}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

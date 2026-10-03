@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Trader Profile Settings | RV Academy</title>
+  <link rel="icon" href="rvlogo.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/shared.js"></script>
+</head>
+<body>
+
+  <div id="main-nav"></div>
+
+  <main class="page-content" style="max-width:680px;">
+    <div id="backend-notice"></div>
+
+    <div style="margin-bottom:28px;">
+      <span class="badge badge-active" style="margin-bottom:8px;">ACCOUNT MANAGEMENT</span>
+      <h1>Profile &amp; Payout Settings</h1>
+      <p class="mu">Update your personal contact information, payout bank details, and security password.</p>
+    </div>
+
+    <div class="card card-glowing-bull" style="padding:36px;">
+      <form onsubmit="handleSaveProfile(event)">
+        <label for="p-name"><i class="fa-solid fa-user"></i> Full Legal Name</label>
+        <input type="text" id="p-name" required>
+
+        <label for="p-email"><i class="fa-solid fa-envelope"></i> Registered Email (Locked for Security)</label>
+        <input type="email" id="p-email" disabled>
+
+        <label for="p-phone"><i class="fa-solid fa-phone"></i> Phone / WhatsApp Number</label>
+        <input type="text" id="p-phone" placeholder="e.g. 077 123 4567">
+
+        <label for="p-acc"><i class="fa-solid fa-building-columns"></i> Default Bank Account for Payouts</label>
+        <input type="text" id="p-acc" placeholder="Bank Name, Branch, Account Number, Account Name">
+
+        <label for="p-pw"><i class="fa-solid fa-key"></i> Update Security Password</label>
+        <input type="password" id="p-pw" placeholder="Leave empty to keep your existing password">
+
+        <button type="submit" class="btn" style="width:100%;margin-top:24px;padding:14px;">
+          <i class="fa-solid fa-floppy-disk"></i> Save Profile Settings
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <div id="main-footer"></div>
+
+  <script>
+    let currentUser = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.I18N) window.I18N.apply();
+      renderStudentNav("profile");
+      renderFooter();
+
+      currentUser = requireAuth();
+      if (!currentUser) return;
+
+      const users = await RV_DB.getUsers();
+      currentUser = users.find(u => u.id === currentUser.id) || currentUser;
+
+      document.getElementById("p-name").value = currentUser.name || "";
+      document.getElementById("p-email").value = currentUser.email || "";
+      document.getElementById("p-phone").value = currentUser.phone || "";
+      document.getElementById("p-acc").value = currentUser.acc || "";
+    });
+
+    async function handleSaveProfile(e) {
+      e.preventDefault();
+      const name = document.getElementById("p-name").value.trim();
+      const phone = document.getElementById("p-phone").value.trim();
+      const acc = document.getElementById("p-acc").value.trim();
+      const newPw = document.getElementById("p-pw").value.trim();
+
+      if (!name) {
+        showToast("Full name cannot be empty", "error");
+        return;
+      }
+
+      try {
+        await RV_DB.updateProfile(currentUser.id, name, phone, acc, newPw);
+        currentUser.name = name;
+        currentUser.phone = phone;
+        currentUser.acc = acc;
+        if (newPw) currentUser.pw = newPw;
+        RV_Auth.setMe(currentUser);
+
+        showToast("Profile settings saved successfully!", "success");
+        document.getElementById("p-pw").value = "";
+      } catch (err) {
+        showToast("Error updating profile: " + err.message, "error");
+      }
+    }
+  </script>
+</body>
+</html>
