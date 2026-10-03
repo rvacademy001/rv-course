@@ -12,145 +12,340 @@
   <script src="js/supabase-client.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/shared.js"></script>
+  <style>
+    .course-card-compact {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .course-card-compact:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 240, 118, 0.18);
+    }
+    .course-card-compact.selected-card {
+      border-color: var(--bull) !important;
+      box-shadow: 0 0 30px rgba(0, 240, 118, 0.25) !important;
+      background: linear-gradient(180deg, rgba(0, 240, 118, 0.06) 0%, rgba(13, 17, 27, 0.98) 100%) !important;
+    }
+    .course-tab-pill {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .course-tab-pill:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    .course-tab-pill.active {
+      background: rgba(0, 240, 118, 0.12);
+      border-color: var(--bull);
+      color: #fff;
+      box-shadow: 0 0 15px rgba(0, 240, 118, 0.2);
+    }
+  </style>
 </head>
 <body>
 
   <div id="main-nav"></div>
 
   <main class="page-content">
-    <div id="backend-notice"></div>
 
-    <div style="text-align:center;margin:10px 0 36px;">
+    <!-- Page Header -->
+    <div style="text-align:center;margin:10px 0 32px;">
       <span class="badge badge-active" style="margin-bottom:10px;">
-        <i class="fa-solid fa-graduation-cap"></i> INSTITUTIONAL SYLLABUS
+        <i class="fa-solid fa-graduation-cap"></i> INSTITUTIONAL SYLLABUS &amp; CATALOG
       </span>
       <h1 data-si="ප්‍රවීණ Trading පාඨමාලා (Course Catalog)" data-en="Institutional Trading Curriculum">
         ප්‍රවීණ Trading පාඨමාලා (Course Catalog)
       </h1>
-      <p class="mu" style="max-width:650px;margin:8px auto 0;" data-si="නියම Price Action, Smart Money Concepts (SMC) සහ Risk Management මුල සිට සරලව ඉගෙන ගන්න." data-en="Master real institutional order flow, SMC frameworks, and risk architecture.">
-        නියම Price Action, Smart Money Concepts (SMC) සහ Risk Management මුල සිට සරලව ඉගෙන ගන්න.
+      <p class="mu" style="max-width:680px;margin:8px auto 0;" data-si="සියලුම පාඨමාලා එකවර සංසන්දනය කර ඔබට ගැළපෙන වැඩසටහන තෝරාගන්න. විෂය නිර්දේශය නැරඹීමට අදාළ පාඨමාලාව ක්ලික් කරන්න." data-en="Compare all programs side-by-side. Click any program to inspect its detailed syllabus and chapter breakdowns.">
+        සියලුම පාඨමාලා එකවර සංසන්දනය කර ඔබට ගැළපෙන වැඩසටහන තෝරාගන්න. විෂය නිර්දේශය නැරඹීමට අදාළ පාඨමාලාව ක්ලික් කරන්න.
       </p>
     </div>
 
-    <div id="course-container">
-      <div class="card mu" style="text-align:center;padding:50px;">
+    <!-- 1. Top Section: All Courses Grid (No course is missed!) -->
+    <div id="courses-overview-grid" class="grid-3" style="margin-bottom: 48px;">
+      <div class="card mu" style="grid-column: 1 / -1;text-align:center;padding:50px;">
         <i class="fa-solid fa-spinner fa-spin" style="font-size:24px;margin-bottom:12px;"></i>
-        <p>Loading course syllabus...</p>
+        <p>Loading course catalog...</p>
       </div>
     </div>
+
+    <!-- 2. Bottom Section: Detailed Interactive Syllabus Viewer -->
+    <div id="syllabus-viewer-section" style="scroll-margin-top: 100px;">
+      
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;border-top:1px solid var(--border);padding-top:36px;">
+        <div>
+          <span class="badge badge-active" style="margin-bottom:6px;"><i class="fa-solid fa-book-open"></i> IN-DEPTH BREAKDOWN</span>
+          <h2 style="font-size:1.6rem;" data-si="තෝරාගත් පාඨමාලාවේ සම්පූර්ණ විෂය නිර්දේශය" data-en="Selected Course Full Curriculum">
+            තෝරාගත් පාඨමාලාවේ සම්පූර්ණ විෂය නිර්දේශය
+          </h2>
+        </div>
+
+        <!-- Quick Switcher Tabs -->
+        <div id="course-tabs-bar" style="display:flex;flex-wrap:wrap;gap:8px;">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- Active Course Detail Display -->
+      <div id="selected-course-detail-container">
+        <!-- Rendered dynamically -->
+      </div>
+
+    </div>
+
   </main>
 
   <div id="main-footer"></div>
 
   <script>
+    let allCourses = [];
+    let selectedCourseId = null;
+
     document.addEventListener("DOMContentLoaded", async () => {
       if (window.I18N) window.I18N.apply();
       renderNav("courses");
       renderFooter();
-      renderBackendBanner("backend-notice");
-
-      const container = document.getElementById("course-container");
-      const me = RV_Auth.getMe();
-      const lang = window.I18N ? window.I18N.currentLang : "si";
 
       try {
-        const courses = await RV_DB.getCourses();
-        if (!courses || courses.length === 0) {
-          container.innerHTML = `<div class="card mu">No courses published yet.</div>`;
+        allCourses = await RV_DB.getCourses();
+        if (!allCourses || allCourses.length === 0) {
+          document.getElementById("courses-overview-grid").innerHTML = `<div class="card mu" style="grid-column: 1 / -1;text-align:center;padding:40px;">No courses published yet.</div>`;
           return;
         }
 
-        container.innerHTML = courses.map(c => {
-          const totalLessons = (c.chapters || []).reduce((acc, ch) => acc + (ch.lessons ? ch.lessons.length : 0), 0);
+        // Check if course query param is present
+        const params = new URLSearchParams(window.location.search);
+        const paramCourse = params.get("course");
+        if (paramCourse && allCourses.some(c => c.id === paramCourse)) {
+          selectedCourseId = paramCourse;
+        } else {
+          selectedCourseId = allCourses[0].id;
+        }
 
-          return `
-            <div class="card card-glowing-bull" style="margin-bottom:36px;padding:32px;">
-              <div class="row" style="margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:20px;">
-                <div>
-                  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                    <span class="badge badge-active"><i class="fa-solid fa-bolt"></i> Institutional Masterclass</span>
-                    <span class="badge"><i class="fa-solid fa-video"></i> ${totalLessons} HD Video Lessons</span>
-                  </div>
-                  <h2 style="font-size:2rem;margin-bottom:6px;">${escapeHtml(c.title)}</h2>
-                  <div style="font-family:var(--font-heading);font-size:1.8rem;font-weight:900;color:var(--bull);">
-                    ${escapeHtml(c.price || 'Rs. 25,000')}
-                  </div>
-                </div>
+        renderCoursesOverviewGrid();
+        renderCourseTabs();
+        renderSelectedCourseDetail();
 
-                <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                  <a href="payment.html?course=${c.id}" class="btn" style="padding:14px 26px;">
-                    <i class="fa-solid fa-credit-card"></i>
-                    ${lang === 'si' ? 'Register &amp; Payment කරන්න →' : 'Enroll &amp; Pay Now →'}
-                  </a>
-                  ${me && me.active ? `
-                    <a href="lessons.html" class="btn btn-sec" style="padding:14px 20px;">
-                      <i class="fa-solid fa-play"></i> Watch Lessons
-                    </a>
-                  ` : ''}
-                </div>
-              </div>
-
-              <p class="mu" style="font-size:15px;margin-bottom:24px;line-height:1.7;">
-                ${escapeHtml(c.desc || "")}
-              </p>
-
-              ${c.details ? `
-                <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:28px;">
-                  <strong style="display:block;margin-bottom:10px;color:#fff;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;">
-                    <i class="fa-solid fa-clipboard-check text-bull"></i> ${lang === 'si' ? 'පාඨමාලා විෂය නිර්දේශය (Syllabus Highlights):' : 'Course Syllabus &amp; Learning Outcomes:'}
-                  </strong>
-                  <pre style="font-size:14px;line-height:1.8;">${escapeHtml(c.details)}</pre>
-                </div>
-              ` : ''}
-
-              <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
-                <i class="fa-solid fa-bars-staggered text-bull"></i> ${lang === 'si' ? 'පාඩම් මාලාව (Curriculum Chapters)' : 'Detailed Chapters &amp; Lessons'}
-              </h3>
-
-              <div style="display:flex;flex-direction:column;gap:14px;">
-                ${(c.chapters || []).map((ch, idx) => `
-                  <div style="background:var(--bg-card-hover);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 20px;">
-                    <div class="row">
-                      <strong style="color:#fff;font-size:15px;">
-                        <span style="color:var(--bull);font-family:var(--font-mono);margin-right:8px;">${idx + 1 < 10 ? '0' + (idx + 1) : idx + 1}.</span> 
-                        ${escapeHtml(ch.title)}
-                      </strong>
-                      <span class="badge">${(ch.lessons || []).length} lessons</span>
-                    </div>
-
-                    ${ch.lessons && ch.lessons.length > 0 ? `
-                      <div class="lesson-list" style="margin-top:14px;">
-                        ${ch.lessons.map(l => `
-                          <div class="lesson-item" style="cursor:default;">
-                            <span><i class="fa-solid fa-play text-bull" style="font-size:11px;margin-right:8px;"></i> ${escapeHtml(l.title)}</span>
-                            <span class="badge" style="font-size:10px;"><i class="fa-solid fa-lock"></i> Members Only</span>
-                          </div>
-                        `).join("")}
-                      </div>
-                    ` : '<p class="mu" style="font-size:12px;margin-top:8px;">Lessons will be unlocked upon enrollment.</p>'}
-                  </div>
-                `).join("")}
-              </div>
-
-              <!-- Quick Enroll CTA Bar -->
-              <div style="margin-top:28px;text-align:center;background:rgba(0,240,118,0.06);border:1px solid rgba(0,240,118,0.25);border-radius:var(--radius-md);padding:20px;">
-                <h4 style="margin-bottom:6px;color:#fff;">
-                  ${lang === 'si' ? 'මෙම පාඨමාලාවට සම්බන්ධ වීමට සූදානම්ද?' : 'Ready To Join This Course?'}
-                </h4>
-                <p class="mu" style="font-size:13px;margin-bottom:14px;">
-                  ${lang === 'si' ? 'Bank Transfer, Binance Pay (USDT) හෝ Skrill මගින් ගෙවා දැන්ම සම්බන්ධ වන්න.' : 'Pay via Bank Transfer, Binance Pay (USDT) or Skrill.'}
-                </p>
-                <a href="payment.html?course=${c.id}" class="btn">
-                  <i class="fa-solid fa-arrow-right"></i> ${lang === 'si' ? 'Register &amp; Make Payment' : 'Enroll &amp; Pay Now'}
-                </a>
-              </div>
-            </div>
-          `;
-        }).join("");
+        if (paramCourse) {
+          setTimeout(() => {
+            const el = document.getElementById("syllabus-viewer-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }, 300);
+        }
       } catch (err) {
         console.error(err);
       }
     });
+
+    // 1. Render all 3 courses in a clean top comparison grid
+    function renderCoursesOverviewGrid() {
+      const grid = document.getElementById("courses-overview-grid");
+      const lang = window.I18N ? window.I18N.currentLang : "si";
+
+      grid.innerHTML = allCourses.map((c, idx) => {
+        const isSelected = c.id === selectedCourseId;
+        const totalLessons = (c.chapters || []).reduce((acc, ch) => acc + (ch.lessons ? ch.lessons.length : 0), 0);
+        const totalChapters = (c.chapters || []).length;
+
+        let badgeLabel = "MASTERCLASS";
+        if (idx === 0) badgeLabel = "🔥 MOST POPULAR";
+        if (idx === 1) badgeLabel = "⚡ PRO SCALPING";
+        if (idx === 2) badgeLabel = "🏆 PROP-FIRM ELITE";
+
+        return `
+          <div class="card card-glowing-bull course-card-compact ${isSelected ? 'selected-card' : ''}" id="card-overview-${c.id}" onclick="selectAndScrollToCourse('${c.id}', true)">
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <span class="badge ${idx === 0 ? 'badge-active' : ''}" style="font-size:11px;letter-spacing:0.8px;">
+                  ${badgeLabel}
+                </span>
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--gold);">
+                  <i class="fa-solid fa-star"></i> 4.9 Rating
+                </span>
+              </div>
+
+              <h3 style="font-size:1.35rem;margin-bottom:10px;line-height:1.3;color:#fff;">
+                ${escapeHtml(c.title)}
+              </h3>
+
+              <div style="margin-bottom:16px;">
+                <span class="mu" style="font-size:11px;text-transform:uppercase;display:block;">Investment / පාඨමාලා ගාස්තුව</span>
+                <span style="font-family:var(--font-heading);font-size:1.9rem;font-weight:900;color:var(--bull);">
+                  ${escapeHtml(c.price || 'Rs. 25,000')}
+                </span>
+              </div>
+
+              <p class="mu" style="font-size:13.5px;line-height:1.6;margin-bottom:20px;">
+                ${escapeHtml(c.desc || "Step-by-step institutional order flow and market structure mastery.")}
+              </p>
+
+              <!-- Feature Tags -->
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;">
+                <span class="badge" style="font-size:11px;"><i class="fa-solid fa-video text-bull"></i> ${totalLessons} Lessons</span>
+                <span class="badge" style="font-size:11px;"><i class="fa-solid fa-folder-tree text-cyan"></i> ${totalChapters} Chapters</span>
+                <span class="badge" style="font-size:11px;"><i class="fa-solid fa-infinity text-gold"></i> Lifetime Access</span>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <a href="payment.html?course=${c.id}" class="btn" style="width:100%;text-align:center;padding:12px;" onclick="event.stopPropagation()">
+                <i class="fa-solid fa-credit-card"></i> 
+                ${lang === 'si' ? 'Register &amp; Payment කරන්න' : 'Enroll &amp; Pay Now'}
+              </a>
+
+              <button type="button" class="btn btn-sec btn-sm" style="width:100%;padding:10px;" onclick="selectAndScrollToCourse('${c.id}', true); event.stopPropagation();">
+                <i class="fa-solid fa-list-check text-bull"></i> 
+                ${lang === 'si' ? 'විෂය නිර්දේශය &amp; විස්තර (View Syllabus) ↓' : 'View Full Syllabus ↓'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // 2. Render Course Switcher Tabs for the detailed view
+    function renderCourseTabs() {
+      const tabsBar = document.getElementById("course-tabs-bar");
+      tabsBar.innerHTML = allCourses.map(c => `
+        <button type="button" class="course-tab-pill ${c.id === selectedCourseId ? 'active' : ''}" onclick="selectCourseTab('${c.id}')">
+          <i class="fa-solid fa-graduation-cap"></i> ${escapeHtml(c.title.split('(')[0].trim())}
+        </button>
+      `).join("");
+    }
+
+    // 3. Render the selected course full syllabus & chapters
+    function renderSelectedCourseDetail() {
+      const container = document.getElementById("selected-course-detail-container");
+      const c = allCourses.find(item => item.id === selectedCourseId) || allCourses[0];
+      if (!c) return;
+
+      const lang = window.I18N ? window.I18N.currentLang : "si";
+      const totalLessons = (c.chapters || []).reduce((acc, ch) => acc + (ch.lessons ? ch.lessons.length : 0), 0);
+      const me = RV_Auth.getMe();
+
+      container.innerHTML = `
+        <div class="card card-glowing-bull" style="padding:32px;">
+          
+          <!-- Course Header Bar -->
+          <div class="row" style="margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:20px;">
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span class="badge badge-active"><i class="fa-solid fa-certificate"></i> Verified Syllabus</span>
+                <span class="badge"><i class="fa-solid fa-play-circle"></i> ${totalLessons} HD Video Lessons</span>
+              </div>
+              <h2 style="font-size:2rem;margin-bottom:6px;color:#fff;">${escapeHtml(c.title)}</h2>
+              <div style="font-family:var(--font-heading);font-size:1.8rem;font-weight:900;color:var(--bull);">
+                ${escapeHtml(c.price || 'Rs. 25,000')}
+              </div>
+            </div>
+
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <a href="payment.html?course=${c.id}" class="btn" style="padding:14px 26px;">
+                <i class="fa-solid fa-credit-card"></i>
+                ${lang === 'si' ? 'Register &amp; Payment කරන්න →' : 'Enroll &amp; Pay Now →'}
+              </a>
+              ${me && me.active ? `
+                <a href="lessons.html" class="btn btn-sec" style="padding:14px 20px;">
+                  <i class="fa-solid fa-play"></i> Watch Lessons
+                </a>
+              ` : ''}
+            </div>
+          </div>
+
+          <p class="mu" style="font-size:15px;margin-bottom:24px;line-height:1.7;">
+            ${escapeHtml(c.desc || "")}
+          </p>
+
+          <!-- Syllabus Highlights -->
+          ${c.details ? `
+            <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-md);padding:22px;margin-bottom:28px;">
+              <strong style="display:block;margin-bottom:10px;color:#fff;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;">
+                <i class="fa-solid fa-clipboard-check text-bull"></i> ${lang === 'si' ? 'පාඨමාලා විෂය නිර්දේශය (Syllabus Highlights):' : 'Course Syllabus &amp; Learning Outcomes:'}
+              </strong>
+              <pre style="font-size:14px;line-height:1.8;white-space:pre-wrap;font-family:inherit;color:var(--text-main);">${escapeHtml(c.details)}</pre>
+            </div>
+          ` : ''}
+
+          <!-- Chapters & Lessons Accordion/List -->
+          <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:1.3rem;">
+            <i class="fa-solid fa-bars-staggered text-bull"></i> 
+            ${lang === 'si' ? 'පාඩම් මාලාව සහ පරිච්ඡේද (Curriculum Chapters)' : 'Detailed Chapters &amp; Lessons'}
+          </h3>
+
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            ${(c.chapters || []).map((ch, idx) => `
+              <div style="background:var(--bg-card-hover);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 20px;">
+                <div class="row">
+                  <strong style="color:#fff;font-size:15px;">
+                    <span style="color:var(--bull);font-family:var(--font-mono);margin-right:8px;">${idx + 1 < 10 ? '0' + (idx + 1) : idx + 1}.</span> 
+                    ${escapeHtml(ch.title)}
+                  </strong>
+                  <span class="badge">${(ch.lessons || []).length} lessons</span>
+                </div>
+
+                ${ch.lessons && ch.lessons.length > 0 ? `
+                  <div class="lesson-list" style="margin-top:14px;">
+                    ${ch.lessons.map(l => `
+                      <div class="lesson-item" style="cursor:default;">
+                        <span><i class="fa-solid fa-play text-bull" style="font-size:11px;margin-right:8px;"></i> ${escapeHtml(l.title)}</span>
+                        <span class="badge" style="font-size:10px;"><i class="fa-solid fa-lock"></i> Members Only</span>
+                      </div>
+                    `).join("")}
+                  </div>
+                ` : '<p class="mu" style="font-size:12px;margin-top:8px;">Lessons will be unlocked upon enrollment.</p>'}
+              </div>
+            `).join("")}
+          </div>
+
+          <!-- Quick Enroll CTA Bar -->
+          <div style="margin-top:32px;text-align:center;background:rgba(0,240,118,0.06);border:1px solid rgba(0,240,118,0.25);border-radius:var(--radius-md);padding:24px;">
+            <h3 style="margin-bottom:6px;color:#fff;">
+              ${lang === 'si' ? 'මෙම පාඨමාලාවට සම්බන්ධ වීමට සූදානම්ද?' : 'Ready To Join This Program?'}
+            </h3>
+            <p class="mu" style="font-size:14px;margin-bottom:16px;">
+              ${lang === 'si' ? 'Bank Transfer (BOC), Binance Pay (USDT) හෝ Skrill මගින් ගෙවා දැන්ම සම්බන්ධ වන්න.' : 'Pay via Bank Transfer, Binance Pay (USDT) or Skrill.'}
+            </p>
+            <a href="payment.html?course=${c.id}" class="btn" style="padding:13px 30px;font-size:15px;">
+              <i class="fa-solid fa-arrow-right"></i> ${lang === 'si' ? 'Register &amp; Make Payment' : 'Enroll &amp; Pay Now'}
+            </a>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // Handle course selection from card or tab
+    function selectAndScrollToCourse(courseId, shouldScroll = false) {
+      selectedCourseId = courseId;
+      renderCoursesOverviewGrid();
+      renderCourseTabs();
+      renderSelectedCourseDetail();
+
+      if (shouldScroll) {
+        const viewer = document.getElementById("syllabus-viewer-section");
+        if (viewer) {
+          viewer.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }
+
+    function selectCourseTab(courseId) {
+      selectAndScrollToCourse(courseId, false);
+    }
   </script>
 </body>
 </html>

@@ -8,7 +8,7 @@
 const LOCAL_STORAGE_KEY = "rv_lms_v2";
 const SESSION_USER_KEY = "rv_me_secure";
 
-// Default Initial Courses Seed Data
+// Default Initial Courses Seed Data (3 Flagship Programs)
 const DEFAULT_COURSES = [
   {
     id: "c1",
@@ -30,6 +30,54 @@ const DEFAULT_COURSES = [
         title: "Chapter 2 - Risk Architecture & Trading Psychology",
         lessons: [
           { id: "l3", title: "2.1 The 1% Preservation Rule & Position Sizing", drive: "1sampleGoogleDriveIDhereGHI" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "c2",
+    title: "Advanced Forex & Gold SMC Scalping Blueprint",
+    price: "Rs. 35,000",
+    desc: "London & New York Killzones, XAU/USD (Gold) Precision Entries, FVG Sweeps and Sniper Intraday Execution.",
+    details: "Specialized Gold & Scalping Syllabus:\n- Asian Range Liquidity Accumulation & Manipulation\n- London Open Killzone Judases & Volatility Injections\n- New York Open Imbalance Mitigation & Institutional Expansion\n- Gold (XAU/USD) 1-Minute & 5-Minute Precision Execution Models\n- Dynamic Trailing Stops & Rapid Breakeven Management",
+    chapters: [
+      {
+        id: "ch3",
+        title: "Chapter 1 - Killzone Dynamics & Intraday Liquidity",
+        lessons: [
+          { id: "l4", title: "1.1 Asian Session High/Low Sweeps & Liquidity Profiling", drive: "1sampleGoogleDriveIDhereJKL" },
+          { id: "l5", title: "1.2 London Open Judas Swing Sniper Entry Framework", drive: "1sampleGoogleDriveIDhereMNO" }
+        ]
+      },
+      {
+        id: "ch4",
+        title: "Chapter 2 - Gold (XAU/USD) M1/M5 Scalping Setups",
+        lessons: [
+          { id: "l6", title: "2.1 Gold Specific Order Flow & News Trading Shield", drive: "1sampleGoogleDriveIDherePQR" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "c3",
+    title: "Prop-Firm Passing & Funded Trader Mentorship",
+    price: "Rs. 45,000",
+    desc: "$100K+ Funded Account Passing Strategies, Daily Drawdown Control, Rulebook Mastery and 1-on-1 Coaching.",
+    details: "Institutional Funded Account Roadmap:\n- FTMO & FundedNext Challenge Evaluation Rules Deep Dive\n- 0.5% Daily Loss Preservation Rulebook\n- High Risk-to-Reward (1:4+) Asymmetric Bet Sizing\n- Passing Phase 1 & Phase 2 Within 15 Trading Days\n- Scaling Up to $200,000+ Master Accounts & Consistency Psychology",
+    chapters: [
+      {
+        id: "ch5",
+        title: "Chapter 1 - Prop-Firm Math & Drawdown Mechanics",
+        lessons: [
+          { id: "l7", title: "1.1 Eliminating Risk of Ruin & Challenge Rules Audit", drive: "1sampleGoogleDriveIDhereSTU" },
+          { id: "l8", title: "1.2 Asymmetric R:R Setups to Clear Phase 1 in 8 Days", drive: "1sampleGoogleDriveIDhereVWX" }
+        ]
+      },
+      {
+        id: "ch6",
+        title: "Chapter 2 - Live Funded Account Trade Execution",
+        lessons: [
+          { id: "l9", title: "2.1 Managing Live Funded Capital & Profit Split Withdrawals", drive: "1sampleGoogleDriveIDhereYZ1" }
         ]
       }
     ]

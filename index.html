@@ -202,8 +202,8 @@
         </a>
       </div>
 
-      <div class="grid" id="courses-grid">
-        <div class="card mu" style="text-align:center;padding:40px;">
+      <div class="grid-3" id="courses-grid">
+        <div class="card mu" style="grid-column: 1 / -1;text-align:center;padding:40px;">
           <i class="fa-solid fa-spinner fa-spin" style="font-size:20px;margin-bottom:8px;"></i>
           <p>Syncing institutional course catalog...</p>
         </div>
@@ -347,7 +347,7 @@
                       <i class="fa-solid fa-credit-card"></i> 
                       ${lang === 'si' ? 'Register &amp; Payment කරන්න' : 'Enroll &amp; Pay Now'}
                     </a>
-                    <a href="courses.html" class="btn btn-sec btn-sm" style="width:100%;">
+                    <a href="courses.html?course=${c.id}" class="btn btn-sec btn-sm" style="width:100%;">
                       <i class="fa-solid fa-list-ul"></i> 
                       ${lang === 'si' ? 'විෂය නිර්දේශය බලන්න' : 'View Syllabus'}
                     </a>

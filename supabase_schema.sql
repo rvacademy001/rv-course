@@ -130,14 +130,20 @@ CREATE POLICY "Allow public all access on downloads" ON public.downloads FOR ALL
 CREATE POLICY "Allow public all access on withdrawals" ON public.withdrawals FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public all access on site_settings" ON public.site_settings FOR ALL USING (true) WITH CHECK (true);
 
--- Initial Seed Data
+-- Initial Seed Data (3 Flagship Programs)
 INSERT INTO public.courses (id, title, price, description, details) VALUES
-('c1', 'Institutional Trading Mastery (Beginner to Pro)', 'Rs. 25,000', 'Learn Market Structure, Liquidity Engineering, Order Blocks, and High-Probability SMC Execution.', 'Comprehensive 8-week curriculum covering true institutional price action, liquidity sweeps, FVG mitigation, 1% risk rules, and funded account passing strategy.')
+('c1', 'Institutional Trading Mastery (Beginner to Pro)', 'Rs. 25,000', 'Learn Market Structure, Liquidity Engineering, Order Blocks, and High-Probability SMC Execution.', 'Comprehensive 8-week curriculum covering true institutional price action, liquidity sweeps, FVG mitigation, 1% risk rules, and funded account passing strategy.'),
+('c2', 'Advanced Forex & Gold SMC Scalping Blueprint', 'Rs. 35,000', 'London & New York Killzones, XAU/USD (Gold) Precision Entries, FVG Sweeps and Sniper Intraday Execution.', 'Specialized Gold & Scalping Syllabus: Asian Range Manipulation, London Open Judas Swings, New York Imbalance Mitigation, and Gold 1-minute execution models.'),
+('c3', 'Prop-Firm Passing & Funded Trader Mentorship', 'Rs. 45,000', '$100K+ Funded Account Passing Strategies, Daily Drawdown Control, Rulebook Mastery and 1-on-1 Coaching.', 'Institutional Funded Account Roadmap: FTMO & FundedNext Challenge Evaluation Rules Deep Dive, 0.5% Daily Loss Preservation, Asymmetric R:R Bet Sizing, and Live Funded Capital Management.')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.chapters (id, course_id, title, sort_order) VALUES
 ('ch1', 'c1', 'Chapter 1 - Market Structure & Liquidity Mechanics', 1),
-('ch2', 'c1', 'Chapter 2 - Risk Architecture & Trading Psychology', 2)
+('ch2', 'c1', 'Chapter 2 - Risk Architecture & Trading Psychology', 2),
+('ch3', 'c2', 'Chapter 1 - Killzone Dynamics & Intraday Liquidity', 1),
+('ch4', 'c2', 'Chapter 2 - Gold (XAU/USD) M1/M5 Scalping Setups', 2),
+('ch5', 'c3', 'Chapter 1 - Prop-Firm Math & Drawdown Mechanics', 1),
+('ch6', 'c3', 'Chapter 2 - Live Funded Account Trade Execution', 2)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.downloads (id, course_id, title, category, description, link) VALUES
